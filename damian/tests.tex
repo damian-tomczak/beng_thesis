@@ -1,8 +1,11 @@
 \newpage
 
 \subsection{Tests}
-\subsubsection{Engine's Tester Header}
-\begin{lstlisting}[language=c++, caption=TesterEngine class (./engine/tests/tester.cpp)]
+Testing of software is very important nowadays with long-living software, an example of such long-living software are graphics engines.
+One of the simplest methods of testing the software are unit tests, this is how we implemented testing our engine.
+
+\subsubsection{Engine Tester Header}
+\begin{lstlisting}[language=c++, caption=Tester Engine class (./engine/tests/tester.cpp)]
 struct TesterEngine : public Engine
 {
     TesterEngine(std::chrono::steady_clock::duration renderingDuration_) : renderingDuration{renderingDuration_}
@@ -20,6 +23,32 @@ struct TesterEngine : public Engine
     std::chrono::steady_clock::duration renderingDuration;
 };
 \end{lstlisting}
+
+Testing requires also slightly modification of the engine main loop. Tester Adapter code is placed under \texttt{}
+\begin{lstlisting}[language=c++, caption=Tester related code inside Engine Main Loop (./engine/tests/tester.cpp)]
+    \\ Before entering the main loop
+    const auto testerAdapter = dynamic_cast<TesterEngine*>(game);
+    bool isRenderingStarted{};
+
+    ...
+
+    \\ Inside the main loop
+    if ((testerAdapter != nullptr) && isRenderingStarted)
+    {
+        if (std::chrono::steady_clock::now() >= (startTime + testerAdapter->renderingDuration))
+        {
+            loop = false;
+        }
+    }
+
+    ...
+
+    if (!isRenderingStarted)
+    {
+        isRenderingStarted = true;
+    }
+\end{lstlisting}
+
 \subsubsection{Tests}
 \begin{itemize}
     \item DummyTests
@@ -225,3 +254,5 @@ TEST(GameTests, RunReturnsZero)
             \end{lstlisting}
         \end{itemize}
 \end{itemize}
+
+More about software development and methods of testing are available in \hyperref[sec:testing]{TODO} section.
