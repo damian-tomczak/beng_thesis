@@ -1,0 +1,226 @@
+\newpage
+
+\subsection{Vulkan Tools}
+Tsengine uses only one graphics API for rendering, and we didn't provide a layer of abstraction for handling multiple API's. API we have chosen is Vulkan. While working on Vulkan extremely useful or required is to have tools.
+\subsubsection{Shader Compiler}
+We have chosen to compile shaders during the runtime, it's possible by \texttt{compilerShaders} function defined in \texttt{shaders\_compiler.h} header that takes the path to the directory with shader assets: % TODO: difference between methods of compilation, history of tlou 2, proses conses
+\begin{lstlisting}[language=c++, caption=Shaders Compiler header (./engine/src/vulkan\_tools/shaders\_compiler.h)]
+void compileShaders(const std::filesystem::path shadersPath);
+\end{lstlisting}
+We are not satisfied how it is done. In the future versions, we are going to define \texttt{ASSETS\_DIR} preprocessor definition, because shaders should be placed only in one path \texttt{./assets/shaders}.\\
+For shader compilation, we use third party \hyperref[lst:3rdparty]{glslang library}.
+\begin{lstlisting}[language=c++, caption=Shader Compiler implementation(./engine/src/vulkan\_tools/shaders\_compiler.cpp)]
+
+void compileShaders(const std::filesystem::path shadersPath)
+{
+    if (!glslang_initialize_process())
+    {
+        TS_ERR("Glslang initialization failure");
+    }
+
+    if (!std::filesystem::is_directory(shadersPath))
+    {
+        TS_ERR(("Path couldn't be found: " + shadersPath.string()).c_str());
+    }
+
+    size_t shadersFoundCount{};
+    for (const auto& file : std::filesystem::recursive_directory_iterator(shadersPath))
+    {
+        if (file.is_directory() || (file.path().extension() == ".spirv") || (file.path().extension() == ".h"))
+        {
+            continue;
+        }
+
+        shadersFoundCount++;
+
+#ifdef NDEBUG
+        // Shader is already compiled
+        if (std::filesystem::exists((file.path().string() + ".spirv")))
+        {
+            continue;
+        }
+#endif // NDEBUG
+
+        const auto spriv = compileShaderFile(file.path());
+
+        const auto outputFileName = file.path().string() + ".spirv";
+        saveSPIRV(outputFileName, spriv);
+    }
+
+    if (shadersFoundCount == 0)
+    {
+        TS_WARN("No shaders found");
+    }
+
+    glslang_finalize_process();
+}
+\end{lstlisting}
+Our shader compiler required more work because for now shader compilation in \texttt{DEBUG} mode happens every start of the game, however in release build type engine checks only if the shader has been already compiled.\\
+Optimally, compilation should happen only during for modified or new files. Nonetheless, TSEngine during development copies all the assets every time from the main directory to the output directory  \hyperref[lst:build]{Building of TSEngine}. Therefore, within the every start of the engine assets files are modified that prevents from tracking which assets should be again compiled. It requires changes at the level of project generation - copy only modified or new assets to the output directory, we were lack of time to implement it.
+
+\begin{lstlisting}[language=c++, caption=Shader Compiler supported shader stages (./engine/src/vulkan\_tools/shaders\_compiler.cpp)]
+glslang_stage_t getShaderStage(const std::filesystem::path& file)
+{
+    const auto extension = file.extension();
+
+    if (extension == ".vert")
+    {
+        return GLSLANG_STAGE_VERTEX;
+    }
+
+    if (extension == ".frag")
+    {
+        return GLSLANG_STAGE_FRAGMENT;
+    }
+
+    return GLSLANG_STAGE_COUNT;
+}
+\end{lstlisting}
+The only shader stages we take into account are vertex and fragment. It is another limitation should be aware. Another shaders would need much more sophisticated \hyperref[sec:renderer]{renderer pipelines}.
+
+Another nice feature is a possibility for printing errors with helping information while shaders compilation
+\begin{lstlisting}[language=c++, caption=Shader Compiler logging (./engine/src/vulkan\_tools/shaders\_compiler.cpp)]
+auto loggerWrapper{[&](std::string_view errorTitle) -> void {
+    std::ostringstream message;
+    message
+        << errorTitle
+        << ": "
+        << filePath.string()
+        << "\n"
+        << glslang_shader_get_info_log(shader)
+        << "\n"
+        << glslang_shader_get_info_debug_log(shader);
+
+    TS_ERR(message.str().c_str());
+}};
+
+if (!glslang_shader_preprocess(shader, &input))
+{
+    loggerWrapper("Shader preprocessing failed");
+}
+}};
+\end{lstlisting}
+In the future, here would be nice to add a feature that adds more information about the compilation failure by printing shader code with highlighted lines that are corrupted. 
+
+\newpage
+
+\subsubsection{Vulkan Loader}
+To make possible to use Vulkan we need to have Vulkan header, in our case we take it from 3rd party repository  \hyperref[sec:3rdparty]{\texttt{Vulkan-Headers}}. But definitions of those functions are available on the driver user mode side, a "tool" delivered by graphics card manufacture that exposes those API functions in the case of Vulkan is vulkan-1.dll.\\\\
+Despite that Khronos provides in the same repo with headers, the loader that automatize this action of binding function declarations with definition. It is worth to know how this process looks like in the case of errors, especially if you are going to work in bleeding-edge environments like WSL (Windows Subsystem for Linux).\\
+Our loader available at \texttt{./engine/src/vulkan\_tools/vulkan\_loader.h} exposes a few functions that should be called in the order how they are placed. Within the progress of loading, functions will be required to pass also a pointer to \texttt{VkInstance}, and some of the needs also list of extensions.
+\begin{lstlisting}[language=c++, caption=(./engine/src/vulkan\_tools/vulkan\_loader.h)]
+void connectWithLoader();
+void loadExportFunction();
+void loadGlobalLevelFunctions();
+void loadInstanceLevelFunctions(const VkInstance instance, const std::vector<std::string>& vulkanInstanceExtensions);
+void loadDebugLevelFunctions(const VkInstance instance);
+void loadDeviceLevelFunctions(const VkDevice device, const std::vector<std::string>& enabledVulkanDeviceExtensions);
+\end{lstlisting}
+Usage of the Vulkan loader can be found in \texttt{Context::createVulkanContext() (./engine/src/core/context.cpp)} method.
+
+Even the best loader can not avoid being repetitive code, therefore let's take a look at the most representative functions:
+\texttt{connectWithLoader} function of the Vulkan loader assignees pointer to the vulkan-1.dll dynamic library using corresponding OS functions and variable type from \texttt{./engine/src/os/[system in use]/os.h} -  \hyperref[sec:os]{more about operating system dependent}.
+\begin{lstlisting}[language=c++, caption=Connecting with the Vulkan-1.dll (./engine/src/vulkan\_tools/vulkan\_loader.cpp)]
+LIBRARY_TYPE vulkanLibrary{};
+
+void connectWithLoader()
+{
+#ifdef _WIN32
+    vulkanLibrary = LoadLibrary("vulkan-1.dll");
+#else
+#error "not implemented"
+#endif // _WIN32
+
+    if (vulkanLibrary == nullptr)
+    {
+        TS_ERR("Vulkan loader couldn't be found");
+    }
+}
+\end{lstlisting}
+
+Every \texttt{load.*} function definition is very similar. Firstly defines \texttt{\^.*\_LEVEL\_FUNCTION} taking the name of the Vulkan function, inside this macro Vulkan functions are initialized by \texttt{vkGetInstanceProcAddr} function that is available after \texttt{loadExportFunction} function loaded by corresponded OS loading functions function. Subsequently, to include \hyperref[lst:vk_functions_inl]{\texttt{vulkan\_functions.inl}} containing list of all Vulkan functions.
+\begin{lstlisting}[language=c++, caption=Loading Vulkan functions (./engine/src/vulkan\_tools/vulkan\_loader.cpp)]
+void loadInstanceLevelFunctions(const VkInstance instance, const std::vector<std::string>& enabledVulkanInstanceExtensions)
+{
+#define INSTANCE_LEVEL_VULKAN_FUNCTION(name)                                         \
+        name = reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(instance, #name)); \
+        if(name == nullptr)                                                          \
+        {                                                                            \
+            TS_ERR("Unable to load vulkan instance level function: " #name);     \
+        }
+
+#define INSTANCE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION(name, extension)                                  \
+        for (const auto& enabledExtension : enabledVulkanInstanceExtensions)                            \
+        {                                                                                               \
+            if (strcmp(enabledExtension.c_str(), extension) == 0)                                       \
+            {                                                                                           \
+                name = reinterpret_cast<PFN_##name>(vkGetInstanceProcAddr(instance, #name));            \
+                if (name == nullptr)                                                                    \
+                {                                                                                       \
+                    TS_ERR("Unable to load vulkan instance extension level function: " #extension); \
+                }                                                                                       \
+            }                                                                                           \
+        }
+
+#include "vulkan_functions.inl"
+}
+\end{lstlisting}
+
+The purpose of \texttt{vulkan\_functions.inl} is to being a wrapper for specifying custom behavior for every Vulkan function by defining \texttt{\^.*\_LEVEL\_FUNCTION} macro.
+\label{lst:vk_functions_inl}
+\begin{lstlisting}[language=c++, caption=(./engine/src/vulkan\_tools/vulkan\_functions.inl]
+#ifndef EXPORTED_VULKAN_FUNCTION
+#define EXPORTED_VULKAN_FUNCTION(function)
+#endif
+
+EXPORTED_VULKAN_FUNCTION(vkGetInstanceProcAddr)
+
+#undef EXPORTED_VULKAN_FUNCTION
+
+//
+
+...
+
+#ifndef INSTANCE_LEVEL_VULKAN_FUNCTION
+#define INSTANCE_LEVEL_VULKAN_FUNCTION(function)
+#endif
+
+INSTANCE_LEVEL_VULKAN_FUNCTION(vkEnumeratePhysicalDevices)
+...
+
+#undef INSTANCE_LEVEL_VULKAN_FUNCTION
+
+...
+\end{lstlisting}
+
+\texttt{vulkan\_functions.h} exposes Vulkan functions for the engine by externing function pointers filled by the loader from \hyperref[lst:vk_functions_cpp]{\texttt{vulkan\_functions.cpp}}
+\begin{lstlisting}[language=c++, caption=(./engine/src/vulkan\_tools/vulkan\_functions.h]
+#include "vulkan/vulkan.h"
+
+#define EXPORTED_VULKAN_FUNCTION(name) extern PFN_##name name;
+#define GLOBAL_LEVEL_VULKAN_FUNCTION(name) extern PFN_##name name;
+#define INSTANCE_LEVEL_VULKAN_FUNCTION(name) extern PFN_##name name;
+#ifndef NDEBUG
+#define DEBUG_LEVEL_VULKAN_FUNCTION(name) extern PFN_##name name;
+#endif // !NDEBUG
+#define INSTANCE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION(name, extension) extern PFN_##name name;
+#define DEVICE_LEVEL_VULKAN_FUNCTION(name) extern PFN_##name name;
+#define DEVICE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION(name, extension) extern PFN_##name name;
+
+#include "vulkan_functions.inl"
+\end{lstlisting}
+
+\label{lst:vk_functions_cpp}
+\begin{lstlisting}[language=c++, caption=(./engine/src/vulkan\_tools/vulkan\_functions.cpp)]
+#include "vulkan_functions.h"
+
+#define EXPORTED_VULKAN_FUNCTION(name) PFN_##name name;
+#define GLOBAL_LEVEL_VULKAN_FUNCTION(name) PFN_##name name;
+#define INSTANCE_LEVEL_VULKAN_FUNCTION(name) PFN_##name name;
+#define DEBUG_LEVEL_VULKAN_FUNCTION(name) PFN_##name name;
+#define INSTANCE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION(name, extension) PFN_##name name;
+#define DEVICE_LEVEL_VULKAN_FUNCTION(name) PFN_##name name;
+#define DEVICE_LEVEL_VULKAN_FUNCTION_FROM_EXTENSION(name, extension) PFN_##name name;
+
+#include "vulkan_functions.inl"
+\end{lstlisting}

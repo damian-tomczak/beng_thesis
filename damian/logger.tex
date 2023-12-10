@@ -1,0 +1,63 @@
+\newpage
+
+\subsection{Logger}
+As CppCoreGuidelines \cite{CppCoreGuidelines} Error handling section stands - "Develop an error-handling strategy early in a design; A consistent and complete strategy for handling errors and resource leaks is hard to retrofit into a system.". Therefore, it was crucial for us to provide a robust and straight-forward logger tool.
+\begin{lstlisting}[language=c++, caption=Logger macros (./engine/include/tsengine/logger.h)]
+#define NOT_PRINT_LINE_NUMBER -1
+
+#define TS_LOG(msg) ts::logger::log(msg, __FILE__, FUNCTION_SIGNATURE, __LINE__)
+#define TS_WARN(msg) ts::logger::warning(msg, __FILE__, FUNCTION_SIGNATURE, __LINE__)
+#define TS_ERR(msg) ts::logger::error(msg, __FILE__, FUNCTION_SIGNATURE, __LINE__)
+
+#ifndef NDEBUG
+#define TS_ASSERT(condition)                                                                                \
+    if (!(condition))                                                                                       \
+    {                                                                                                       \
+        ts::logger::warning("Assertion Failed: " #condition, __FILE__, FUNCTION_SIGNATURE, __LINE__, true); \
+    }
+
+#define TS_ASSERT_MSG(condition, msg)                                           \
+    if (!(condition))                                                           \
+    {                                                                           \
+        ts::logger::warning(msg, __FILE__, FUNCTION_SIGNATURE, __LINE__, true); \
+    }
+
+#else
+#define TS_ASSERT(condition)
+#define TS_ASSERT_MSG(condition, msg)
+#endif
+\end{lstlisting}
+
+\newpage
+
+Logger functionality is also exposed through functions, but it should be avoided because it makes the code less readable. The same logger is exposed for the engine and a game, therefore it can not break the ABI from this reason functions takes C arguments - more in \hyperref[sec:build]{Building of TSEngine} section.
+Strong usage of those raw functions has Khronos utils, where appears a big need to reduce amount of validation code by macros - more in \hyperref[sec:khronos_utils]{Khronos Utils} section
+\begin{lstlisting}[language=c++, caption=Logger's functions (./engine/include/tsengine/logger.h)]
+void log(
+    const char* message,
+    const char* fileName,
+    const char* functionName,
+    int lineNumber);
+
+void warning(
+    const char* message,
+    const char* fileName,
+    const char* functionName,
+    int lineNumber,
+    bool debugBreak = false);
+
+void error(
+    const char* message,
+    const char* fileName,
+    const char* functionName,
+    int lineNumber,
+    bool throwException = true,
+    bool debugBreak = true);
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=An example of a Logger message(./engine/include/tsengine/logger.h)]
+void Game::close()
+{
+    TS_LOG("Thanks for playing!");
+}
+\end{lstlisting}

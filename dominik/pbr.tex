@@ -1,0 +1,15 @@
+\newpage
+\subsection{Physically Based Rendering}
+% TODO: rephrase it
+The BRDF, or bidirectional reflective distribution function, is a function that takes as input the incoming (light) direction ωi, the outgoing (view) direction ωo, the surface normal n, and a surface parameter a that represents the microsurface's roughness.
+
+The Cook-Torrance specular BRDF is composed of three functions and a normalization factor in the denominator. Each of the D, F and G symbols represent a type of function that approximates a specific part of the surface's reflective properties. These are defined as the normal Distribution function, the Fresnel equation and the Geometry function:\\
+Normal distribution function: approximates the amount the surface's microfacets are aligned to the halfway vector, influenced by the roughness of the surface; this is the primary function approximating the microfacets.\\
+Geometry function: describes the self-shadowing property of the microfacets. When a surface is relatively rough, the surface's microfacets can overshadow other microfacets reducing the light the surface reflects.\\
+Fresnel equation: The Fresnel equation describes the ratio of surface reflection at different surface angles.
+
+\[
+f_{CookTorrance}=\frac{DFG}{4(\omega_{O} \cdot n)(\omega_{i} \cdot n)}
+\]
+
+Based on the book Learn OpenGL \cite{learnopengl} and the article \cite{pbrreferences}

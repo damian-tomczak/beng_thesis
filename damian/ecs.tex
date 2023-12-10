@@ -1,0 +1,824 @@
+\subsection{Entity Component System}
+Our ECS takes an advantage of speed over usage of the memory, therefore we store duplicated information about interested object. For an instance of Registry class (discussed in the next section \hyperref[sec:registry]{Registry}) names (called as tags) of entities are stored in two unordered associative containers. Such solution makes the code much faster in both situation, searching for the name of the entity, but having only entity nonetheless also in the case of searching for entity and having only entity's name.
+As we mentioned at the beginning, this doesn't come without cost, and the cost in this case is bigger usage of memory.
+Of course, this it is not limited to just these two variables.
+
+\begin{lstlisting}[language=c++, caption=Entities' name (./engine/include/tsengine/ecs/ecs.h)]
+std::unordered_map<std::string, Entity> entityPerTag;
+std::unordered_map<Id, std::string> tagPerEntity;
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{Registry}
+ \label{sec:registry}
+\begin{lstlisting}[language=c++, caption=Registry class]
+class Registry
+{
+    std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
+    std::unordered_map<std::string, Entity> entityPerTag;
+    std::unordered_map<Id, std::string> tagPerEntity;
+    std::unordered_map<std::string, std::set<Entity>> entitiesPerGroup;
+    std::unordered_map<Id, std::string> groupPerEntity;
+    std::set<Entity> entitiesToBeAdded;
+    std::set<Entity> entitiesToBeKilled;
+    std::vector<std::shared_ptr<IPool>> componentPools;
+    std::vector<Signature> entityComponentSignatures;
+    std::deque<Id> freeIds;
+    Id numEntities{};
+
+    ...
+};
+
+Registry& getMainReg();
+\end{lstlisting}
+The purpose of Registry is to be so kind of database, it is achieved by storing all needed systems, entities' data.\\
+It's possible to have in game multiple registries, but the engine always has a main registry that is exposed by getMainReg function for developers and inside Engine simply by global variable gReg.
+Game Developer are allowed to create their own Registers, this can turn out to be useful in the case when the main registry is too much overloaded.
+
+\begin{lstlisting}[language=c++, caption=Private method of access to the main registry (./tsengine/engine/src/globals.hpp)]
+inline Registry gReg;
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=Public method of access to the main registry (./tsengine/engine/src/globals.hpp)]
+Registry& getMainReg()
+\end{lstlisting}
+
+The most "explicitly" used method of the registry is definitely createEntity, that creates new Entity/ID (potentially the engine can reuse an ID of already deleted entity from the freeIds queue) and moves it to entitiesToBeAdded container then during the nearest update method the whole creation process of entity happens - what comes to creation slot in entityComponentSignatures vector and right data slots in componentPools (if the entity's id wasn't reused).
+
+On the other hand, the most "implicitly" used method of the registry is update. In the case of the main registry, this is called inside the engine's main loop, but if the user creates its own registry probably they want to call update of the registry inside the game's tick function that is updated every the engine's iteration of main loop.
+\begin{lstlisting}[language=c++, caption=ECS Registry's update method (./engine/include/tsengine/ecs/ecs.h)]
+    void update();
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=An example of how custom registry should be updated]
+bool Game::tick(const float dt)
+{
+    customRegistry.update();
+
+    return true;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=Public method of access to the main registry (./tsengine/engine/src/globals.hpp)]
+void killEntity(const Entity entity);
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=Creation of the new Entity (./engine/include/tsengine/ecs/ecs.h)]
+Entity createEntity();
+\end{lstlisting}
+
+A Developer has an option to name entities, that makes possible to filter out specific entities inside systems.\\
+For an instance, a system can specify that they are interested in entities containing Transform Component, RigidBody Component. There are maybe many such entities with such components, but you may be interested in one very specific entity like a player, in such situation would be nice to have a possibility to mark an entity with a name or group entities with a tag. This possible by through methods listed below:   
+\begin{lstlisting}[language=c++, caption=Registry tag and group methods (./engine/include/tsengine/ecs/ecs.h)]
+    void tagEntity(const Entity entity, const std::string& tag);
+    bool entityHasTag(const Entity entity, const std::string& tag) const;
+    Entity getEntityByTag(const std::string& tag) const;
+    std::string getTagByEntity(const Entity entity) const;
+    void removeEntityTag(const Entity entity);
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=Registry system methods (./engine/include/tsengine/ecs/ecs.h)]
+    template<typename TSystem, typename ...TArgs> void addSystem(TArgs&& ...args);
+    template<typename TSystem> void removeSystem();
+    template<typename TSystem> bool hasSystem() const;
+    template<typename TSystem> TSystem& getSystem() const;
+\end{lstlisting}
+
+Registry has also methods responsible for association of components to entities.
+Those are hidden from the public usage, because they should be used only via interested entity to make the code more clear. Therefore, Entity class becomes friend class of Registry. 
+\begin{lstlisting}[language=c++, caption=Registry component addition methods (./engine/include/tsengine/ecs/ecs.h)]
+private:
+    friend Entity;
+
+    template<IsComponent TComponent, typename ...TArgs> void addComponent(const Entity entity, TArgs&& ...args);
+    template<IsComponent TComponent, typename ...TArgs> void _addComponent(const Entity entity, TArgs&& ...args);
+    template<typename TComponent> void removeComponent(const Entity entity);
+    template<typename TComponent> bool hasComponent(const Entity entity) const;
+    template<typename TComponent> TComponent& getComponent(const Entity entity) const;
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{Entity}
+The whole affair behind ECS is about entities, and here it is - Entity class.
+To make the API more friendly by providing the possibility to modify entities' properties instead of referencing directly by registry, our implementation of an entity isn't such light-weight as it should be.\\
+Entity \hyperref[sec:registry]{ECS's Entity} described in the theoretical section should be represented only by ID in the form of the integer, but in our implementation an entity contains also a pointer to the registry it belongs.
+\begin{lstlisting}[language=c++, caption=Entity class (./engine/include/tsengine/ecs/ecs.h)]
+class Entity
+{
+    Id id;
+    class Registry* mpRegistry;
+
+public:
+    Entity(const Id id, Registry* const registry = nullptr) : id{id}, mpRegistry{registry} {}
+
+    Id getId() const { return id; }
+    void kill();
+
+    void setTag(const std::string& tag);
+    std::string getTag() const;
+    bool hasTag(const std::string& tag = "") const;
+    void group(const std::string& group);
+    bool belongsToGroup(const std::string& group) const;
+
+    template <typename TComponent, typename ...TArgs> void addComponent(TArgs&& ...args);
+    template <typename TComponent> void removeComponent();
+    template <typename TComponent> bool hasComponent() const;
+    template <typename TComponent> TComponent& getComponent() const;
+
+    auto operator<=>(const Entity& other) const = default;
+};
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{Component}
+Another element in ECS implementation is the component class that represents entity's properties.
+Every created component class should be derived from the component class. If the user's created component class needs to have a template "parent" component with specialization, it is possible, but a developer has to remember to override Base declaration to the "parent". An example of such behavior is possible to see for \hyperref[sec:render_component]{RenderComponent}.
+\begin{lstlisting}[language=c++, caption=Component classe (./engine/include/tsengine/ecs/ecs.h)]
+struct Component
+{
+    using Base = Component;
+};
+\end{lstlisting}
+
+When it comes to component classes, worth mentioning is also ComponentManager
+it is used only inside Registry and rather there are no reasons why it should be used outside.\\
+ComponentManager generates a unique ID for every component class.
+\label{lst:component_manager}
+\begin{lstlisting}[language=c++, caption=IComponent and ComponentManager (./engine/include/tsengine/ecs/ecs.h)]
+struct IComponent
+{
+protected:
+    inline static Id nextId{};
+};
+
+template <typename T>
+class ComponentManager final : public IComponent
+{
+public:
+    static Id getId()
+    {
+        static auto id = nextId++;
+        return id;
+    }
+};
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{Signature}
+The way in which  entities are selected to the right systems plays a key role in every entity component system.
+Our selection is based on bit-fields, the size of these bit-fields limits the maximum amount of components that entity can have.
+As mentioned in \hyperref[lst:component_manager]{Component Manager code snippet}, every component have unique ID that is generated by Component Manager. Those IDs are then used to set a specific bit in the entity's signature.
+\begin{lstlisting}[language=c++, caption=Signature (./engine/include/tsengine/ecs/ecs.h)]
+inline constexpr auto maxComponents = 32;
+
+using Signature = std::bitset<maxComponents>;
+\end{lstlisting}
+
+By doing it, a system can generate a signature consisted of components that are obligatory for they to be interested in entity.
+\begin{lstlisting}[language=c++, caption=Signature evaluation (./engine/include/tsengine/ecs/ecs.h)]
+bool isInterested = (entityComponentSignature & systemComponentSignature) == systemComponentSignature;
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{System}
+System is a simple container that groups entities which contain required components. Preferable, while creating the system requireComponent method should be called to form a signature of the system.
+\begin{lstlisting}[language=c++, caption=System class (./engine/include/tsengine/ecs/ecs.h)]
+class System
+{
+    std::vector<Entity> entities;
+    Signature componentSignature;
+
+public:
+    void addEntityToSystem(const Entity entity);
+    void removeEntityFromSystem(const Entity entity);
+    std::vector<Entity> getSystemEntities() const;
+    const Signature& getComponentSignature() const;
+
+    template<typename TComponent> void requireComponent();
+};
+\end{lstlisting}
+
+Creation of the system is done as follows:
+\begin{lstlisting}[language=c++, caption=Creation of the system (./game/game.cpp)]
+    ts::getMainReg().addSystem<ExampleSystem>();
+\end{lstlisting}
+It is important to remember that Systems are managed by registers.
+\\
+\\
+Commonly, a developer also wants to update systems per iteration of main loop, but for heavy operation a good idea is to update them per specific event, amount of time, n iteration of main loop or even treat a system just a method of grouping entities with specific properties. Therefore, we left in our implementation update of systems for developers.
+
+\begin{lstlisting}[language=c++, caption=Update of systems every iteration of the main loop(./game/game.cpp)]
+bool Game::tick(const float dt)
+{
+    ts::getMainReg().getSystem<ExampleSystem>().update();
+
+    return true;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=System as a method of grouping entities (./game/game.cpp)]
+class AssetStore final : public System
+{
+public:
+    AssetStore()
+    {
+        requireComponent<MeshComponent>();
+    }
+
+    ...
+};
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{Component Pool}
+Tremendous performance assures components pools due to the cache friendly.
+Every Pool contains only one kind of the components, therefore memory is very friendly for fetching. The comes of it comes with additional structures used to track ownership of them.
+Component Pools are helper structures that shouldn't be used outside registries.
+\begin{lstlisting}[language=c++, caption=Components Pool class]
+class IPool
+{
+public:
+    virtual void removeEntityFromPool(const Id entityId) = 0;
+};
+
+template <typename T>
+class Pool : public IPool
+{
+    std::unordered_map<Id, Id> entityIdToIndex;
+    std::unordered_map<Id, Id> indexToEntityId;
+    std::vector<T> data;
+    size_t size{};
+
+public:
+    Pool(size_t capacity = 100) : data(capacity, T{}) {}
+
+    bool isEmpty() const;
+    size_t getSize() const;
+    void reset();
+    void set(const Id entityId, const T object);
+    void remove(const Id entityId);
+    void removeEntityFromPool(const Id entityId) override;
+    T& get(const Id entityId);
+
+    T& operator [](const Id index) { return data.at(index); }
+    const T& operator [](const Id index) const { return data.at(index); }
+};
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{Public Engine's components}
+\begin{itemize}
+    \item AssetComponent\\
+    The entities referencing to the asset file's, Asset Component is required.
+\begin{lstlisting}[language=c++, caption= Asset Component struct(./engine/include/tsengine/ecs/components/asset\_component.h)]
+struct AssetComponent : public Component
+{
+    using Base = AssetComponent;
+
+    AssetComponent(const std::string_view assetName_ = "") : assetName{assetName_}, assetNameId{std::hash<std::string_view>{}(assetName_)}
+    {}
+
+protected:
+    friend AssetStore;
+    std::string assetName;
+    size_t assetNameId;
+};
+\end{lstlisting}
+    \item MeshComponent\\
+    Mesh Component must be added to the entities you want they to have meshes.
+    Meshes come from .obj asset files.
+    This component stores the structure of vertex from which meshes are built and firstIndex and indexCount members which are required to track entities' indices inside the Asset Store that tracks all needed vertices and indices. 
+\begin{lstlisting}[language=c++, caption= Mesh Component struct (./engine/include/tsengine/ecs/components/mesh\_component.h)]
+struct MeshComponent : public AssetComponent
+{
+    struct Vertex final
+    {
+        math::Vec3 position;
+        math::Vec3 normal;
+        math::Vec3 color;
+    };
+
+    size_t firstIndex{};
+    size_t indexCount{};
+
+    MeshComponent(const std::string_view fileName_ = "") : AssetComponent{fileName_}
+    {}
+};
+\end{lstlisting}
+    \item RendererComponent\\
+    \label{sec:render_component}
+    To make entity renderable, a developer has to use RenderComponent with appropriate Shader pipeline you want to use.\\
+    RendererComponentBase delivers a possibility to track all renderable entities for the registries and shouldn't be used explicitly. Besides of it contains "z" property that allows to render entities according to developer's needs. 
+\begin{lstlisting}[language=c++, caption=Renderer Component struct (./engine/include/tsengine/ecs/components/renderer\_component.h)]
+#define TS_PIPELINES_LIST     \
+    PIPELINE(COLOR)           \
+    PIPELINE(NORMAL_LIGHTING) \
+    PIPELINE(PBR)             \
+    PIPELINE(LIGHT)           \
+    PIPELINE(GRID)            \
+
+
+enum class PipelineType
+{
+    INVALID,
+#define PIPELINE(type) type, 
+    TS_PIPELINES_LIST
+#undef PIPELINE
+    COUNT
+};
+
+struct RendererComponentBase : public Component
+{
+    using Base = RendererComponentBase;
+    using ZIdxT = int32_t;
+
+    RendererComponentBase(const ZIdxT z_ = {}) : z{z_} {}
+
+    ZIdxT z;
+};
+
+template<PipelineType pipeType>
+struct RendererComponent : public RendererComponentBase 
+{
+    PipelineType pipeline{pipeType};
+
+    RendererComponent(const ZIdxT z_ = {}) : RendererComponentBase{z_}
+    {}
+};
+\end{lstlisting}
+
+A special case of Renderer Component is PBR Renderer Component that requires creation of material.\\
+The process of adding PBR Renderer Component to an entity presents the next code snippet \hyperref[lst:renderer_component_pbr]{PBR Renderer Component}.
+Followed listening presents compile time oriented PBR Renderer Component. Materials' properties are based on article of Sébastien Lagarde "Feeding a physically based shading model".\cite{feedingpbr}
+\begin{lstlisting}[language=c++, caption=Renderer PBR Component struct (./engine/include/tsengine/ecs/components/renderer\_component.h)]
+template<>
+struct RendererComponent<PipelineType::PBR> : public RendererComponentBase
+{
+#define TS_MATERIALS_LIST \
+    MATERIAL(WHITE,    .color = {1.0f     , 1.0f      ,1.0f     }, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(RED,      .color = {1.0f     , 0.0f      ,0.0f     }, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(BLUE,     .color = {0.0f     , 0.0f      ,1.0f     }, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(BLACK,    .color = {0.0f     , 0.0f      ,0.0f     }, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(GOLD,     .color = {1.0f     , 0.765557f, 0.336057f}, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(COPPER,   .color = {0.955008f, 0.637427f, 0.538163f}, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(CHROMIUM, .color = {0.549585f, 0.556114f, 0.554256f}, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(NICKEL,   .color = {0.659777f, 0.608679f, 0.525649f}, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(TITANIUM, .color = {0.541931f, 0.496791f, 0.449419f}, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(COBALT,   .color = {0.662124f, 0.654864f, 0.633732f}, .roughness = 0.5f, .metallic = 1.0f) \
+    MATERIAL(PLATINUM, .color = {0.672411f, 0.637331f, 0.585456f}, .roughness = 0.5f, .metallic = 1.0f) \
+
+    struct Material
+    {
+        enum class Type
+        {
+            INVALID,
+#define MATERIAL(type, ...) type, 
+            TS_MATERIALS_LIST
+#undef MATERIAL
+            COUNT
+        };
+
+        static constexpr Material create(const Material::Type type)
+        {
+            switch (type)
+            {
+#define MATERIAL(type, ...)          \
+    case Material::Type::type:       \
+        return Material{__VA_ARGS__};
+
+                TS_MATERIALS_LIST
+#undef MATERIAL
+            default: throw Exception{"Invalid material type"};
+            }
+
+            return {};
+        }
+
+        math::Vec3 color;
+        float roughness;
+        float metallic;
+    };
+
+    Material material;
+
+    RendererComponent(const Material material_ = Material::create(Material::Type::RED), const ZIdxT z_ = {})
+        : RendererComponentBase{z_}, material{material_}
+    {}
+};
+\end{lstlisting}
+
+\label{lst:renderer_component_pbr}
+\begin{lstlisting}[language=c++, caption=Process of adding PBR Renderer Component with material (./game/game.cpp)]
+auto sphere = ts::getMainReg().createEntity();
+...
+
+const auto material = ts::RendererComponent<ts::PipelineType::PBR>::Material::create(
+    ts::RendererComponent<ts::PipelineType::PBR>::Material::Type::GOLD);
+
+sphere.addComponent<ts::RendererComponent<ts::PipelineType::PBR>>(material);
+\end{lstlisting}
+
+    \item RigidBodyComponent\\
+\begin{lstlisting}[language=c++, caption=]
+struct RigidBodyComponent : public Component
+{
+    float velocity;
+
+    RigidBodyComponent(const float velocity_ = 1.f) : velocity{velocity_}
+    {}
+};
+\end{lstlisting}
+    \item TransformComponent\\
+\begin{lstlisting}[language=c++, caption=]
+struct TransformComponent : public Component
+{
+    math::Vec3 pos;
+    math::Mat4 modelMat{1.f};
+
+    TransformComponent(const math::Vec3 pos_ = math::Vec3{0.f}) : pos{pos_}
+    {}
+};
+\end{lstlisting}
+\end{itemize}
+
+\subsubsection{Public Engine's systems}
+\begin{itemize}
+    \item AssetStore\\
+    It's worth noting that the AssetStore is an exception here, as it is not placed in the system subfolder. AssetStore uniquely benefits from being a system through its ability to retrieve every entity from the register that possesses the required components.
+\end{itemize}
+
+\subsubsection{Private Engine's systems}
+\begin{itemize}
+    \item MovementSystem
+    \label{sec:movement_system}
+\begin{lstlisting}[language=c++, caption=]
+class MovementSystem : public ts::System
+{
+public:
+    MovementSystem()
+    {
+        requireComponent<TransformComponent>();
+        requireComponent<RigidBodyComponent>();
+
+#ifdef CYBSDK_FOUND
+        mpCyberithDevice = CybSDK::Virt::FindDevice();
+        if (mpCyberithDevice == nullptr)
+        {
+            TS_ERR("Cyberith Virtualizer device not found");
+        }
+
+        const auto info = mpCyberithDevice->GetDeviceInfo();
+
+        const auto virtName = info.ProductName;
+        const auto virtNameLen = wcslen(virtName);
+        std::vector<char> virtBuf(virtNameLen);
+        wcstombs(virtBuf.data(), virtName, virtNameLen);
+        std::string virtConvertedName(virtBuf.begin(), virtBuf.end());
+        TS_LOG(std::format("Device found {} Firmware Version: {}.{}",
+            virtConvertedName,
+            static_cast<int>(info.MajorVersion),
+            static_cast<int>(info.MinorVersion)).c_str());
+
+
+        if (!mpCyberithDevice->Open())
+        {
+            TS_ERR("Unable to connect to Cyberith Virtualizer");
+        }
+#endif
+    }
+
+    void update(const float dt, const Controllers& controllers)
+    {
+        const auto player = gReg.getEntityByTag("player");
+
+#ifdef CYBSDK_FOUND
+    [CYBERITH MOVEMENT]
+#else
+    [NON-CYBERITH MOVEMENT]
+#endif
+    }
+
+private:
+#ifdef CYBSDK_FOUND
+    CybSDK::VirtDevice* mpCyberithDevice;
+#endif
+};
+\end{lstlisting}
+\begin{lstlisting}[language=c++, caption=]
+        const auto ringHeight = mpCyberithDevice->GetPlayerHeight();
+        auto ringAngle = mpCyberithDevice->GetPlayerOrientation();
+        const auto movementDirection = mpCyberithDevice->GetMovementDirection();
+        const auto movementSpeed = mpCyberithDevice->GetMovementSpeed();
+
+        if (movementSpeed > 0.f)
+        {
+            const auto flySpeedMultiplier = player.getComponent<RigidBodyComponent>().velocity;
+            ringAngle *= 2 * std::numbers::pi_v<float>;
+            auto offsetX = std::sin(ringAngle) * movementSpeed * flySpeedMultiplier * dt;
+            auto offsetZ = -(std::cos(ringAngle) * movementSpeed * flySpeedMultiplier * dt);
+
+            if (movementDirection == -1.f)
+            {
+                offsetX *= -1;
+                offsetZ *= -1;
+            }
+
+            auto& playerPosition = player.getComponent<TransformComponent>().pos;
+            playerPosition.x += offsetX;
+            playerPosition.z += offsetZ;
+        }
+\end{lstlisting}
+\begin{lstlisting}[language=c++, caption=]
+        for (size_t controllerIndex{}; controllerIndex < controllers.controllerCount; ++controllerIndex)
+        {
+            const auto flyState = controllers.getFlyState(controllerIndex);
+            if (flyState)
+            {
+                const auto controllerPose = controllers.getPose(controllerIndex)[2];
+
+                // TODO: something is wrong with this code, investigate it
+                if ((!controllerPose.isNan()) || (controllerPose == math::Vec3{0.f}))
+                {
+                    const math::Vec3 forward{controllers.getPose(controllerIndex)[2]};
+                    player.getComponent<TransformComponent>().pos += forward * player.getComponent<RigidBodyComponent>().velocity * dt;
+                }
+                else
+                {
+                    TS_WARN(std::format("Controller no. {} can not be located.", controllerIndex).c_str());
+                }
+            }
+        }
+\end{lstlisting}
+    \item RenderSystem
+    \label{sec:renderer_system}
+\begin{lstlisting}[language=c++, caption=]
+class RenderSystem : public System
+{
+public:
+    RenderSystem(const VkDeviceSize vkUniformBufferOffsetAlignment) :
+        mVkUniformBufferOffsetAlignment{vkUniformBufferOffsetAlignment}
+    {
+        requireComponent<RendererComponentBase>();
+
+        gReg.addSystem<Lights>();
+        gReg.addSystem<Meshes>();
+    }
+
+    void update(const VkCommandBuffer cmdBuf, const VkDescriptorSet descriptorSet)
+    {
+        auto entities = getSystemEntities();
+
+        std::ranges::sort(entities, std::less{}, [](const auto entity) {
+            return entity.getComponent<RendererComponentBase>().z;
+        });
+
+        for (const auto entity : entities)
+        {
+            size_t entityIndexforUniformBufferOffset{};
+            uint32_t uniformBufferOffsets = 
+                static_cast<uint32_t>(khronos_utils::align(static_cast<VkDeviceSize>(sizeof(decltype(RenderProcess::mIndividualUniformData)::value_type)),
+                    mVkUniformBufferOffsetAlignment) * static_cast<VkDeviceSize>(entityIndexforUniformBufferOffset));
+
+            vkCmdBindDescriptorSets(
+                cmdBuf,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                mpPipelineLayout,
+                0,
+                1,
+                &descriptorSet,
+                1,
+                &uniformBufferOffsets);
+
+            auto& pos = entity.getComponent<TransformComponent>().pos;
+            if (entity.hasComponent<TransformComponent>())
+            {
+                vkCmdPushConstants(cmdBuf,
+                    mpPipelineLayout,
+                    VK_SHADER_STAGE_VERTEX_BIT,
+                    0,
+                    sizeof(math::Vec3),
+                    &pos);
+            }
+
+            if (entity.hasComponent<MeshComponent>())
+            {
+                TS_ASSERT_MSG(!entity.hasComponent<RendererComponent<PipelineType::COLOR>>(), "Not implemented yet");
+
+                const auto& mesh = entity.getComponent<MeshComponent>();
+
+                if (entity.hasComponent<RendererComponent<PipelineType::NORMAL_LIGHTING>>())
+                {
+                    if (const auto pipe = mpNormalLightingPipeline.lock())
+                    {
+                        pipe->bind(cmdBuf);
+                    }
+                    else
+                    {
+                        throw Exception{"Invalid normal lighting pipeline"};
+                    }
+                }
+                else if (entity.hasComponent<RendererComponent<PipelineType::PBR>>())
+                {
+                    if (const auto pipe = mpPbrPipeline.lock())
+                    {
+                        pipe->bind(cmdBuf);
+                    }
+                    else
+                    {
+                        throw Exception{"Invalid pbr pipeline"};
+                    }
+                
+                    vkCmdPushConstants(cmdBuf,
+                        mpPipelineLayout,
+                        VK_SHADER_STAGE_FRAGMENT_BIT,
+                        sizeof(math::Vec3),
+                        sizeof(RendererComponent<PipelineType::PBR>::Material),
+                        &entity.getComponent<RendererComponent<PipelineType::PBR>>().material);
+                }
+
+                vkCmdDrawIndexed(cmdBuf,
+                    static_cast<uint32_t>(mesh.indexCount),
+                    1,
+                    static_cast<uint32_t>(mesh.firstIndex),
+                    0,
+                    0);
+
+                entityIndexforUniformBufferOffset++;
+            }
+            else if (entity.hasComponent<RendererComponent<PipelineType::LIGHT>>())
+            {
+                if (const auto pipe = mpLightCubePipeline.lock())
+                {
+                    pipe->bind(cmdBuf);
+                }
+                else
+                {
+                    throw Exception{"Invalid pbr pipeline"};
+                }
+
+                vkCmdDraw(cmdBuf, LIGHT_CUBE_DRAW_CALL_VERTEX_COUNT, 1, 0, 0);
+            }
+            else if (entity.hasComponent<RendererComponent<PipelineType::GRID>>())
+            {
+                if (auto pipe = mpGridPipeline.lock())
+                {
+                    pipe->bind(cmdBuf);
+                }
+                else
+                {
+                    throw Exception{"Invalid grid pipeline"};
+                }
+
+                vkCmdDraw(cmdBuf, GRID_DRAW_CALL_VERTEX_COUNT, 1, 0, 0);
+            }
+            else
+            {
+                TS_ERR("Unexpected rendering workflow");
+            }
+        }
+    }
+
+    class Lights : public System
+    {
+    public:
+        Lights()
+        {
+            requireComponent<RendererComponent<PipelineType::LIGHT>>();
+        }
+
+        void update()
+        {
+            TS_ASSERT_MSG(getSystemEntities().size() == LIGHTS_N, "TODO: lights pipeline is prepared for 2 light sources");
+        }
+    };
+
+private:
+    friend Renderer;
+    const VkDeviceSize& mVkUniformBufferOffsetAlignment;
+    std::weak_ptr<Pipeline> mpGridPipeline, mpNormalLightingPipeline, mpPbrPipeline, mpLightCubePipeline;
+    VkPipelineLayout mpPipelineLayout{};
+
+    class Meshes : public System
+    {
+    public:
+        Meshes()
+        {
+            requireComponent<MeshComponent>();
+        }
+    };
+};
+\end{lstlisting}
+\end{itemize}
+
+\subsubsection{Game's components}
+\begin{itemize}
+    \item EchoComponent
+\begin{lstlisting}[language=c++, caption=]
+struct EchoComponent : public ts::Component
+{
+    std::string message;
+    size_t messageId{};
+
+    EchoComponent(const std::string_view message_ = "default echo message") :
+        message{message_}
+    {
+        messageId = std::hash<std::string>{}(message);
+    }
+};
+\end{lstlisting}
+    \item ExampleComponent
+\begin{lstlisting}[language=c++, caption=]
+struct ExampleComponent : public ts::Component
+{
+    ts::math::Vec3 startPos;
+    ts::math::Vec3 endPos;
+    std::chrono::high_resolution_clock::time_point startTime;
+
+    ExampleComponent(ts::math::Vec3 startPos_ = {}, ts::math::Vec3 endPos_ = {}) :
+        startPos{startPos_},
+        endPos{endPos_},
+        startTime{std::chrono::high_resolution_clock::now()}
+    {}
+};
+\end{lstlisting}
+\end{itemize}
+
+\subsubsection{Game's systems}
+\begin{itemize}
+    \item ExampleSystem
+\begin{lstlisting}[language=c++, caption=]
+class ExampleSystem : public ts::System
+{
+    inline static constexpr std::chrono::seconds spheresMovementDuration{2s};
+
+public:
+    ExampleSystem()
+    {
+        requireComponent<ts::TransformComponent>();
+    }
+
+    void update()
+    {
+        for (const auto entity : getSystemEntities())
+        {
+            if (entity.hasComponent<EchoComponent>())
+            {
+                const auto& echoComponent = entity.getComponent<EchoComponent>();
+
+                if (mWelcomedEntities.contains(echoComponent.messageId))
+                {
+                    TS_LOG(std::format(R"(Entity "{}" says "{}")",
+                        entity.getTag(),
+                        echoComponent.message).c_str());
+
+                    mWelcomedEntities.insert(echoComponent.messageId);
+                }
+
+            }
+
+            if (entity.hasComponent<ExampleComponent>())
+            {
+                auto& exampleComponent = entity.getComponent<ExampleComponent>();
+
+                if (entity.belongsToGroup("spheres"))
+                {
+                    const auto currentTime = std::chrono::high_resolution_clock::now();
+                    const auto elapsedTime = currentTime - exampleComponent.startTime;
+                    const auto floatSpheresMovementDuration = std::chrono::duration<float>(spheresMovementDuration);
+
+                    const auto newPos = ts::math::lerp(
+                        exampleComponent.startPos,
+                        exampleComponent.endPos,
+                        elapsedTime / floatSpheresMovementDuration);
+
+                    entity.getComponent<ts::TransformComponent>().pos = newPos;
+
+                    if (elapsedTime >= floatSpheresMovementDuration)
+                    {
+                        exampleComponent.startTime = currentTime;
+
+                        std::swap(exampleComponent.startPos, exampleComponent.endPos);
+                    }
+                }
+            }
+        }
+    }
+
+    std::set<size_t> mWelcomedEntities;
+};
+\end{lstlisting}
+\end{itemize}
+
+\newpage
+\subsubsection{Problems with our ECS implementation}
+We didn't have time to provide true not breaking ABI ECS, the only protection has the form of inline namespaces with version - more about it in \hyperref[sec:abi]{Building of TSEngine - Common ABI} section.\\
+Due to the lack of time and already existing project size, we also didn't test and described in the thesis events system, the part of this feature exists in the project in the form of the header \texttt{./engine/include/tsengine/event_bus.hpp}.
+
+\newpage

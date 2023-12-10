@@ -1,0 +1,261 @@
+\subsection{Assets}
+\subsubsection{Models}
+Models are saved in .obj files.\\
+List of models:
+\begin{itemize} % TODO: provide sources for files
+    \item polonez.obj
+    \item sphere.obj
+    \item village.obj
+\end{itemize}
+\subsubsection{Shaders}
+Shader structure:
+\begin{itemize}
+    \item shader.h
+    \item shader.vert
+    \item shader.frag
+\end{itemize}
+
+\begin{lstlisting}[language=c++, caption=Common Shader preprocessor]
+#version 450
+#extension GL_GOOGLE_include_directive : enable
+#extension GL_EXT_multiview : enable
+#extension GL_EXT_debug_printf : enable
+
+[Include Section]
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=Common Shader data]
+layout(binding = 0) uniform IndividualUbo {
+    mat4 modelMat;
+} individualUbo;
+
+layout(binding = 1) uniform CommonUbo {
+    vec3 camPos;
+    mat4 viewMats[2];
+    mat4 projMats[2];
+} commonUbo;
+
+layout (binding = 2) uniform LightsUbo {
+    vec3 positions[LIGHTS_N];
+} lightsUbo;
+
+layout(push_constant) uniform PushConst {
+    vec3 objPos;
+} pushConst;
+
+layout(push_constant) uniform Material {
+    layout(offset = 16) float r;
+    layout(offset = 20) float g;
+    layout(offset = 24) float b;
+    layout(offset = 32) float roughness;
+    layout(offset = 36) float metallic;
+} material;
+\end{lstlisting}
+
+Shader list:
+\begin{itemize}
+    \item common.h
+\begin{lstlisting}[language=c++, caption=]
+#define PI 3.14159265359
+#define LIGHTS_N 2
+\end{lstlisting}
+    \item grid.frag
+\begin{lstlisting}[language=c++, caption=]
+layout (location=0) in vec2 uv;
+layout (location=1) in vec2 camPos;
+layout (location=0) out vec4 outColor;
+
+float log10(float x)
+{
+    return log(x) / log(10.0);
+}
+
+float satf(float x)
+{
+    return clamp(x, 0.0, 1.0);
+}
+
+vec2 satv(vec2 x)
+{
+    return clamp(x, vec2(0.0), vec2(1.0));
+}
+
+float max2(vec2 v)
+{
+    return max(v.x, v.y);
+}
+
+vec4 gridColor(vec2 uv, vec2 camPos)
+{
+    vec2 dudv = vec2(
+        length(vec2(dFdx(uv.x), dFdy(uv.x))),
+        length(vec2(dFdx(uv.y), dFdy(uv.y)))
+    );
+
+    float lodLevel = max(0.0, log10((length(dudv) * gridMinPixelsBetweenCells) / gridCellSize) + 1.0);
+    float lodFade = fract(lodLevel);
+
+    float lod0 = gridCellSize * pow(10.0, floor(lodLevel));
+    float lod1 = lod0 * 10.0;
+    float lod2 = lod1 * 10.0;
+
+    dudv *= 4.0;
+
+    float lod0a = max2(vec2(1.0) - abs(satv(mod(uv, lod0) / dudv) * 2.0 - vec2(1.0)));
+    float lod1a = max2(vec2(1.0) - abs(satv(mod(uv, lod1) / dudv) * 2.0 - vec2(1.0)));
+    float lod2a = max2(vec2(1.0) - abs(satv(mod(uv, lod2) / dudv) * 2.0 - vec2(1.0)));
+
+    uv -= camPos;
+
+    vec4 c = lod2a > 0.0 ? gridColorThick : lod1a > 0.0 ? mix(gridColorThick, gridColorThin, lodFade) : gridColorThin;
+
+    float opacityFalloff = (1.0 - satf(length(uv) / gridSize));
+
+    c.a *= (lod2a > 0.0 ? lod2a : lod1a > 0.0 ? lod1a : (lod0a * (1.0-lodFade))) * opacityFalloff;
+
+    return c;
+}
+
+void main()
+{
+    outColor = gridColor(uv, camPos);
+}
+\end{lstlisting}
+    \item grid.h
+\begin{lstlisting}[language=c++, caption=]
+#define GRID_DRAW_CALL_VERTEX_COUNT 6
+\end{lstlisting}
+    \item grid.vert
+\begin{lstlisting}[language=c++, caption=]
+layout (location = 0) out vec2 uv;
+layout (location = 1) out vec2 camPos;
+\end{lstlisting}
+    \item grid\_params.h
+\begin{lstlisting}[language=c++, caption=]
+const float gridSize = 100.0;
+const float gridCellSize = 0.5;
+vec4 gridColorThin = vec4(1, 0, 0, 1.0);
+vec4 gridColorThick = vec4(0, 1, 0, 1.0);
+const float gridMinPixelsBetweenCells = 2.0;
+
+const vec3 pos[4] =
+{
+    vec3(-1.0, 0.0, -1.0),
+    vec3(-1.0, 0.0,  1.0),
+    vec3( 1.0, 0.0,  1.0),
+    vec3( 1.0, 0.0, -1.0)
+};
+
+const int indices[6] = {
+    0, 1, 2, 2, 3, 0
+};
+
+\end{lstlisting}
+    \item light\_cube.frag
+\begin{lstlisting}[language=c++, caption=]
+layout(location = 0) out vec4 outColor;
+
+void main()
+{
+    outColor = vec4(1.0);
+}
+\end{lstlisting}
+    \item light\_cube.h
+\begin{lstlisting}[language=c++, caption=]
+#pragma once
+
+#define LIGHT_CUBE_DRAW_CALL_VERTEX_COUNT 36
+\end{lstlisting}
+    \item light\_cube.vert
+\begin{lstlisting}[language=c++, caption=]
+const vec3 cubeVertices[36] =
+{
+    {-1., -1., -1.},
+    {-1., -1.,  1.},
+    {-1.,  1.,  1.},
+    { 1.,  1., -1.},
+    {-1., -1., -1.},
+    {-1.,  1., -1.},
+    { 1., -1.,  1.},
+    {-1., -1., -1.},
+    { 1., -1., -1.},
+    { 1.,  1., -1.},
+    { 1., -1., -1.},
+    {-1., -1., -1.},
+    {-1., -1., -1.},
+    {-1.,  1.,  1.},
+    {-1.,  1., -1.},
+    { 1., -1.,  1.},
+    {-1., -1.,  1.},
+    {-1., -1., -1.},
+    {-1.,  1.,  1.},
+    {-1., -1.,  1.},
+    { 1., -1.,  1.},
+    { 1.,  1.,  1.},
+    { 1., -1., -1.},
+    { 1.,  1., -1.},
+    { 1., -1., -1.},
+    { 1.,  1.,  1.},
+    { 1., -1.,  1.},
+    { 1.,  1.,  1.},
+    { 1.,  1., -1.},
+    {-1.,  1., -1.},
+    { 1.,  1.,  1.},
+    {-1.,  1., -1.},
+    {-1.,  1.,  1.},
+    { 1.,  1.,  1.},
+    {-1.,  1.,  1.},
+    { 1., -1.,  1.},
+};
+
+void main()
+{
+    mat4 cameraMat = mat4(1.0);
+    cameraMat[3] = vec4(ubo.camPos, 1.0);
+
+    gl_Position =
+        ubo.projMats[gl_ViewIndex] *
+        ubo.viewMat[gl_ViewIndex] *
+        cameraMat *
+        vec4(pushConst.objPos + cubeVertices[gl_VertexIndex], 1.0);
+}
+\end{lstlisting}
+    \item normal\_lighting.frag
+\begin{lstlisting}[language=c++, caption=]
+layout(location = 0) in vec3 inColor;
+layout(location = 0) out vec4 outColor;
+
+void main()
+{
+    outColor = vec4(inColor, 1.0);
+}
+\end{lstlisting}
+    \item normal\_lighting.vert
+\begin{lstlisting}[language=c++, caption=]
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inNormal;
+
+layout(location = 0) out vec3 outColor;
+
+void main()
+{
+    mat4 cameraMat = mat4(1.0);
+    cameraMat[3] = vec4(commonUbo.camPos, 1.0);
+
+    gl_Position =
+        commonUbo.projMats[gl_ViewIndex] *
+        commonUbo.viewMats[gl_ViewIndex] *
+        cameraMat *
+        individualUbo.modelMat *
+        vec4(pushConst.objPos + inPos, 1.0);
+
+    outColor = mat3(individualUbo.modelMat) * normalize(inNormal);
+}
+\end{lstlisting}
+    \item pbr.frag
+\begin{lstlisting}[language=c++, caption=]
+\end{lstlisting}
+    \item pbr.vert
+\begin{lstlisting}[language=c++, caption=]
+\end{lstlisting}
+\end{itemize}

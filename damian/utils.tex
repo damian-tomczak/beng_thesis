@@ -1,0 +1,188 @@
+\newpage
+
+\subsubsection{Public Engine's utils}
+\begin{lstlisting}[language=c++, caption=Macros of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+#define TS_NOT_COPYABLE(ClassName)                   \
+    ClassName(const ClassName&) = delete;            \
+    ClassName& operator=(const ClassName&) = delete;
+
+#define TS_NOT_MOVEABLE(ClassName)              \
+    ClassName(ClassName&&) = delete;            \
+    ClassName& operator=(ClassName&&) = delete;
+
+#define TS_NOT_COPYABLE_AND_MOVEABLE(ClassName) \
+    TS_NOT_COPYABLE(ClassName);                 \
+    TS_NOT_MOVEABLE(ClassName);
+
+#define TS_SINGLETON_BODY(ClassName)         \
+    TS_NOT_COPYABLE_AND_MOVEABLE(ClassName); \
+    private: ClassName() = default;          \
+    friend Singleton<ClassName>;
+
+#define TS_STR(x) XSTR(x)
+#define TS_XSTR(x) #x
+\end{lstlisting}
+\begin{lstlisting}[language=c++, caption=std::string\_view hash of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+template<>
+struct std::hash<std::string_view> final
+{
+    constexpr size_t operator()(const std::string_view s) const noexcept
+    {
+        return fnv1a_32(s, s.length());
+    }
+
+private:
+    // Inspired by https://gist.github.com/Lee-R/3839813?permalink_comment_id=4018536#gistcomment-4018536
+    constexpr size_t fnv1a_32(const std::string_view s, const size_t count) const noexcept
+    {
+        return count ? (fnv1a_32(s, count - 1) ^ s[count - 1]) * 16777619u : 2166136261u;
+    }
+};
+\end{lstlisting}
+\begin{lstlisting}[language=c++, caption=Return Codes of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+enum
+{
+    TS_SUCCESS,
+    TS_FAILURE,
+    TS_STL_FAILURE,
+    TS_UNKNOWN_FAILURE
+};
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=Exception of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+class Exception : public std::exception
+{
+public:
+    Exception() : mMessage{"Exception message not provided"} {}
+    Exception(std::string_view message) : mMessage{message} {}
+    
+    const char* what() const noexcept override { return mMessage.data(); }
+
+private:
+    const std::string_view mMessage;
+};
+\end{lstlisting}
+
+\begin{lstlisting}[language=c++, caption=Singleton of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+template<typename DerivedClass>
+class Singleton
+{
+    TS_NOT_COPYABLE_AND_MOVEABLE(Singleton);
+
+public:
+    static auto& getInstance()
+    {
+        // TODO: common abi
+        std::lock_guard _(mutex);
+        static DerivedClass instance;
+        return instance;
+    }
+
+protected:
+    Singleton() = default;
+
+private:
+    inline static std::mutex mutex;
+};
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{Private Engine's utils}
+\begin{lstlisting}[language=c++, caption=]
+#define TS_CATCH_FALLBACK                                                           \
+    catch (const Exception&)                                                        \
+    {                                                                               \
+        return TS_FAILURE;                                                          \
+    }                                                                               \
+    catch (const std::exception& e)                                                 \
+    {                                                                               \
+        ts::logger::error(e.what(), __FILE__, FUNCTION_SIGNATURE, __LINE__, false); \
+                                                                                    \
+        return STL_FAILURE;                                                         \
+    }                                                                               \
+    catch (...)                                                                     \
+    {                                                                               \
+        return UNKNOWN_FAILURE;                                                     \
+    }
+
+#define TS_CATCH_FALLBACK_WITH_CLEANER(cleanerFunction)                             \
+    catch (const Exception&)                                                        \
+    {                                                                               \
+        cleanerFunction();                                                          \
+                                                                                    \
+        return TS_FAILURE;                                                          \
+    }                                                                               \
+    catch (const std::exception& e)                                                 \
+    {                                                                               \
+        ts::logger::error(e.what(), __FILE__, FUNCTION_SIGNATURE, __LINE__, false); \
+                                                                                    \
+        cleanerFunction();                                                          \
+                                                                                    \
+        return TS_STL_FAILURE;                                                      \
+    }                                                                               \
+    catch (...)                                                                     \
+    {                                                                               \
+        cleanerFunction();                                                          \
+                                                                                    \
+        return TS_UNKNOWN_FAILURE;                                                  \
+    }
+\end{lstlisting}
+
+\newpage
+
+\subsubsection{Private Engine's Khronos Utils}
+\label{sec:khronos_utils}
+\begin{lstlisting}[language=c++, caption=]
+#define TS_VK_CHECK(function, ...)                                                                         \
+    {                                                                                                      \
+        VkResult result{function(__VA_ARGS__)};                                                            \
+        if (result != VK_SUCCESS)                                                                          \
+        {                                                                                                  \
+            ts::logger::error(                                                                             \
+                (#function " failed with status: " + ts::khronos_utils::vkResultToString(result)).c_str(), \
+                __FILE__,                                                                                  \
+                FUNCTION_SIGNATURE,                                                                        \
+                __LINE__);                                                                                 \
+        }                                                                                                  \
+    }
+
+#define TS_XR_CHECK(function, ...)                                                                         \
+    {                                                                                                      \
+        XrResult result{function(__VA_ARGS__)};                                                            \
+        if (result != XR_SUCCESS)                                                                          \
+        {                                                                                                  \
+            ts::logger::error(                                                                             \
+                (#function " failed with status: " + ts::khronos_utils::xrResultToString(result)).c_str(), \
+                __FILE__,                                                                                  \
+                FUNCTION_SIGNATURE,                                                                        \
+                __LINE__);                                                                                 \
+        }                                                                                                  \
+    }
+
+#define TS_VK_CHECK_MSG(msg, function, ...)                                                                \
+    {                                                                                                      \
+        VkResult result{function(__VA_ARGS__)};                                                            \
+        if (result != VK_SUCCESS)                                                                          \
+        {                                                                                                  \
+            ts::logger::error(                                                                             \
+                msg,                                                                                       \
+                __FILE__,                                                                                  \
+                FUNCTION_SIGNATURE,                                                                        \
+                __LINE__);                                                                                 \
+        }                                                                                                  \
+    }
+
+#define TS_XR_CHECK_MSG(msg, function, ...)                                                                \
+    {                                                                                                      \
+        XrResult result{function(__VA_ARGS__)};                                                            \
+        if (result != XR_SUCCESS)                                                                          \
+        {                                                                                                  \
+            ts::logger::error(                                                                             \
+                msg,                                                                                       \
+                __FILE__,                                                                                  \
+                FUNCTION_SIGNATURE,                                                                        \
+                __LINE__);                                                                                 \
+        }                                                                                                  \
+    }
+\end{lstlisting}

@@ -1,0 +1,94 @@
+\newpage
+\section{Creation of 3D World Immersion}
+\[MVP\]
+\[MV[2]P[2]\]
+
+\[
+\begin{bmatrix}
+Orthographic\\
+Projection \\
+Matrix
+\end{bmatrix} 
+*
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1\\
+\end{bmatrix} 
+\]
+
+\[
+\begin{bmatrix}
+Perspective\\
+Projection \\
+Matrix
+\end{bmatrix} 
+*
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1\\
+\end{bmatrix} 
+\]
+
+\[
+a=\frac{h}{w}
+\]
+
+\[
+f=\frac{1}{tan(\theta / 2)}
+\]
+
+\[
+\lambda=\frac{zfar}{zfar - znear)}
+-
+\frac{zfar * znear}{zfar-znear}
+\]
+
+\[
+\begin{bmatrix}
+x\\
+y\\
+z\\
+\end{bmatrix}
+\]
+Conversion to screen space
+\[
+\begin{bmatrix}
+afx\\
+fy\\
+\lambda z-\lambda znear\\
+\end{bmatrix}
+\]
+Perspective divide
+\[
+x/z\ y/z\ z/z
+\]
+
+\[
+\begin{bmatrix}
+(\frac{h}{w})(\frac{1}{tan(\theta/2)}) & 0 & 0 & 0\\
+0 & (\frac{1}{tan(\theta/2)}) & 0 & 0\\
+0 & 0 & \frac{zfar}{zfar - znear)} & -\frac{zfar * znear}{zfar-znear}\\
+0 & 0 & 1 & 0
+\end{bmatrix} 
+*
+\begin{bmatrix}
+X\\
+Y\\
+Z\\
+1\\
+\end{bmatrix} 
+\]
+
+An example of view matrix with camera placed at: 10 5 10:
+\[
+\begin{bmatrix}
+1 & 0 & 0 & -10\\
+0 & 1 & 0 & -5\\
+0 & 0 & 1 & -10\\
+0 & 0 & 0 & 1\\
+\end{bmatrix} 
+\]
