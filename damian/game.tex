@@ -15,7 +15,7 @@ public:
 };
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Example of Game's init function (./game/game.cpp)]
+\begin{lstlisting}[language=c++, caption=Example of Game Init Function (./game/game.cpp)]
 bool Game::init(const char*& gameName, unsigned&, unsigned&)
 {
     gameName = GAME_NAME;
@@ -24,7 +24,7 @@ bool Game::init(const char*& gameName, unsigned&, unsigned&)
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Example of Game's loadLvL function (./game/game.cpp)]
+\begin{lstlisting}[language=c++, caption=Example of Game Load Level function (./game/game.cpp)]
 void Game::loadLvL()
 {
     ts::getMainReg().addSystem<ExampleSystem>();
@@ -73,7 +73,7 @@ void Game::loadLvL()
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Example of Game's tick function (./game/game.cpp)]
+\begin{lstlisting}[language=c++, caption=Example of Game Tick Function (./game/game.cpp)]
 bool Game::tick(const float dt)
 {
     ts::getMainReg().getSystem<ExampleSystem>().update();
@@ -82,7 +82,7 @@ bool Game::tick(const float dt)
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Example of Game's close function (./game/game.cpp)]
+\begin{lstlisting}[language=c++, caption=Example of Game Close Function (./game/game.cpp)]
 void Game::close()
 {
     TS_LOG("Thanks for playing!");

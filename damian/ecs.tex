@@ -33,7 +33,7 @@ class Registry
 Registry& getMainReg();
 \end{lstlisting}
 The purpose of Registry is to be so kind of database, it is achieved by storing all needed systems, entities' data.\\
-It's possible to have in game multiple registries, but the engine always has a main registry that is exposed by getMainReg function for developers and inside Engine simply by global variable gReg.
+It's possible to have in game multiple registries, but the engine always has a main registry that is exposed by getMainReg function for developers and inside the Engine simply by global variable gReg.
 Game Developer are allowed to create their own Registers, this can turn out to be useful in the case when the main registry is too much overloaded.
 
 \begin{lstlisting}[language=c++, caption=Private method of access to the main registry (./tsengine/engine/src/globals.hpp)]
@@ -44,9 +44,9 @@ inline Registry gReg;
 Registry& getMainReg()
 \end{lstlisting}
 
-The most "explicitly" used method of the registry is definitely createEntity, that creates new Entity/ID (potentially the engine can reuse an ID of already deleted entity from the freeIds queue) and moves it to entitiesToBeAdded container then during the nearest update method the whole creation process of entity happens - what comes to creation slot in entityComponentSignatures vector and right data slots in componentPools (if the entity's id wasn't reused).
+The most "explicitly" used method of the registry is definitely createEntity, that creates new Entity/ID (potentially the engine can reuse an ID of already deleted entity from the freeIds queue) and moves it to entitiesToBeAdded container then during the nearest update method the whole creation process of entity happens - what comes to creation slot in entityComponentSignatures vector and right data slots in componentPools (if the entity's ID wasn't reused).
 
-On the other hand, the most "implicitly" used method of the registry is update. In the case of the main registry, this is called inside the engine's main loop, but if the user creates its own registry probably they want to call update of the registry inside the game's tick function that is updated every the engine's iteration of main loop.
+On the other hand, the most "implicitly" used method of the registry is update. In the case of the main registry, this is called inside the engine main loop, but if the user creates its own registry, probably they want to call update of the registry inside the game's tick function that is updated every the engine iteration of main loop.
 \begin{lstlisting}[language=c++, caption=ECS Registry's update method (./engine/include/tsengine/ecs/ecs.h)]
     void update();
 \end{lstlisting}
@@ -273,7 +273,7 @@ public:
 
 \newpage
 
-\subsubsection{Public Engine's components}
+\subsubsection{Public Engine Components}
 \begin{itemize}
     \item AssetComponent\\
     The entities referencing to the asset file's, Asset Component is required.
@@ -448,13 +448,13 @@ struct TransformComponent : public Component
 \end{lstlisting}
 \end{itemize}
 
-\subsubsection{Public Engine's systems}
+\subsubsection{Public Engine Systems}
 \begin{itemize}
     \item AssetStore\\
     It's worth noting that the AssetStore is an exception here, as it is not placed in the system subfolder. AssetStore uniquely benefits from being a system through its ability to retrieve every entity from the register that possesses the required components.
 \end{itemize}
 
-\subsubsection{Private Engine's systems}
+\subsubsection{Private Engine Systems}
 \begin{itemize}
     \item MovementSystem
     \label{sec:movement_system}

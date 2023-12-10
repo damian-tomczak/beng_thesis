@@ -1,7 +1,7 @@
 \newpage
-
+\subsection{Utils}
 \subsubsection{Public Engine's utils}
-\begin{lstlisting}[language=c++, caption=Macros of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Macros of Public Engine utils(./engine/include/tsengine/utils.hpp)]
 #define TS_NOT_COPYABLE(ClassName)                   \
     ClassName(const ClassName&) = delete;            \
     ClassName& operator=(const ClassName&) = delete;
@@ -22,7 +22,7 @@
 #define TS_STR(x) XSTR(x)
 #define TS_XSTR(x) #x
 \end{lstlisting}
-\begin{lstlisting}[language=c++, caption=std::string\_view hash of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=std::string\_view hash of Public Engine utils(./engine/include/tsengine/utils.hpp)]
 template<>
 struct std::hash<std::string_view> final
 {
@@ -32,7 +32,7 @@ struct std::hash<std::string_view> final
     }
 
 private:
-    // Inspired by https://gist.github.com/Lee-R/3839813?permalink_comment_id=4018536#gistcomment-4018536
+    // Inspired by
     constexpr size_t fnv1a_32(const std::string_view s, const size_t count) const noexcept
     {
         return count ? (fnv1a_32(s, count - 1) ^ s[count - 1]) * 16777619u : 2166136261u;
