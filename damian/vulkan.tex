@@ -105,6 +105,7 @@ In the future, here would be nice to add a feature that adds more information ab
 \newpage
 
 \subsubsection{Vulkan Loader}
+\label{sec:vkLoader}
 To make possible to use Vulkan we need to have Vulkan header, in our case we take it from 3rd party repository  \hyperref[sec:3rdparty]{\texttt{Vulkan-Headers}}. But definitions of those functions are available on the driver user mode side, a "tool" delivered by graphics card manufacture that exposes those API functions in the case of Vulkan is vulkan-1.dll.\\\\
 Despite that Khronos provides in the same repo with headers, the loader that automatize this action of binding function declarations with definition. It is worth to know how this process looks like in the case of errors, especially if you are going to work in bleeding-edge environments like WSL (Windows Subsystem for Linux).\\
 Our loader available at \texttt{./engine/src/vulkan\_tools/vulkan\_loader.h} exposes a few functions that should be called in the order how they are placed. Within the progress of loading, functions will be required to pass also a pointer to \texttt{VkInstance}, and some of the needs also list of extensions.

@@ -1,7 +1,7 @@
 \newpage
 \subsection{Utils}
 \subsubsection{Public Engine's utils}
-\begin{lstlisting}[language=c++, caption=Macros of Public Engine utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Macros of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 #define TS_NOT_COPYABLE(ClassName)                   \
     ClassName(const ClassName&) = delete;            \
     ClassName& operator=(const ClassName&) = delete;
@@ -22,7 +22,7 @@
 #define TS_STR(x) XSTR(x)
 #define TS_XSTR(x) #x
 \end{lstlisting}
-\begin{lstlisting}[language=c++, caption=std::string\_view hash of Public Engine utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=std::string\_view hash of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 template<>
 struct std::hash<std::string_view> final
 {
@@ -39,7 +39,7 @@ private:
     }
 };
 \end{lstlisting}
-\begin{lstlisting}[language=c++, caption=Return Codes of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Return Codes of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 enum
 {
     TS_SUCCESS,
@@ -49,7 +49,7 @@ enum
 };
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Exception of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Exception of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 class Exception : public std::exception
 {
 public:
@@ -63,7 +63,7 @@ private:
 };
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Singleton of Public Engine's utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Singleton of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 template<typename DerivedClass>
 class Singleton
 {
@@ -88,7 +88,7 @@ private:
 
 \newpage
 
-\subsubsection{Private Engine's utils}
+\subsubsection{Private Engine Utils}
 \begin{lstlisting}[language=c++, caption=]
 #define TS_CATCH_FALLBACK                                                           \
     catch (const Exception&)                                                        \
@@ -131,7 +131,7 @@ private:
 
 \newpage
 
-\subsubsection{Private Engine's Khronos Utils}
+\subsubsection{Private Engine Khronos Utils}
 \label{sec:khronos_utils}
 \begin{lstlisting}[language=c++, caption=]
 #define TS_VK_CHECK(function, ...)                                                                         \
