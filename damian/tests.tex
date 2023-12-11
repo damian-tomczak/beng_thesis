@@ -4,6 +4,7 @@
 Testing of software is very important nowadays with long-living software, an example of such long-living software are graphics engines.
 One of the simplest methods of testing the software are unit tests, this is how we implemented testing our engine.
 
+The interface for testing the engine:
 \subsubsection{Engine Tester Header}
 \begin{lstlisting}[language=c++, caption=Tester Engine class (./engine/tests/tester.cpp)]
 struct TesterEngine : public Engine
@@ -24,7 +25,8 @@ struct TesterEngine : public Engine
 };
 \end{lstlisting}
 
-Testing requires also slightly modification of the engine main loop. Tester Adapter code is placed under \texttt{}
+
+Testing also requires a few inserts to the engine main loop. Tester Adapter code is inserted only if \texttt{TESTER\_ADAPTER} preprocessor definition is defined, it helps to avoid unnecessary operation in shippable product. Testing is turned on at the level of project configuration - more about it in \hyperref[sec:build_unit_tests]{Bulding Unit Tests} section. 
 \begin{lstlisting}[language=c++, caption=Tester related code inside Engine Main Loop (./engine/tests/tester.cpp)]
     \\ Before entering the main loop
     const auto testerAdapter = dynamic_cast<TesterEngine*>(game);
@@ -50,10 +52,11 @@ Testing requires also slightly modification of the engine main loop. Tester Adap
 \end{lstlisting}
 
 \subsubsection{Tests}
+The list of tests which are performed:
 \begin{itemize}
     \item DummyTests
         \begin{itemize}
-            \item DummyTest
+            \item DummyTest This test should be always true, checks only if testing functionality works.
             \begin{lstlisting}[language=c++, caption=]
 TEST(DummyTests, Dummytest)
 {
@@ -64,9 +67,9 @@ TEST(DummyTests, Dummytest)
 }
             \end{lstlisting}
         \end{itemize}
-    \item MathTests
+    \item MathTests Tests \hyperref[]{}
         \begin{itemize}
-            \item mat4MultiplicationTest
+            \item mat4MultiplicationTest Verifies if 4x4 matrix multiplication works correctly.
             \begin{lstlisting}[language=c++, caption=]
 TEST(MathTests, mat4MultiplicationTest)
 {
@@ -98,7 +101,7 @@ TEST(MathTests, mat4MultiplicationTest)
     ASSERT_EQ(ts::math::to_string(expected), ts::math::to_string(multiplication));
 }
             \end{lstlisting}
-            \item mat3MultiplicationTest
+            \item mat3MultiplicationTest Verifies if 3x3 matrix multiplication works correctly.
             \begin{lstlisting}[language=c++, caption=]
 TEST(MathTests, mat3MultiplicationTest)
 {
@@ -127,7 +130,7 @@ TEST(MathTests, mat3MultiplicationTest)
     ASSERT_EQ(ts::math::to_string(expected), ts::math::to_string(multiplication));
 }
             \end{lstlisting}
-            \item mat2InversionTest
+            \item mat2InversionTest Verifies if inversion of 2x2 matrix works correctly.
             \begin{lstlisting}[language=c++, caption=]
 TEST(MathTests, mat2InversionTest)
 {
@@ -148,7 +151,7 @@ TEST(MathTests, mat2InversionTest)
     ASSERT_EQ(ts::math::to_string(identityMatrix), ts::math::to_string(s));
 }
             \end{lstlisting}
-            \item mat3InversionTest
+            \item mat3InversionTest Verifies if inversion of 3x3 matrix works correctly.
             \begin{lstlisting}[language=c++, caption=]
 TEST(MathTests, mat3InversionTest)
 {
@@ -170,7 +173,7 @@ TEST(MathTests, mat3InversionTest)
     ASSERT_EQ(ts::math::to_string(invertedMatrix), ts::math::to_string(expected));
 }
             \end{lstlisting}
-            \item mat4InversionTest
+            \item mat4InversionTest Verifies if inversion of 4x4 matrix works correctly.
             \begin{lstlisting}[language=c++, caption=]
 TEST(MathTests, mat4InversionTest)
 {
@@ -194,7 +197,7 @@ TEST(MathTests, mat4InversionTest)
     ASSERT_EQ(ts::math::to_string(invertedMatrix), ts::math::to_string(expected));
 }
             \end{lstlisting}
-            \item mat4rotationTest
+            \item mat4rotationTest  Verifies if rotation functionality works correctly.
             \begin{lstlisting}[language=c++, caption=]
 TEST(MathTests, mat4rotationTest)
 {
