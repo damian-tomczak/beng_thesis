@@ -1,11 +1,13 @@
 \newpage
 
 \subsection{Tests}
-Testing of software is very important nowadays with long-living software, an example of such long-living software are graphics engines.
-One of the simplest methods of testing the software are unit tests, this is how we implemented testing our engine.
+Testing of software is very important nowadays with long-living software, an example of such long-living software are graphics engines.\\
+One of the simplest methods of testing the software are unit tests, this is how we implemented testing our engine.\\
+More theory about software development and methods of testing are available in \hyperref[sec:testing]{Software Testing} section.\\
 
 The interface for testing the engine:
 \subsubsection{Engine Tester Header}
+\label{sec:tester_adapter}
 \begin{lstlisting}[language=c++, caption=Tester Engine class (./engine/tests/tester.cpp)]
 struct TesterEngine : public Engine
 {
@@ -27,7 +29,7 @@ struct TesterEngine : public Engine
 
 
 Testing also requires a few inserts to the engine main loop. Tester Adapter code is inserted only if \texttt{TESTER\_ADAPTER} preprocessor definition is defined, it helps to avoid unnecessary operation in shippable product. Testing is turned on at the level of project configuration - more about it in \hyperref[sec:build_unit_tests]{Bulding Unit Tests} section. 
-\begin{lstlisting}[language=c++, caption=Tester related code inside Engine Main Loop (./engine/tests/tester.cpp)]
+\begin{lstlisting}[language=c++, caption=Tester related code inside Engine Main Loop (./engine/src/core/core.cpp)]
     \\ Before entering the main loop
     const auto testerAdapter = dynamic_cast<TesterEngine*>(game);
     bool isRenderingStarted{};
@@ -56,8 +58,9 @@ The list of tests which are performed:
 \begin{itemize}
     \item DummyTests
         \begin{itemize}
-            \item DummyTest This test should be always true, checks only if testing functionality works.
-            \begin{lstlisting}[language=c++, caption=]
+            \item DummyTest\\
+            This test should be always true, checks only if testing functionality works.
+\begin{lstlisting}[language=c++, caption=Dummytest test(./engine/tests/tester.cpp)]
 TEST(DummyTests, Dummytest)
 {
     const auto multiplication = 28 * 10 * 2000;
@@ -65,12 +68,14 @@ TEST(DummyTests, Dummytest)
 
     ASSERT_EQ(expected, multiplication);
 }
-            \end{lstlisting}
+\end{lstlisting}
         \end{itemize}
-    \item MathTests Tests \hyperref[]{}
+    \item MathTests Tests\\
+        This group of tests, tests functionalities from \hyperref[sec:math]{Engine Math Library}
         \begin{itemize}
-            \item mat4MultiplicationTest Verifies if 4x4 matrix multiplication works correctly.
-            \begin{lstlisting}[language=c++, caption=]
+            \item mat4MultiplicationTest\\
+            Verifies if 4x4 matrix multiplication works correctly.
+\begin{lstlisting}[language=c++, caption=mat4MultiplicationTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat4MultiplicationTest)
 {
     const ts::math::Mat4 leftMatrix
@@ -100,9 +105,9 @@ TEST(MathTests, mat4MultiplicationTest)
     const auto multiplication = rightMatrix * leftMatrix;
     ASSERT_EQ(ts::math::to_string(expected), ts::math::to_string(multiplication));
 }
-            \end{lstlisting}
-            \item mat3MultiplicationTest Verifies if 3x3 matrix multiplication works correctly.
-            \begin{lstlisting}[language=c++, caption=]
+\end{lstlisting}
+            \item mat3MultiplicationTest\\ Verifies if 3x3 matrix multiplication works correctly.
+\begin{lstlisting}[language=c++, caption=mat3MultiplicationTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat3MultiplicationTest)
 {
     const ts::math::Mat3 leftMatrix
@@ -129,9 +134,9 @@ TEST(MathTests, mat3MultiplicationTest)
     const auto multiplication = rightMatrix * leftMatrix;
     ASSERT_EQ(ts::math::to_string(expected), ts::math::to_string(multiplication));
 }
-            \end{lstlisting}
-            \item mat2InversionTest Verifies if inversion of 2x2 matrix works correctly.
-            \begin{lstlisting}[language=c++, caption=]
+\end{lstlisting}
+            \item mat2InversionTest\\ Verifies if inversion of 2x2 matrix works correctly.
+\begin{lstlisting}[language=c++, caption=mat2InversionTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat2InversionTest)
 {
     const ts::math::Mat2 matrix
@@ -150,9 +155,9 @@ TEST(MathTests, mat2InversionTest)
     const auto s = matrix * invertedMatrix;
     ASSERT_EQ(ts::math::to_string(identityMatrix), ts::math::to_string(s));
 }
-            \end{lstlisting}
-            \item mat3InversionTest Verifies if inversion of 3x3 matrix works correctly.
-            \begin{lstlisting}[language=c++, caption=]
+\end{lstlisting}
+            \item mat3InversionTest\\ Verifies if inversion of 3x3 matrix works correctly.
+\begin{lstlisting}[language=c++, caption=mat3InversionTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat3InversionTest)
 {
     const ts::math::Mat3 matrix
@@ -172,9 +177,9 @@ TEST(MathTests, mat3InversionTest)
     const auto invertedMatrix = ts::math::inverse(matrix);
     ASSERT_EQ(ts::math::to_string(invertedMatrix), ts::math::to_string(expected));
 }
-            \end{lstlisting}
-            \item mat4InversionTest Verifies if inversion of 4x4 matrix works correctly.
-            \begin{lstlisting}[language=c++, caption=]
+\end{lstlisting}
+            \item mat4InversionTest\\ Verifies if inversion of 4x4 matrix works correctly.
+\begin{lstlisting}[language=c++, caption=mat4InversionTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat4InversionTest)
 {
     const ts::math::Mat4 matrix
@@ -196,9 +201,11 @@ TEST(MathTests, mat4InversionTest)
     const auto invertedMatrix = ts::math::inverse(matrix);
     ASSERT_EQ(ts::math::to_string(invertedMatrix), ts::math::to_string(expected));
 }
-            \end{lstlisting}
-            \item mat4rotationTest  Verifies if rotation functionality works correctly.
-            \begin{lstlisting}[language=c++, caption=]
+\end{lstlisting}
+            \item mat4rotationTest\\
+            \label{sec:rotation_test}
+            Verifies if rotation functionality works correctly.
+\begin{lstlisting}[language=c++, caption=mat4rotationTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat4rotationTest)
 {
     const auto matrix = ts::math::Mat4(1.f);
@@ -215,10 +222,12 @@ TEST(MathTests, mat4rotationTest)
     };
     ASSERT_TRUE(expected[0].x == result[0].x and expected[1].y == result[1].y and expected[2].z == result[2].z);
 }
-            \end{lstlisting}
+\end{lstlisting}
         \end{itemize}
-    \item TestGame
-        \begin{lstlisting}[language=c++, caption=]
+    \item GameTests\\
+    This category of the tests checks the basis game engine API functionalities.
+    For this purpose, must be created a Game class simulating an example of game, but using \hyperref[sec:tester_adapter]{the tester adapter} to have a possibility to destroy rendering instance after some period of time, removing the need of human interaction while testing.
+\begin{lstlisting}[language=c++, caption=TestGame class (./engine/tests/tester.cpp)]
 class TestGame final : public ts::TesterEngine
 {
     static constexpr std::chrono::steady_clock::duration renderingDuration{3s};
@@ -227,11 +236,11 @@ public:
     TestGame() : TesterEngine{renderingDuration}
     {}
 };
-        \end{lstlisting}
-    \item GameTests
+\end{lstlisting}
         \begin{itemize}
-            \item IsThrowsException
-            \begin{lstlisting}[language=c++, caption=]
+            \item IsThrowsException\\
+            Tests if the engine doesn't throw unhandled exceptions.
+\begin{lstlisting}[language=c++, caption=IsThrowsException test(./engine/tests/tester.cpp)]
 TEST(GameTests, IsThrowsException)
 {
     try
@@ -244,9 +253,10 @@ TEST(GameTests, IsThrowsException)
         FAIL();
     }
 }
-            \end{lstlisting}
+\end{lstlisting}
             \item RunReturnsZero
-            \begin{lstlisting}[language=c++, caption=]
+            Checks if \hyperref[sec:run_fun]{Run function} returns \hyperref[sec:return_codes]{\texttt{TS\_SUCCESS}} 
+\begin{lstlisting}[language=c++, caption=RunReturnsZero test(./engine/tests/tester.cpp)]
 TEST(GameTests, RunReturnsZero)
 {
     const auto game = std::make_unique<TestGame>();
@@ -257,5 +267,3 @@ TEST(GameTests, RunReturnsZero)
             \end{lstlisting}
         \end{itemize}
 \end{itemize}
-
-More about software development and methods of testing are available in \hyperref[sec:testing]{TODO} section.

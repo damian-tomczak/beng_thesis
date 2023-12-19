@@ -1,6 +1,7 @@
 \newpage
 
 \subsection{Logger}
+\label{sec:logger}
 As CppCoreGuidelines \cite{CppCoreGuidelines} Error handling section stands - "Develop an error-handling strategy early in a design; A consistent and complete strategy for handling errors and resource leaks is hard to retrofit into a system.". Therefore, it was crucial for us to provide a robust and straight-forward logger tool.
 \begin{lstlisting}[language=c++, caption=Logger macros (./engine/include/tsengine/logger.h)]
 #define NOT_PRINT_LINE_NUMBER -1
@@ -54,8 +55,18 @@ void error(
     bool throwException = true,
     bool debugBreak = true);
 \end{lstlisting}
+% TODO: message format
+Behavior of those functions can be a slightly modified by theirs arguments but generally:
+\begin{itemize}
+    \item \texttt{log} function\\
+    Prints green information on the console.
+    \item \texttt{warning} function\\ 
+    Prints yellow information on the console and throws a breakpoint on \texttt{DEBUG} builds.
+    \item \texttt{error} function\\
+    Prints red information on the console, throws a breakpoint on \texttt{DEBUG} builds, and finally throws an exception, that inside the engine should be catched by one of the \hyperref[sec:fallbacks]{fallback functions}.
+\end{itemize}
 
-\begin{lstlisting}[language=c++, caption=An example of a Logger message(./engine/include/tsengine/logger.h)]
+\begin{lstlisting}[language=c++, caption=An example of the logger message(./engine/include/tsengine/logger.h)]
 void Game::close()
 {
     TS_LOG("Thanks for playing!");

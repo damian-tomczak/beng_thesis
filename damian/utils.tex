@@ -1,6 +1,14 @@
 \newpage
 \subsection{Utils}
-\subsubsection{Public Engine's utils}
+To ease the writing and debugging of ourselves, we created a few utils functionalities.
+
+\begin{itemize}
+    \item Engine Utils
+    \begin{itemize}
+        \item Public Engine Utils\\
+        To make move semantics easier to use, we add a few extremely useful macros which provide a possibility to define available objects behaviors through human's writable way.\\
+        In the future, we are planning to add a \hyperref[sec:refl]{reflection system} that would remove the need of passing as an argument class name, instead doing it "inline".\\
+        
 \begin{lstlisting}[language=c++, caption=Macros of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 #define TS_NOT_COPYABLE(ClassName)                   \
     ClassName(const ClassName&) = delete;            \
@@ -18,27 +26,9 @@
     TS_NOT_COPYABLE_AND_MOVEABLE(ClassName); \
     private: ClassName() = default;          \
     friend Singleton<ClassName>;
-
-#define TS_STR(x) XSTR(x)
-#define TS_XSTR(x) #x
 \end{lstlisting}
-\begin{lstlisting}[language=c++, caption=std::string\_view hash of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
-template<>
-struct std::hash<std::string_view> final
-{
-    constexpr size_t operator()(const std::string_view s) const noexcept
-    {
-        return fnv1a_32(s, s.length());
-    }
-
-private:
-    // Inspired by
-    constexpr size_t fnv1a_32(const std::string_view s, const size_t count) const noexcept
-    {
-        return count ? (fnv1a_32(s, count - 1) ^ s[count - 1]) * 16777619u : 2166136261u;
-    }
-};
-\end{lstlisting}
+\label{sec:return_codes}
+List of standard return codes our engine uses:
 \begin{lstlisting}[language=c++, caption=Return Codes of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 enum
 {
@@ -48,7 +38,13 @@ enum
     TS_UNKNOWN_FAILURE
 };
 \end{lstlisting}
-
+\begin{itemize}
+    \item \texttt{TS\_SUCCESS} indicates the success of the Engine API
+    \item \texttt{TS\_FAILURE} indicates the failure of the Engine API that was predicted
+    \item \texttt{TS\_STL\_FAILURE} indicates the failure of Engine API on the level of STL,
+    \item \texttt{TS\_UNKNOWN\_FAILURE} indicates the failure of Engine API that is unknown
+\end{itemize}
+Engine uses its own Exception Class that is thrown among others while the error detected by \hyperref[sec:logger]{the logger}.
 \begin{lstlisting}[language=c++, caption=Exception of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 class Exception : public std::exception
 {
@@ -62,7 +58,7 @@ private:
     const std::string_view mMessage;
 };
 \end{lstlisting}
-
+Singleton wrapper:
 \begin{lstlisting}[language=c++, caption=Singleton of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
 template<typename DerivedClass>
 class Singleton
@@ -85,11 +81,11 @@ private:
     inline static std::mutex mutex;
 };
 \end{lstlisting}
-
-\newpage
-
-\subsubsection{Private Engine Utils}
-\begin{lstlisting}[language=c++, caption=]
+        \item Private Engine Utils
+Fallback functions that are used by every Engine API function, to make sure that every problem is appropriate handled.\\
+\label{sec:fallbacks}
+Besides standard \texttt{TS\_CATCH\_FALLBACK} that is simply catch block, we have also \texttt{TS\_CATCH\_FALLBACK\_WITH\_CLEANER(cleanerFunction)} that calls cleaner function to reset state of the engine.
+\begin{lstlisting}[language=c++, caption=Private Engine Utils (./engine/src/internal\_utils.h)]
 #define TS_CATCH_FALLBACK                                                           \
     catch (const Exception&)                                                        \
     {                                                                               \
@@ -128,12 +124,12 @@ private:
         return TS_UNKNOWN_FAILURE;                                                  \
     }
 \end{lstlisting}
-
-\newpage
-
-\subsubsection{Private Engine Khronos Utils}
-\label{sec:khronos_utils}
-\begin{lstlisting}[language=c++, caption=]
+    \end{itemize}
+    \item Engine Khronos Utils\\
+    \label{sec:khronos_utils}
+    Working with Khronos APIs besides their advantages in the form of flexibility come also with disadvantages as among others the need of writing repeating code - further elaborated in \hyperref[sec:registry]{Khronos APIs} section. All Khronos Utils are private.
+    This functionality is available in \hyperref[sec:namespaces]{\texttt{khronos\_utils} namespace}.
+\begin{lstlisting}[language=c++, caption=Khronos Utils (./engine/src/khronos\_utils.h)]
 #define TS_VK_CHECK(function, ...)                                                                         \
     {                                                                                                      \
         VkResult result{function(__VA_ARGS__)};                                                            \
@@ -185,4 +181,55 @@ private:
                 __LINE__);                                                                                 \
         }                                                                                                  \
     }
+
+namespace khronos_utils
+{
+std::string vkResultToString(const VkResult result);
+std::string xrResultToString(const XrResult result);
+
+#ifndef NDEBUG
+constexpr XrDebugUtilsMessageSeverityFlagsEXT xrDebugMessageSeverityFlags =
+    XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+    XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+
+constexpr XrDebugUtilsMessageTypeFlagsEXT xrDebugMessageTypeFlags =
+    XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+    XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT | XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT;
+
+XrBool32 xrCallback(
+    XrDebugUtilsMessageSeverityFlagsEXT messageSeverity,
+    XrDebugUtilsMessageTypeFlagsEXT messageTypes,
+    const XrDebugUtilsMessengerCallbackDataEXT* callbackData,
+    void* userData);
+
+constexpr VkFlags64 vkDebugMessageSeverityFlags =
+    VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+    VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+
+constexpr VkFlags64 vkDebugMessageTypeFlags =
+    VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+
+VkBool32 vkCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+    VkDebugUtilsMessageTypeFlagsEXT type,
+    const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
+    void* userData);
+#endif // !NDEBUG
+
+void unpackXrExtensionString(const std::string& str, std::vector<std::string>& result);
+XrPosef makeXrIdentity();
+bool findSuitableMemoryTypeIndex(
+    VkPhysicalDevice pPhysicalDevice,
+    VkMemoryRequirements pRequirements,
+    VkMemoryPropertyFlags pProperties,
+    uint32_t& typeIndex);
+VkDeviceSize align(const VkDeviceSize value, const VkDeviceSize alignment);
+math::Mat4 createXrProjectionMatrix(const XrFovf fov, const float nearClip, const float farClip);
+math::Mat4 xrPoseToMatrix(const XrPosef& pose);
+}
 \end{lstlisting}
+Macro \texttt{TS\_VK\_CHECK} and \texttt{TS\_XR\_CHECK} check if Vulkan or OpenXR API call was ended successfully, otherwise throws a message with corresponding information about the unsuccessfully ended function, using for this purpose \hyperref[sec:logger]{Logger Class}.\\
+If more specialized message is required \texttt{TS\_??\_CHECK\_MSG} macro can be used.\\
+The rest of the file provides a possibility to convert results of Khronos API's to strings, callbacks for validation layers with the level of their debug messages and math primitives for OpenXR.
+\end{itemize}

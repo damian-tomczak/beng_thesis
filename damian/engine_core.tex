@@ -1,7 +1,9 @@
 \newpage
 
-\subsection{Engine core}
-\begin{lstlisting}[language=c++, caption=Engine class]
+\subsection{Engine Core}
+\label{sec:engine_core}
+\label{sec:engine_class}
+\begin{lstlisting}[language=c++, caption=Engine class (./engine/include/tsengine/core.h)]
 class Engine
 {
 public:
@@ -17,14 +19,16 @@ public:
     virtual bool tick(const float dt) = 0;
     virtual void close();
 };
+\end{lstlisting}
 
+\label{sec:run_fun}
+\begin{lstlisting}[language=c++, caption=Run function (./engine/include/tsengine/core.h)]
 int run(Engine* const engine);
 \end{lstlisting}
 
 \newpage
 
-\subsubsection{Starting Engine} % TODO: english verify
-
+\subsubsection{Starting Engine}
 \begin{lstlisting}[language=c++, caption=Start of the Example Game (./game/game.cpp)]
 TS_MAIN()
 \end{lstlisting}
@@ -221,5 +225,9 @@ TS_CATCH_FALLBACK_WITH_CLEANER(runCleaner)
     }
 \end{lstlisting}
 
-%TODO: windows and mirror view
-%TODO: controllers
+\subsubsection{Window}
+\label{sec:window}
+\subsubsection{Mirror View}
+\label{sec:mirror_view}
+\subsubsection{Controllers}
+\label{sec:controllers}

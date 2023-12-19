@@ -36,3 +36,39 @@
 
 
 \lstset{style=mystyle}
+
+\renewcommand\maketitle{\begin{titlepage}
+  \let\footnotesize\small
+  \let\footnoterule\relax
+  \let \footnote \thanks
+  \begin{center}
+    \Large
+    \hbox to \hsize{\textsc{\hfil University of Warmia and Mazury in Olsztyn}}
+    \hbox to \hsize{\hfil\textsc{Faculty of Mathematics and Computer  Science}\hfil}
+  \end{center}
+  \vskip 0pt plus 0.25 fill
+  \begin{center}
+    \large
+    \textbf{Field of Study: Computer Science}
+  \end{center}
+  \vfill
+  \begin{center}%
+    \begin{tabular}[t]{c}%
+      \Large\strut\bfseries{Damian Tomczak} \\
+      \Large\strut{Student ID 162601}\\
+      \Large\strut\bfseries{Dominik Słodkowski}\\
+      \Large\strut{Student ID 162592}
+    \end{tabular}\par%
+    \vskip9ex
+    {\LARGE\bfseries{Architecture and Implementation of a Three-Dimensional Virtual Reality Graphics Engine}\par}
+    \vskip6ex
+  \end{center}\par
+  \vfill
+  \begingroup%
+    \leftskip0pt plus.124\hsize\parfillskip0pt \parindent 0 pt \spaceskip.3333em \xspaceskip.5em \pretolerance9999\tolerance9999\exhyphenpenalty9999\interlinepenalty9999\hyphenpenalty9999\let\\=\break
+    \normalsize \parindent0pt {Bachelor of Engineering Thesis} \hangindent2em\hangafter1\par
+    \smallskip under supervision of \par{\frenchspacing{PhD Piotr Artmiejew}\hangindent2em\hangafter1\par}
+  \endgroup
+  \vfill\thispagestyle{empty}
+  {\centering\large {Olsztyn, 2024}\par}\end{titlepage}%
+}

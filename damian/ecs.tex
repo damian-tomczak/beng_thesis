@@ -1,9 +1,11 @@
 \subsection{Entity Component System}
-Our ECS takes an advantage of speed over usage of the memory, therefore we store duplicated information about interested object. For an instance of Registry class (discussed in the next section \hyperref[sec:registry]{Registry}) names (called as tags) of entities are stored in two unordered associative containers. Such solution makes the code much faster in both situation, searching for the name of the entity, but having only entity nonetheless also in the case of searching for entity and having only entity's name.
-As we mentioned at the beginning, this doesn't come without cost, and the cost in this case is bigger usage of memory.
-Of course, this it is not limited to just these two variables.
+Theoretical part about Entity Component Systems you can find in the \hyperref[sec:theory_ecs]{section dedicated to this}.
 
-\begin{lstlisting}[language=c++, caption=Entities' name (./engine/include/tsengine/ecs/ecs.h)]
+Our ECS takes an advantage of speed over usage of the memory, therefore we store duplicated information about interested object. For an instance of Registry class (discussed in the next section \hyperref[sec:registry]{Registry}) names (called as tags) of entities are stored in two unordered associative containers. Such solution makes the code much faster in both situation, searching for the name of the entity, but having only entity nonetheless also in the case of searching for entity and having only entity's name.\\
+As we mentioned at the beginning, this doesn't come without cost, and the cost in this case is bigger usage of memory.
+Of course, this it is not limited to just these two variables.\\
+
+\begin{lstlisting}[language=c++, caption=Entities name (./engine/include/tsengine/ecs/ecs.h)]
 std::unordered_map<std::string, Entity> entityPerTag;
 std::unordered_map<Id, std::string> tagPerEntity;
 \end{lstlisting}
@@ -11,7 +13,7 @@ std::unordered_map<Id, std::string> tagPerEntity;
 \newpage
 
 \subsubsection{Registry}
- \label{sec:registry}
+\label{sec:registry}
 \begin{lstlisting}[language=c++, caption=Registry class]
 class Registry
 {
@@ -29,11 +31,9 @@ class Registry
 
     ...
 };
-
-Registry& getMainReg();
 \end{lstlisting}
 The purpose of Registry is to be so kind of database, it is achieved by storing all needed systems, entities' data.\\
-It's possible to have in game multiple registries, but the engine always has a main registry that is exposed by getMainReg function for developers and inside the Engine simply by global variable gReg.
+It's possible to have in game multiple registries, but the engine always has a main registry that is exposed by \texttt{getMainReg} function for developers and inside the Engine simply by global variable \texttt{gReg}.
 Game Developer are allowed to create their own Registers, this can turn out to be useful in the case when the main registry is too much overloaded.
 
 \begin{lstlisting}[language=c++, caption=Private method of access to the main registry (./tsengine/engine/src/globals.hpp)]
@@ -44,11 +44,11 @@ inline Registry gReg;
 Registry& getMainReg()
 \end{lstlisting}
 
-The most "explicitly" used method of the registry is definitely createEntity, that creates new Entity/ID (potentially the engine can reuse an ID of already deleted entity from the freeIds queue) and moves it to entitiesToBeAdded container then during the nearest update method the whole creation process of entity happens - what comes to creation slot in entityComponentSignatures vector and right data slots in componentPools (if the entity's ID wasn't reused).
+The most "explicitly" used method of the registry is definitely \texttt{createEntity}, that creates new Entity/ID (potentially the engine can reuse an ID of already deleted entity from the \texttt{freeIds} queue) and moves it to \texttt{entitiesToBeAdded} container then during the nearest update method the whole creation process of entity happens - what comes to creation slot in \texttt{entityComponentSignatures} vector and right data slots in \texttt{componentPools} (if the entity's ID wasn't reused).
 
-On the other hand, the most "implicitly" used method of the registry is update. In the case of the main registry, this is called inside the engine main loop, but if the user creates its own registry, probably they want to call update of the registry inside the game's tick function that is updated every the engine iteration of main loop.
-\begin{lstlisting}[language=c++, caption=ECS Registry's update method (./engine/include/tsengine/ecs/ecs.h)]
-    void update();
+On the other hand, the most "implicitly" used method of the registry is update. In the case of the main registry, this is called inside the engine main loop, but if the user creates its own registry, probably they want to call update of the registry inside the game tick function that is updated every the engine iteration of main loop.
+\begin{lstlisting}[language=c++, caption=ECS Registry update method (./engine/include/tsengine/ecs/ecs.h)]
+void update();
 \end{lstlisting}
 
 \begin{lstlisting}[language=c++, caption=An example of how custom registry should be updated]
@@ -61,15 +61,19 @@ bool Game::tick(const float dt)
 \end{lstlisting}
 
 \begin{lstlisting}[language=c++, caption=Public method of access to the main registry (./tsengine/engine/src/globals.hpp)]
-void killEntity(const Entity entity);
+Registry& getMainReg();
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Creation of the new Entity (./engine/include/tsengine/ecs/ecs.h)]
+\begin{lstlisting}[language=c++, caption=Creation of the an entity (./engine/include/tsengine/ecs/ecs.h)]
 Entity createEntity();
 \end{lstlisting}
 
+\begin{lstlisting}[language=c++, caption=Removing of an entity (./engine/include/tsengine/ecs/ecs.h)]
+void killEntity(const Entity entity);
+\end{lstlisting}
+
 A Developer has an option to name entities, that makes possible to filter out specific entities inside systems.\\
-For an instance, a system can specify that they are interested in entities containing Transform Component, RigidBody Component. There are maybe many such entities with such components, but you may be interested in one very specific entity like a player, in such situation would be nice to have a possibility to mark an entity with a name or group entities with a tag. This possible by through methods listed below:   
+For an instance, a system can specify that they are interested in entities containing \texttt{TransformComponent}, \texttt{RigidBodyComponent}. There are maybe many such entities with such components, but you may be interested in one very specific entity like a player, in such situation it would be nice to have a possibility to mark an entity with a name or group entities with a tag. This possible by through methods listed below:   
 \begin{lstlisting}[language=c++, caption=Registry tag and group methods (./engine/include/tsengine/ecs/ecs.h)]
     void tagEntity(const Entity entity, const std::string& tag);
     bool entityHasTag(const Entity entity, const std::string& tag) const;
@@ -86,7 +90,7 @@ For an instance, a system can specify that they are interested in entities conta
 \end{lstlisting}
 
 Registry has also methods responsible for association of components to entities.
-Those are hidden from the public usage, because they should be used only via interested entity to make the code more clear. Therefore, Entity class becomes friend class of Registry. 
+Those are hidden from the public usage, because they should be used only via interested entity to make the code more clear. Therefore, \texttt{Entity} class becomes friend class of \texttt{Registry}. 
 \begin{lstlisting}[language=c++, caption=Registry component addition methods (./engine/include/tsengine/ecs/ecs.h)]
 private:
     friend Entity;
@@ -101,9 +105,9 @@ private:
 \newpage
 
 \subsubsection{Entity}
-The whole affair behind ECS is about entities, and here it is - Entity class.
+The whole affair behind ECS is about entities, and here it is - \texttt{Entity} class.
 To make the API more friendly by providing the possibility to modify entities' properties instead of referencing directly by registry, our implementation of an entity isn't such light-weight as it should be.\\
-Entity \hyperref[sec:registry]{ECS's Entity} described in the theoretical section should be represented only by ID in the form of the integer, but in our implementation an entity contains also a pointer to the registry it belongs.
+Entity \hyperref[sec:registry]{ECS Entity} described in the theoretical section should be represented only by ID in the form of the integer, but in our implementation an entity contains also a pointer to the registry it belongs.
 \begin{lstlisting}[language=c++, caption=Entity class (./engine/include/tsengine/ecs/ecs.h)]
 class Entity
 {
@@ -135,7 +139,7 @@ public:
 
 \subsubsection{Component}
 Another element in ECS implementation is the component class that represents entity's properties.
-Every created component class should be derived from the component class. If the user's created component class needs to have a template "parent" component with specialization, it is possible, but a developer has to remember to override Base declaration to the "parent". An example of such behavior is possible to see for \hyperref[sec:render_component]{RenderComponent}.
+Every created component class should be derived from the \texttt{Component} class. If the user's created component class needs to have a template "parent" component with specialization, it is possible, but a developer has to remember to override \texttt{Base} declaration to the "parent". An example of such behavior is possible to see for \hyperref[sec:render_component]{\texttt{RenderComponent}}.
 \begin{lstlisting}[language=c++, caption=Component classe (./engine/include/tsengine/ecs/ecs.h)]
 struct Component
 {
@@ -143,9 +147,8 @@ struct Component
 };
 \end{lstlisting}
 
-When it comes to component classes, worth mentioning is also ComponentManager
-it is used only inside Registry and rather there are no reasons why it should be used outside.\\
-ComponentManager generates a unique ID for every component class.
+When it comes to component classes, worth mentioning is also \texttt{ComponentManager}
+it is used only inside Registry and rather there are no reasons why it should be used outside. \texttt{ComponentManager} generates a unique ID for every component class.
 \label{lst:component_manager}
 \begin{lstlisting}[language=c++, caption=IComponent and ComponentManager (./engine/include/tsengine/ecs/ecs.h)]
 struct IComponent
@@ -171,7 +174,7 @@ public:
 \subsubsection{Signature}
 The way in which  entities are selected to the right systems plays a key role in every entity component system.
 Our selection is based on bit-fields, the size of these bit-fields limits the maximum amount of components that entity can have.
-As mentioned in \hyperref[lst:component_manager]{Component Manager code snippet}, every component have unique ID that is generated by Component Manager. Those IDs are then used to set a specific bit in the entity's signature.
+As mentioned in \hyperref[lst:component_manager]{Component Manager code snippet}, every component have unique ID that is generated by \texttt{ComponentManager}. Those IDs are then used to set a specific bit in the entity's signature.
 \begin{lstlisting}[language=c++, caption=Signature (./engine/include/tsengine/ecs/ecs.h)]
 inline constexpr auto maxComponents = 32;
 
@@ -186,7 +189,7 @@ bool isInterested = (entityComponentSignature & systemComponentSignature) == sys
 \newpage
 
 \subsubsection{System}
-System is a simple container that groups entities which contain required components. Preferable, while creating the system requireComponent method should be called to form a signature of the system.
+System is a simple container that groups entities which contain required components. Preferable, while creating the system, \texttt{requireComponent} method should be called to form a signature of the system.
 \begin{lstlisting}[language=c++, caption=System class (./engine/include/tsengine/ecs/ecs.h)]
 class System
 {
@@ -276,7 +279,7 @@ public:
 \subsubsection{Public Engine Components}
 \begin{itemize}
     \item AssetComponent\\
-    The entities referencing to the asset file's, Asset Component is required.
+    The entities referencing to the asset file, \texttt{AssetComponent} is required.
 \begin{lstlisting}[language=c++, caption= Asset Component struct(./engine/include/tsengine/ecs/components/asset\_component.h)]
 struct AssetComponent : public Component
 {
@@ -292,9 +295,9 @@ protected:
 };
 \end{lstlisting}
     \item MeshComponent\\
-    Mesh Component must be added to the entities you want they to have meshes.
+    \texttt{MeshComponent} must be added to the entities you want they to have meshes.
     Meshes come from .obj asset files.
-    This component stores the structure of vertex from which meshes are built and firstIndex and indexCount members which are required to track entities' indices inside the Asset Store that tracks all needed vertices and indices. 
+    This component stores the structure of vertex from which meshes are built and \texttt{firstIndex} and \texttt{indexCount} members which are required to track entities' indices inside the \texttt{AssetStore} that tracks all needed vertices and indices. 
 \begin{lstlisting}[language=c++, caption= Mesh Component struct (./engine/include/tsengine/ecs/components/mesh\_component.h)]
 struct MeshComponent : public AssetComponent
 {
@@ -314,8 +317,8 @@ struct MeshComponent : public AssetComponent
 \end{lstlisting}
     \item RendererComponent\\
     \label{sec:render_component}
-    To make entity renderable, a developer has to use RenderComponent with appropriate Shader pipeline you want to use.\\
-    RendererComponentBase delivers a possibility to track all renderable entities for the registries and shouldn't be used explicitly. Besides of it contains "z" property that allows to render entities according to developer's needs. 
+    To make entity renderable, a developer has to use \texttt{RenderComponent} with appropriate shader pipeline you want to use.\\
+    \texttt{RendererComponentBase} delivers a possibility to track all renderable entities for the registries and shouldn't be used explicitly. Besides of it contains "z" property that allows to render entities according to developer's needs. 
 \begin{lstlisting}[language=c++, caption=Renderer Component struct (./engine/include/tsengine/ecs/components/renderer\_component.h)]
 #define TS_PIPELINES_LIST     \
     PIPELINE(COLOR)           \
@@ -354,9 +357,9 @@ struct RendererComponent : public RendererComponentBase
 };
 \end{lstlisting}
 
-A special case of Renderer Component is PBR Renderer Component that requires creation of material.\\
-The process of adding PBR Renderer Component to an entity presents the next code snippet \hyperref[lst:renderer_component_pbr]{PBR Renderer Component}.
-Followed listening presents compile time oriented PBR Renderer Component. Materials' properties are based on article of Sébastien Lagarde "Feeding a physically based shading model".\cite{feedingpbr}
+A special case of \texttt{RendererComponent} is a physical based rendering renderer component that requires creation of material.\\
+The process of adding a PBR renderer component to an entity presents the next code snippet \hyperref[lst:renderer_component_pbr]{\texttt{PBRRendererComponent}}.
+Followed listening presents compile time oriented PBR Renderer Component. Materials' properties are based on article of Sébastien Lagarde "Feeding a physically based shading model"\cite{feedingpbr}. % TODO: link doesnt work
 \begin{lstlisting}[language=c++, caption=Renderer PBR Component struct (./engine/include/tsengine/ecs/components/renderer\_component.h)]
 template<>
 struct RendererComponent<PipelineType::PBR> : public RendererComponentBase
@@ -451,7 +454,7 @@ struct TransformComponent : public Component
 \subsubsection{Public Engine Systems}
 \begin{itemize}
     \item AssetStore\\
-    It's worth noting that the AssetStore is an exception here, as it is not placed in the system subfolder. AssetStore uniquely benefits from being a system through its ability to retrieve every entity from the register that possesses the required components.
+    It's worth noting that the \texttt{AssetStore} is an exception here, as it is not placed in the system subfolder. \texttt{AssetStore} uniquely benefits from being a system through its ability to retrieve every entity from the register that possesses the required components.
 \end{itemize}
 
 \subsubsection{Private Engine Systems}
@@ -717,7 +720,8 @@ private:
 \end{lstlisting}
 \end{itemize}
 
-\subsubsection{Game's components}
+\subsubsection{Game Components}
+\label{sec:game_components}
 \begin{itemize}
     \item EchoComponent
 \begin{lstlisting}[language=c++, caption=]
@@ -750,9 +754,10 @@ struct ExampleComponent : public ts::Component
 \end{lstlisting}
 \end{itemize}
 
-\subsubsection{Game's systems}
+\subsubsection{Game Systems}
 \begin{itemize}
     \item ExampleSystem
+    \label{sec:example_system}
 \begin{lstlisting}[language=c++, caption=]
 class ExampleSystem : public ts::System
 {

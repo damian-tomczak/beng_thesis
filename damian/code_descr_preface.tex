@@ -45,22 +45,21 @@ The structure of directories used in the project:
 \newpage
 
 \subsection{Namespaces}
+\label{sec:namespaces}
 We can distinguish in the engine a few namespaces:
 \begin{itemize}
     \item ts
         Main engine's namespace - all the staff exposed to the user is available through this namespace.
     \begin{itemize}
-        \item khronos\_utils
+        \item khronos\_utils\\
             Namespace containing staff, useful while working with OpenXr and Vulkan APIs
-        \item vkLoader
+        \item vkLoader\\
             Inside vkLoader is available loader of vulkan.
-        \item version
+        \item Version\\
             Namespace defined in the build system that takes form of:
             \begin{lstlisting}[language=c++, caption= Definition of TS\_VER preprocessor macro (.engine/CMakeLists.txt)]
 TS_VER=v${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}_${PROJECT_VERSION_PATCH}
             \end{lstlisting}
             The purpose of this macro is to prevent from breaking the API of the engine.
-        \item anonymous
-            Just for formality, we store variables that shouldn't be used outside translation unit in anonymous namespaces
     \end{itemize}
 \end{itemize}
