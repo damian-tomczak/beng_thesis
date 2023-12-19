@@ -1,7 +1,8 @@
 \newpage
-
 \subsection{Engine Core}
 \label{sec:engine_core}
+When saying about TSEngine's core, we distinguish public and private part. The first visible for a game and the latter unavailable for a game.
+\subsubsection{Public Engine Core}
 \label{sec:engine_class}
 \begin{lstlisting}[language=c++, caption=Engine class (./engine/include/tsengine/core.h)]
 class Engine
@@ -224,7 +225,8 @@ TS_CATCH_FALLBACK_WITH_CLEANER(runCleaner)
         }
     }
 \end{lstlisting}
-
+\newpage
+\subsubsection{Private Engine Core}
 \subsubsection{Window}
 \label{sec:window}
 \subsubsection{Mirror View}
