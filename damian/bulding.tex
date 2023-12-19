@@ -1,19 +1,58 @@
 \newpage
 
-\subsection{Building of TSEngine}
+\section{Building of TSEngine}
 \label{sec:build}
-The core of every modern C++ project is CMake % TODO:
-% TODO: dll version
-
+The core of every modern C++ project is \hyperref[sec:stack_cmake]{CMake}, this is no different for our project.
+Comprehensive series of article about types of libraries in C++ \cite{cpplibs} that knowledge included there may turn out to be useful in this section.
 \subsection{Build Structure}
 \label{sec:build_struct}
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/build.png}
   \caption{Build Structure}
 \end{figure}
-
-\subsection{Instruction How To Run the Project}
-
+Currently, TSEngine is delivered to the game in the form of static library, unfortunately at the moment of writing this thesis we haven't implemented Dy 
+\begin{verbatim}
+├───engine
+│   ├───CMakeLists.txt
+│   └───tests
+│       └───CMakeLists.txt
+├───external
+│   └───CMakeLists.txt
+└───game
+│   └───CMakeLists.txt
+└───CMakeLists.txt
+\end{verbatim}
+\begin{table}[h]
+\caption{CMake files}
+\end{table}
+\newpage
+\subsection{Instruction How To Build the Project}
+\label{sec:how_to_run}
+\begin{enumerate}
+    \item Be sure that you have already installed and updated graphics drivers and your GPU's capabilities are enough- \hyperref[sec:hardware]{supported hardware}
+    \item Be sure that you have already installed all needed VR headset software and set up the environment to play - \hyperref[sec:hardware]{supported hardware}
+    \begin{enumerate}
+        \item Optional Virtualizer: If you want to use \hyperref[sec:virtualizer]{Virtualizer}, be sure to have all needed software installed and set up the treadmill to play.
+    \end{enumerate}
+    \item Download Git if you don't have yet:
+        \href{https://git-scm.com/downloads}{https://git-scm.com/downloads}
+    \item Download CMake if you don't have yet:
+        \href{https://cmake.org/download/}{https://cmake.org/download/}
+    \item Download Visual Studio with C++ workspace if you don't have yet:
+        \href{https://visualstudio.microsoft.com/vs/}{https://visualstudio.microsoft.com/vs/}
+    \item Open system terminal
+    \item Run command (cloning the repository):\\
+        \texttt{git clone https://github.com/damian-tomczak/tsengine --recursive \&\& cd tsengine}
+    \begin{enumerate}
+        \item Optional Virtualizer: If you want to use \hyperref[sec:virtualizer]{Virtualizer}, move Cyberith SDK to \texttt{external/CybSDK\_Cpp}
+    \end{enumerate}
+    \item Run command (creating working directory):\\
+        \texttt{mkdir build \&\& cd build}
+    \item Run command (creating project files - on Windows by default Visual Studio project if is installed, othwerwise use \texttt{-G} flag):\\
+        \texttt{cmake ..}
+    \item Build the project with your build system.
+    \item Run the project: \texttt{./build/output/tsgame/[BUILD TYPE]/tsgame.[EXECUTABLE FORMAT]}
+\end{enumerate}
 \newpage
 \subsubsection{Third Party Dependencies}
 \label{lst:3rdparty}
