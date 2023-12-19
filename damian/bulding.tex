@@ -1,16 +1,18 @@
 \newpage
-
 \section{Building of TSEngine}
 \label{sec:build}
-The core of every modern C++ project is \hyperref[sec:stack_cmake]{CMake}, this is no different for our project.
+The main purpose of creating sophisticated building system is to assure multiplatform and non-device dependent project, simultaneously easy to set up.\\ This is obligatory in long-living projects and in non-single developer projects.
+To fulfill those assumptions the core of every modern C++ project is \hyperref[sec:stack_cmake]{CMake}, this is no different for our project.
 Comprehensive series of article about types of libraries in C++ \cite{cpplibs} that knowledge included there may turn out to be useful in this section.
+% TODO: dominik the preface of building of tsengine can on the other hand become a fragment of theory, wydt, do you have time?
+Unfortunately at this moment \hyperref[sec:problems]{"Problems During the Development"}
 \subsection{Build Structure}
 \label{sec:build_struct}
 \begin{figure}
   \includegraphics[width=\linewidth]{figures/build.png}
   \caption{Build Structure}
 \end{figure}
-Currently, TSEngine is delivered to the game in the form of static library, unfortunately at the moment of writing this thesis we haven't implemented Dy 
+Currently, TSEngine is delivered to the game in the form of static library, unfortunately at the moment of writing this thesis we haven't yet implemented dynamic version of TSEngine, but we provided abstraction and architecture to do it.
 \begin{verbatim}
 ├───engine
 │   ├───CMakeLists.txt

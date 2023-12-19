@@ -1,11 +1,9 @@
 \newpage
-
 \subsection{Operating System Specific}
 \label{sec:os}
-
 So far, engine supports only Windows system. Due to the among others poor support of VR devices on Linux system.
-Further explained in the section with \hyperref[sec:problems]{problems which we have met during the development}.
-Every OS specific implementations should be specified inside \texttt{./engine/src/os/[os]/} with declarations at \texttt{./engine/src/os/[os]/os.h}.\\.cpp
+Further explained in the section with \hyperref[sec:problems]{"Problems During the Development"}.
+Every OS specific implementations should be specified inside \texttt{./engine/src/os/[OS API TYPE]/} with declarations at \texttt{./engine/src/os/[OS API TYPE]/os.h}.\\.cpp
 For compilation only are added \texttt{.cpp} files only from interested operating system, the same applies to headers, especially \texttt{os.h} that existence is required and from which the engine takes OS specific staff.
 \begin{lstlisting}[language=c++, caption=Windows OS Header(./engine/src/os/win32/os.h)]
 #define LIBRARY_TYPE HMODULE
