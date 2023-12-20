@@ -5,14 +5,18 @@ The main purpose of creating sophisticated building system is to assure multipla
 To fulfill those assumptions the core of every modern C++ project is \hyperref[sec:stack_cmake]{CMake}, this is no different for our project.
 Comprehensive series of article about types of libraries in C++ \cite{cpplibs} that knowledge included there may turn out to be useful in this section.
 % TODO: dominik the preface of building of tsengine can on the other hand become a fragment of theory, wydt, do you have time?
-Unfortunately at this moment \hyperref[sec:problems]{"Problems During the Development"}
 \subsection{Build Structure}
-\label{sec:build_struct}
-\begin{figure}
+\label{fig:build_struct}
+\begin{figure}[h]
   \includegraphics[width=\linewidth]{figures/build.png}
   \caption{Build Structure}
 \end{figure}
 Currently, TSEngine is delivered to the game in the form of static library, unfortunately at the moment of writing this thesis we haven't yet implemented dynamic version of TSEngine, but we provided abstraction and architecture to do it.
+As the \ref{fig:build_struct} presents, engine is consisted of two other components: Entity Component System(ECS) and Math libraries which are header only tempalate libraries where it is possible compile time, both can be optionally included.
+
+Besides of it, as was said in the previous paragraph as far now the engine can be built only as static library all third party dependencies must be added to the executable.\\
+Assets are copied to the output directory whenever the engine or game is built. This fragment deservers further attention, because it creates a problem while compiling shaders - what mentioned is in \hyperref[problem_with_shader_compilation]{Shader Compiler} section. However would be also nice to store assets in binary packages for the game usage, what is common practice nowadays, with an addition of serialization of game's structures and storing it, it would create a pretty functional system.
+\newpage
 \begin{verbatim}
 ├───engine
 │   ├───CMakeLists.txt
@@ -20,7 +24,7 @@ Currently, TSEngine is delivered to the game in the form of static library, unfo
 │       └───CMakeLists.txt
 ├───external
 │   └───CMakeLists.txt
-└───game
+├───game
 │   └───CMakeLists.txt
 └───CMakeLists.txt
 \end{verbatim}
@@ -58,7 +62,7 @@ Currently, TSEngine is delivered to the game in the form of static library, unfo
 \newpage
 \subsubsection{Third Party Dependencies}
 \label{lst:3rdparty}
-We prioritize building from source code over using precompiled binaries % TODO: proses conses
+We prioritize building from source code over using precompiled binaries
 One of the modern way of handling compiling from source code is to use git submodules. The core of this method is \texttt{.gitsubmodules} file containing all used external dependencies.
 \begin{lstlisting}[caption=.gitsubmodules]
 [submodule "external/vulkan"]
@@ -77,6 +81,15 @@ One of the modern way of handling compiling from source code is to use git submo
 	path = external/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader.git
 \end{lstlisting}
+Advantages of source code dependencies over precompiled binaries:
+\begin{itemize}[label=$\ast$]
+  \item First item
+  \item Second item
+\end{itemize}
+Disadvantages of source code dependencies over precompiled binaries:
+\begin{itemize}
+    \item Compilation time 
+\end{itemize}
 
 \newpage
 \subsubsection{Cyberith SDK}

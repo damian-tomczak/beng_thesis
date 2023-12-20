@@ -3,7 +3,7 @@
 \subsection{Vulkan Tools}
 Tsengine uses only one graphics API for rendering, and we didn't provide a layer of abstraction for handling multiple API's. API we have chosen is Vulkan. While working on Vulkan extremely useful or required is to have tools.
 \subsubsection{Shader Compiler}
-We have chosen to compile shaders during the runtime, it's possible by \texttt{compilerShaders} function defined in \texttt{shaders\_compiler.h} header that takes the path to the directory with shader assets: % TODO: difference between methods of compilation, history of tlou 2, proses conses
+We have chosen to compile shaders during the runtime, it's possible by \texttt{compilerShaders} function defined in \texttt{shaders\_compiler.h} header that takes the path to the directory with shader assets: % TODO: dominik difference between methods of compilation, history of tlou 2, proses conses
 \begin{lstlisting}[language=c++, caption=Shaders Compiler header (./engine/src/vulkan\_tools/shaders\_compiler.h)]
 void compileShaders(const std::filesystem::path shadersPath);
 \end{lstlisting}
@@ -55,6 +55,7 @@ void compileShaders(const std::filesystem::path shadersPath)
     glslang_finalize_process();
 }
 \end{lstlisting}
+\label{problem_with_shader_compilation}
 Our shader compiler required more work because for now shader compilation in \texttt{DEBUG} mode happens every start of the game, however in release build type engine checks only if the shader has been already compiled.\\
 Optimally, compilation should happen only during for modified or new files. Nonetheless, TSEngine during development copies all the assets every time from the main directory to the output directory  \hyperref[lst:build]{Building of TSEngine}. Therefore, within the every start of the engine assets files are modified that prevents from tracking which assets should be again compiled. It requires changes at the level of project generation - copy only modified or new assets to the output directory, we were lack of time to implement it.
 
