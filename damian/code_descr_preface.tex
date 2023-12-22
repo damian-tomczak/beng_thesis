@@ -2,10 +2,11 @@
 \section{Code Description}
 \label{sec:code_descr}
 This code description tries to present as much as possible useful knowledge basing on code snippets, therefore uses simplifications where it is needed and tries to give more architecture overview, features available than focusing on explanation about every possible implementation. Moreover, sometimes deliberations about lack of features or especially what could be done better can be found.
-\subsection{Naming Conventions}
-We use Camel Case in C++ code and Allman indentation convention unless code is strictly related to C++'s STL then we use Snake\_Case, this happens among others while touching C++ 20's Concepts feature.
-Furthermore, Snake\_Case convention we use also for naming two/n-part named directories and files.
 
+We use \texttt{CamelCase} in C++ code and Allman indentation convention unless code is strictly related to C++'s STL then we use \texttt{Snake\_Case}, this happens among others while touching C++ 20's Concepts feature.
+Furthermore, \texttt{Snake\_Case} convention we use also for naming two/n-part named directories and files.
+
+We have principles we followed in the aspect of OOP while working with \hyperref[sec:khronos]{\ref*{sec:khronos}. Khronos APIs} consistent with RAII\footnote{"Resource Acquisition Is Initialization," is a programming idiom used in C++ and other languages to manage resources such as memory, file handles, and network connections. The core idea behind RAII is that resource allocation (or acquisition) is tied to the lifespan of an object, ensuring automatic resource deallocation (or release) when the object is destroyed.} concepts. To achieve it, we were avoiding creating Vulkan or OpenXR objects in constructors of our abstraction, but remembering to set hem null pointers to then have an option to check not null and destroy Khronos's objects.
 \subsection{Directories Structure}
 The structure of directories used in the project:
 \begin{verbatim}

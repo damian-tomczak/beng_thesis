@@ -60,7 +60,7 @@ Assets are copied to the output directory whenever the engine or game is built. 
     \item Run the project: \texttt{./build/output/tsgame/[BUILD TYPE]/tsgame.[EXECUTABLE FORMAT]}
 \end{enumerate}
 
-\subsubsection{Third Party Dependencies}
+\subsection{Third Party Dependencies}
 \label{lst:3rdparty}
 We prioritize building from source code over using precompiled binaries
 One of the modern way of handling compiling from source code is to use git submodules. The core of this method is \texttt{.gitsubmodules} file containing all used external dependencies.
@@ -83,7 +83,7 @@ One of the modern way of handling compiling from source code is to use git submo
 \end{lstlisting}
 The major advantage of source code dependencies over precompiled binaries is having significantly less memory usage to store a project and easy way to make a fork of your dependency. However the biggest disadvantage of source code lies on compilation time.
 
-\subsubsection{Cyberith SDK}
+\subsection{Cyberith SDK}
 There is one external dependency that git submodules doesn't cover, that dependency is Cybertith SDK, responsible for communication with Cyberith Virtualizer ELITE 2 treadmill.
 This is the only 3rd party library that is included to the project as a binary and is optional to use.
 More theory about this device and its SDK is available at:
@@ -92,7 +92,7 @@ More theory about this device and its SDK is available at:
     \item \hyperref[sec:movement_system]{Movement System}
 \end{itemize}
 
-\subsubsection{Precompiled Header}
+\subsection{Precompiled Header}
 To reduce the amount of code which you care about adding in every translation unit, a precompiled header can be used. In our project we used it to reduce the amount of often used include directives, actually we used it only to don't mess up with adding STL for the engine's part.\\
 More systemized and modern substitution of a precompiled header is C++20's Modules, simplicity-wise precompiled fragments of code. Unfortunately, when we started working on engineering thesis the implementation of it was still in bad condition, especially on the top of CMake. For the end of 2023 year, it is safe to use Modules with CMake for enthusiast projects.
 
@@ -100,7 +100,7 @@ More systemized and modern substitution of a precompiled header is C++20's Modul
 target_precompile_headers(${PROJECT_NAME} PUBLIC src/pch.h)
 \end{lstlisting}
 
-\subsubsection{Operating System Specific}
+\subsection{Operating System Specific}
 \label{sec:build_os}
 Multiplatform building is covered by followed \texttt{os\_files}\ref{lst:os} function that removes from the \texttt{SRC\_FILES} variable all \texttt{*.cpp} files not designed to be used on platform that is currently used to build the project.
 \label{lst:os}
@@ -135,7 +135,7 @@ os_files(SRC_FILES *.cpp)
 \end{lstlisting}
 As we will discuss it in \hyperref[sec:problems]{Problems During the Development} section, we encountered problems with virtual reality on Linux systems, therefore to keep up the project open for further modifications and good practices we delivered layers of abstraction and where it was obvious errors are invoked with messages pointing that the followed code wasn't yet implemented for currently being built platform.\\ At the level of CMake, this problem handles \texttt{message} function with \texttt{FATAL\_ERROR} argument that stops the configuration of the project.\\ On the other hand, \texttt{\#error not implemented} preprocessor command secures this code at the level of C++.
 
-\subsubsection{CMake}
+\subsection{CMake}
 \begin{itemize}
     \item ./CMakeLists.txt
     \item ./external/CMakeLists.txt
@@ -146,14 +146,14 @@ As we will discuss it in \hyperref[sec:problems]{Problems During the Development
     \item ./game/CMakeLists.txt
 \end{itemize}
 
-\subsubsection{Common ABI}
+\subsection{Common ABI}
 \label{sec:abi}
 
-\subsubsection{Preprocess Definitions}
+\subsection{Preprocess Definitions}
 
-\subsubsection{Included Directories}
+\subsection{Included Directories}
 
-\subsubsection{Unit Tests}
+\subsection{Unit Tests}
 \label{sec:build_unit_tests}
 One of the method of testing the software are unit tests - elaborated further in \hyperref[sec:testing]{Software Testing section}. This is the method we have chosen for testing our project.
 Deeper deliberation about unit tests in TSEngine consisted of among others a list of those and the purpose of each one of them can be found in the section dedicated to it, namely \hyperref[sec:tests]{Tests}.
@@ -226,8 +226,7 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}}
 \end{lstlisting}
 
-\subsubsection{.gitignore}
-\begin{lstlisting}[caption=\textttt{.gitignore} (./.gitignore)]
+\begin{lstlisting}[caption=\texttt{.gitignore} (./.gitignore)]
 build
 .vscode
 external/*/
