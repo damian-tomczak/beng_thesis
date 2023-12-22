@@ -2,7 +2,8 @@
 
 \subsection{Logger}
 \label{sec:logger}
-As CppCoreGuidelines \cite{CppCoreGuidelines} Error handling section stands - "Develop an error-handling strategy early in a design; A consistent and complete strategy for handling errors and resource leaks is hard to retrofit into a system.". Therefore, it was crucial for us to provide a robust and straight-forward logger tool.
+
+\hspace{\parindent} As CppCoreGuidelines \cite{CppCoreGuidelines} Error handling section stands - "Develop an error-handling strategy early in a design; A consistent and complete strategy for handling errors and resource leaks is hard to retrofit into a system.". Therefore, it was crucial for us to provide a robust and straight-forward logger tool.
 \begin{lstlisting}[language=c++, caption=Logger macros (./engine/include/tsengine/logger.h)]
 #define NOT_PRINT_LINE_NUMBER -1
 
@@ -11,15 +12,15 @@ As CppCoreGuidelines \cite{CppCoreGuidelines} Error handling section stands - "D
 #define TS_ERR(msg) ts::logger::error(msg, __FILE__, FUNCTION_SIGNATURE, __LINE__)
 
 #ifndef NDEBUG
-#define TS_ASSERT(condition)                                                                                \
-    if (!(condition))                                                                                       \
-    {                                                                                                       \
+#define TS_ASSERT(condition) \
+    if (!(condition)) \
+    { \
         ts::logger::warning("Assertion Failed: " #condition, __FILE__, FUNCTION_SIGNATURE, __LINE__, true); \
     }
 
-#define TS_ASSERT_MSG(condition, msg)                                           \
-    if (!(condition))                                                           \
-    {                                                                           \
+#define TS_ASSERT_MSG(condition, msg) \
+    if (!(condition)) \
+    { \
         ts::logger::warning(msg, __FILE__, FUNCTION_SIGNATURE, __LINE__, true); \
     }
 
@@ -56,6 +57,7 @@ void error(
     bool debugBreak = true);
 \end{lstlisting}
 % TODO: message format
+
 Behavior of those functions can be a slightly modified by theirs arguments but generally:
 \begin{itemize}
     \item \texttt{log} function\\
@@ -65,6 +67,11 @@ Behavior of those functions can be a slightly modified by theirs arguments but g
     \item \texttt{error} function\\
     Prints red information on the console, throws a breakpoint on \texttt{DEBUG} builds, and finally throws an exception, that inside the engine should be catched by one of the \hyperref[sec:fallbacks]{fallback functions}.
 \end{itemize}
+
+Example of the message:\\
+\texttt{[INFO][19-12-2023 22:53:30 at C:\textbackslash Users\textbackslash damian\textbackslash source\textbackslash repos\textbackslash tsengine\textbackslash engine\textbackslash src\textbackslash core\textbackslash core.cpp int \_\_cdecl ts::v1\_0\_0::run(class ts::v1\_0\_0::Engine *const ):121]: tsengine initialization completed successfully}\\
+
+Firstly the type of message is displayed in square brackets, secondly info about the date and time when the message was printed. Consequently, on debug builds info about the place where the logger was called is presented - file, the function and a line number. To finally display the text message. 
 
 \begin{lstlisting}[language=c++, caption=An example of the logger message(./engine/include/tsengine/logger.h)]
 void Game::close()

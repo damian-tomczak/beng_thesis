@@ -1,16 +1,16 @@
 \newpage
-
 \subsection{Renderer}
+This section won't be flowery explained because as we said in preface for code description our thesis is oriented around the architecture than explaining the API. And in the case of \hyperref[sec:khronos]{\ref*{sec:khronos}. Khronos APIs} it would be tremendous effort and quite useless because on the market are available position which much better exhaust the topic of Vulkan: \cite{VulkanCookbook}, unfortunately OpenXR is a representant of a niche of Virtual Reality, so no books are available right now to recommend, documentation however and \textit{"OpenXR Code Examples and References"} \cite{OpenXrExamples} are everything what you are looking for.
 \label{sec:renderer}
-We can distinguish the front-end of the renderer being the part of ECS - \hyperref[sec:renderer_system]{ECS Renderer System}\ref, but also back-end in classes:
+We can distinguish the front-end of the renderer being the part of ECS - \hyperref[sec:renderer_system]{\ref*{sec:renderer_system}. ECS Renderer System}, but also back-end in classes:
 \begin{itemize}
-    \item Context
-    \item DataBuffer
-    \item ImageBuffer
-    \item Pipeline
-    \item RenderTarget
-    \item RendererProcess
-    \item Renderer
+    \item \texttt{Context}
+    \item \texttt{DataBuffer}
+    \item \texttt{ImageBuffer}
+    \item \texttt{Pipeline}
+    \item \texttt{RenderTarget}
+    \item \texttt{RendererProcess}
+    \item \texttt{Renderer}
 \end{itemize}
 All of them are available in the corresponding files \texttt{*.cpp} and \texttt{*.h} files inside \texttt{./engine/src/core/} path]
 

@@ -12,11 +12,11 @@ Comprehensive series of article about types of libraries in C++ \cite{cpplibs} t
   \caption{Build Structure}
 \end{figure}
 Currently, TSEngine is delivered to the game in the form of static library, unfortunately at the moment of writing this thesis we haven't yet implemented dynamic version of TSEngine, but we provided abstraction and architecture to do it.
-As the \ref{fig:build_struct} presents, engine is consisted of two other components: Entity Component System(ECS) and Math libraries which are header only tempalate libraries where it is possible compile time, both can be optionally included.
+As the \ref{fig:build_struct} presents, engine is consisted of two other components: Entity Component System(ECS) and Math libraries which are header only template libraries where it is possible in compile time, both can be optionally included.
 
 Besides of it, as was said in the previous paragraph as far now the engine can be built only as static library all third party dependencies must be added to the executable.\\
-Assets are copied to the output directory whenever the engine or game is built. This fragment deservers further attention, because it creates a problem while compiling shaders - what mentioned is in \hyperref[problem_with_shader_compilation]{Shader Compiler} section. However would be also nice to store assets in binary packages for the game usage, what is common practice nowadays, with an addition of serialization of game's structures and storing it, it would create a pretty functional system.
-\newpage
+Assets are copied to the output directory whenever the engine or game is built. This fragment deservers further attention, because it creates a problem while compiling shaders - what mentioned is in \hyperref[problem_with_shader_compilation]{Shader Compiler} section. However, would be also nice to store assets in binary packages for the game usage, what is common practice nowadays, with an addition of serialization of game's structures and storing it, it would create a pretty functional system.
+
 \begin{verbatim}
 ├───engine
 │   ├───CMakeLists.txt
@@ -59,7 +59,7 @@ Assets are copied to the output directory whenever the engine or game is built. 
     \item Build the project with your build system.
     \item Run the project: \texttt{./build/output/tsgame/[BUILD TYPE]/tsgame.[EXECUTABLE FORMAT]}
 \end{enumerate}
-\newpage
+
 \subsubsection{Third Party Dependencies}
 \label{lst:3rdparty}
 We prioritize building from source code over using precompiled binaries
@@ -81,17 +81,8 @@ One of the modern way of handling compiling from source code is to use git submo
 	path = external/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader.git
 \end{lstlisting}
-Advantages of source code dependencies over precompiled binaries:
-\begin{itemize}[label=$\ast$]
-  \item First item
-  \item Second item
-\end{itemize}
-Disadvantages of source code dependencies over precompiled binaries:
-\begin{itemize}
-    \item Compilation time 
-\end{itemize}
+The major advantage of source code dependencies over precompiled binaries is having significantly less memory usage to store a project and easy way to make a fork of your dependency. However the biggest disadvantage of source code lies on compilation time.
 
-\newpage
 \subsubsection{Cyberith SDK}
 There is one external dependency that git submodules doesn't cover, that dependency is Cybertith SDK, responsible for communication with Cyberith Virtualizer ELITE 2 treadmill.
 This is the only 3rd party library that is included to the project as a binary and is optional to use.
@@ -101,14 +92,49 @@ More theory about this device and its SDK is available at:
     \item \hyperref[sec:movement_system]{Movement System}
 \end{itemize}
 
-\newpage
 \subsubsection{Precompiled Header}
+To reduce the amount of code which you care about adding in every translation unit, a precompiled header can be used. In our project we used it to reduce the amount of often used include directives, actually we used it only to don't mess up with adding STL for the engine's part.\\
+More systemized and modern substitution of a precompiled header is C++20's Modules, simplicity-wise precompiled fragments of code. Unfortunately, when we started working on engineering thesis the implementation of it was still in bad condition, especially on the top of CMake. For the end of 2023 year, it is safe to use Modules with CMake for enthusiast projects.
 
-\newpage
-\subsubsection{OS specific}
+\begin{lstlisting}[caption=Adding precompiled header(./engine/CMakeLists.txt)]
+target_precompile_headers(${PROJECT_NAME} PUBLIC src/pch.h)
+\end{lstlisting}
+
+\subsubsection{Operating System Specific}
 \label{sec:build_os}
+Multiplatform building is covered by followed \texttt{os\_files}\ref{lst:os} function that removes from the \texttt{SRC\_FILES} variable all \texttt{*.cpp} files not designed to be used on platform that is currently used to build the project.
+\label{lst:os}
+\begin{lstlisting}[caption=os\_files function (./engine/CMakeLists.txt)]
+function(os_files files_list_name regex)
+    set(files_list ${${files_list_name}})
+    list(FILTER files_list EXCLUDE REGEX "src/os/*")
 
-\newpage
+    set(OS_FILES)
+    if (WIN32)
+        file(GLOB_RECURSE OS_FILES
+            src/os/win32/${regex}
+        )
+    else()
+        message(FATAL_ERROR "Not implemented")
+    endif()
+
+    list(LENGTH OS_FILES OS_FILES_LENGTH)
+    if (OS_FILES_LENGTH EQUAL 0)
+        message(FATAL_ERROR "Files specific for your system couldn't be found")
+    endif()
+
+    list(APPEND files_list ${OS_FILES})
+    set(${files_list_name} ${files_list} PARENT_SCOPE)
+endfunction()
+
+file(GLOB_RECURSE SRC_FILES
+    src/*.cpp
+)
+
+os_files(SRC_FILES *.cpp)
+\end{lstlisting}
+As we will discuss it in \hyperref[sec:problems]{Problems During the Development} section, we encountered problems with virtual reality on Linux systems, therefore to keep up the project open for further modifications and good practices we delivered layers of abstraction and where it was obvious errors are invoked with messages pointing that the followed code wasn't yet implemented for currently being built platform.\\ At the level of CMake, this problem handles \texttt{message} function with \texttt{FATAL\_ERROR} argument that stops the configuration of the project.\\ On the other hand, \texttt{\#error not implemented} preprocessor command secures this code at the level of C++.
+
 \subsubsection{CMake}
 \begin{itemize}
     \item ./CMakeLists.txt
@@ -120,10 +146,8 @@ More theory about this device and its SDK is available at:
     \item ./game/CMakeLists.txt
 \end{itemize}
 
-\newpage
-
-\label{sec:abi}
 \subsubsection{Common ABI}
+\label{sec:abi}
 
 \subsubsection{Preprocess Definitions}
 
@@ -131,7 +155,80 @@ More theory about this device and its SDK is available at:
 
 \subsubsection{Unit Tests}
 \label{sec:build_unit_tests}
+One of the method of testing the software are unit tests - elaborated further in \hyperref[sec:testing]{Software Testing section}. This is the method we have chosen for testing our project.
+Deeper deliberation about unit tests in TSEngine consisted of among others a list of those and the purpose of each one of them can be found in the section dedicated to it, namely \hyperref[sec:tests]{Tests}.
+
+Followed code listening presents adding groups of tests for the testing, a little differently tests from \texttt{GameTests} group are added, because it happens only under condition being \texttt{false} of \texttt{CI\_RUNNING} variable.
+Discussion about this variable has taken place for \texttt{./.github/workflows/.cmake.yml} \ref{lst:cicmake} code listening from the next subsection - \hyperref[sec:scv]{"Source Control Version"}.
+\begin{lstlisting}[caption=Adding tests to CTest (./engine/CMakeLists.txt)]
+add_test(DummyTests ${PROJECT_NAME} --gtest_filter=DummyTests.*)
+add_test(MathTests ${PROJECT_NAME} --gtest_filter=MathTests.*)
+
+option(CI_RUNNING "" OFF)
+
+if(NOT CI_RUNNING)
+    add_test(GameTests ${PROJECT_NAME} --gtest_filter=GameTests.*)
+endif()
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Enabling Tests(./CMakeLists.txt)]
+option(ENABLE_TESTS "Test the engine basic operations" ON)
+\end{lstlisting}
+
+\begin{lstlisting}[caption=\texttt{TESTER\_ADAPTER} preprocessor declaration(./engine/CMakeLists.txt and ./engine/tests/CMakeLists.txt)]
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    ...
+    $<$<BOOL:${ENABLE_TESTS}>:TESTER_ADAPTER>
+)
+\end{lstlisting}
+
+We are not satisfied how we added \texttt{TesterEngine} header, that gives utils needed while testing the engine. It's extremely dangerous to expose all the engine for tests, they should have access only to functionalities available for the games. It will be fixed soon. 
+\begin{lstlisting}[caption=Including common internal utils (./engine/tests/CMakeLists.txt)]
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ../src
+)
+\end{lstlisting}
 
 \subsection{Source Control Version}
-\subsubsection{GitHub Continuous intergration}
+\label{sec:scv}
+GitHub Continuous Intergration
+\label{lst:cicmake}
+\begin{lstlisting}[caption=Continuous intergration's build test (./.github/workflows/.cmake.yml)]
+name: CMake
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Update submodules
+      run: git submodule update --init --recursive
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCI_RUNNING=ON
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build/engine
+      run: ctest -C ${{env.BUILD_TYPE}}
+\end{lstlisting}
+
 \subsubsection{.gitignore}
+\begin{lstlisting}[caption=\textttt{.gitignore} (./.gitignore)]
+build
+.vscode
+external/*/
+\end{lstlisting}

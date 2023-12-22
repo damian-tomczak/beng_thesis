@@ -8,6 +8,8 @@
 \usepackage{tocloft}
 \usepackage{biblatex}
 \usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{geometry}
 
 \defbibheading{bibliography}[\bibname]{}
 \addbibresource{refs.bib}
@@ -44,7 +46,8 @@
   \let \footnote \thanks
   \begin{center}
     \Large
-    \hbox to \hsize{\textsc{\hfil University of Warmia and Mazury in Olsztyn}}
+%    \hbox to \hsize{\textsc{\hfil University of Warmia and Mazury in Olsztyn}}
+    \hbox to \hsize{\hfil\textsc{University of Warmia and Mazury in Olsztyn}\hfil}
     \hbox to \hsize{\hfil\textsc{Faculty of Mathematics and Computer  Science}\hfil}
   \end{center}
   \vskip 0pt plus 0.25 fill
@@ -72,6 +75,11 @@
   \endgroup
   \vfill\thispagestyle{empty}
   {\centering\large {Olsztyn, 2024}\par}\end{titlepage}%
+}
+
+\geometry{
+  left=3cm,
+  right=1.5cm,
 }
 % linespread Prone to change
 % \linespread{1.5}

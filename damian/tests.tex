@@ -1,11 +1,11 @@
 \newpage
-
 \subsection{Tests}
-Testing of software is very important nowadays with long-living software, an example of such long-living software are graphics engines.\\
+\label{sec:tests}
+\hspace{\parindent}Testing of software is very important nowadays with long-living software, an example of such long-living software are graphics engines.\\
 One of the simplest methods of testing the software are unit tests, this is how we implemented testing our engine.\\
-More theory about software development and methods of testing are available in \hyperref[sec:testing]{Software Testing} section.\\
+More theory about software development and methods of testing are available in \hyperref[sec:testing]{\ref*{sec:testing}. Software Testing} section.
 
-The interface for testing the engine:
+\noindent \\The interface for testing the engine:
 \subsubsection{Engine Tester Header}
 \label{sec:tester_adapter}
 \begin{lstlisting}[language=c++, caption=Tester Engine class (./engine/tests/tester.cpp)]
@@ -56,9 +56,9 @@ Testing also requires a few inserts to the engine main loop. Tester Adapter code
 \subsubsection{Tests}
 The list of tests which are performed:
 \begin{itemize}
-    \item DummyTests
+    \item \texttt{DummyTests}
         \begin{itemize}
-            \item DummyTest\\
+            \item \texttt{DummyTest}\\
             This test should be always true, checks only if testing functionality works.
 \begin{lstlisting}[language=c++, caption=Dummytest test(./engine/tests/tester.cpp)]
 TEST(DummyTests, Dummytest)
@@ -70,10 +70,10 @@ TEST(DummyTests, Dummytest)
 }
 \end{lstlisting}
         \end{itemize}
-    \item MathTests Tests\\
+    \item \texttt{MathTests} Tests\\
         This group of tests, tests functionalities from \hyperref[sec:math]{Engine Math Library}
         \begin{itemize}
-            \item mat4MultiplicationTest\\
+            \item \texttt{mat4MultiplicationTest}\\
             Verifies if 4x4 matrix multiplication works correctly.
 \begin{lstlisting}[language=c++, caption=mat4MultiplicationTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat4MultiplicationTest)
@@ -106,7 +106,7 @@ TEST(MathTests, mat4MultiplicationTest)
     ASSERT_EQ(ts::math::to_string(expected), ts::math::to_string(multiplication));
 }
 \end{lstlisting}
-            \item mat3MultiplicationTest\\ Verifies if 3x3 matrix multiplication works correctly.
+            \item \texttt{mat3MultiplicationTest}\\ Verifies if 3x3 matrix multiplication works correctly.
 \begin{lstlisting}[language=c++, caption=mat3MultiplicationTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat3MultiplicationTest)
 {
@@ -135,7 +135,7 @@ TEST(MathTests, mat3MultiplicationTest)
     ASSERT_EQ(ts::math::to_string(expected), ts::math::to_string(multiplication));
 }
 \end{lstlisting}
-            \item mat2InversionTest\\ Verifies if inversion of 2x2 matrix works correctly.
+            \item \texttt{mat2InversionTest}\\ Verifies if inversion of 2x2 matrix works correctly.
 \begin{lstlisting}[language=c++, caption=mat2InversionTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat2InversionTest)
 {
@@ -156,7 +156,7 @@ TEST(MathTests, mat2InversionTest)
     ASSERT_EQ(ts::math::to_string(identityMatrix), ts::math::to_string(s));
 }
 \end{lstlisting}
-            \item mat3InversionTest\\ Verifies if inversion of 3x3 matrix works correctly.
+            \item \texttt{mat3InversionTest}\\ Verifies if inversion of 3x3 matrix works correctly.
 \begin{lstlisting}[language=c++, caption=mat3InversionTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat3InversionTest)
 {
@@ -178,7 +178,7 @@ TEST(MathTests, mat3InversionTest)
     ASSERT_EQ(ts::math::to_string(invertedMatrix), ts::math::to_string(expected));
 }
 \end{lstlisting}
-            \item mat4InversionTest\\ Verifies if inversion of 4x4 matrix works correctly.
+            \item \texttt{mat4InversionTest}\\ Verifies if inversion of 4x4 matrix works correctly.
 \begin{lstlisting}[language=c++, caption=mat4InversionTest test(./engine/tests/tester.cpp)]
 TEST(MathTests, mat4InversionTest)
 {
@@ -202,7 +202,7 @@ TEST(MathTests, mat4InversionTest)
     ASSERT_EQ(ts::math::to_string(invertedMatrix), ts::math::to_string(expected));
 }
 \end{lstlisting}
-            \item mat4rotationTest\\
+            \item \texttt{mat4rotationTest}\\
             \label{sec:rotation_test}
             Verifies if rotation functionality works correctly.
 \begin{lstlisting}[language=c++, caption=mat4rotationTest test(./engine/tests/tester.cpp)]
@@ -224,7 +224,7 @@ TEST(MathTests, mat4rotationTest)
 }
 \end{lstlisting}
         \end{itemize}
-    \item GameTests\\
+    \item \texttt{GameTests}\\
     This category of the tests checks the basis game engine API functionalities.
     For this purpose, must be created a Game class simulating an example of game, but using \hyperref[sec:tester_adapter]{the tester adapter} to have a possibility to destroy rendering instance after some period of time, removing the need of human interaction while testing.
 \begin{lstlisting}[language=c++, caption=TestGame class (./engine/tests/tester.cpp)]
@@ -238,7 +238,7 @@ public:
 };
 \end{lstlisting}
         \begin{itemize}
-            \item IsThrowsException\\
+            \item \texttt{IsThrowsException}\\
             Tests if the engine doesn't throw unhandled exceptions.
 \begin{lstlisting}[language=c++, caption=IsThrowsException test(./engine/tests/tester.cpp)]
 TEST(GameTests, IsThrowsException)
@@ -254,7 +254,7 @@ TEST(GameTests, IsThrowsException)
     }
 }
 \end{lstlisting}
-            \item RunReturnsZero
+            \item \texttt{RunReturnsZero}
             Checks if \hyperref[sec:run_fun]{Run function} returns \hyperref[sec:return_codes]{\texttt{TS\_SUCCESS}} 
 \begin{lstlisting}[language=c++, caption=RunReturnsZero test(./engine/tests/tester.cpp)]
 TEST(GameTests, RunReturnsZero)
