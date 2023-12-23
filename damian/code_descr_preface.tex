@@ -7,6 +7,9 @@ We use \texttt{CamelCase} in C++ code and Allman indentation convention unless c
 Furthermore, \texttt{Snake\_Case} convention we use also for naming two/n-part named directories and files.
 
 We have principles we followed in the aspect of OOP while working with \hyperref[sec:khronos]{\ref*{sec:khronos}. Khronos APIs} consistent with RAII\footnote{"Resource Acquisition Is Initialization," is a programming idiom used in C++ and other languages to manage resources such as memory, file handles, and network connections. The core idea behind RAII is that resource allocation (or acquisition) is tied to the lifespan of an object, ensuring automatic resource deallocation (or release) when the object is destroyed.} concepts. To achieve it, we were avoiding creating Vulkan or OpenXR objects in constructors of our abstraction, but remembering to set hem null pointers to then have an option to check not null and destroy Khronos's objects.
+
+About usage of \hyperref[sec:khronos]{\ref*{sec:khronos} Khronos's APIs} we will be economical with words because as it is stated at the beginning of this chapter our thesis is oriented around the architecture than explaining the API. And in the case of Khronos's APIs it would be tremendous effort and quite useless because on the market are available position which much better exhaust the topic of Vulkan and OpenXR - for it look at the corresponded sections: \hyperref[sec:stack_vk]{\ref*{sec:stack_vk} Vulkan} and \hyperref[sec:stack_xr]{\ref*{sec:stack_xr} OpenXR}.
+
 \subsection{Directories Structure}
 The structure of directories used in the project:
 \begin{verbatim}

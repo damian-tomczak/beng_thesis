@@ -152,6 +152,39 @@ As we will discuss it in \hyperref[sec:problems]{Problems During the Development
 \subsection{Preprocess Definitions}
 
 \subsection{Included Directories}
+Decision about which directories are included to the project from the frist sight may seem to be childish topic to dicuss but it practise, not thoughtfully made decision in this aspect can be very dangerous for the development and in the long-term perspective destroy the project. It is important to add to the project only paths which clearly represent which modules they open to access.\\
+Taking into the account those reasons, relative included directories should be avoided.
+Followed code snippet shows which paths are explicitly added to the project:
+\label{lst:exp_incl}
+\begin{lstlisting}[caption=Explicitly included directories (./engine/CMakeLists.txt)]
+target_include_directories(${PROJECT_NAME} PUBLIC
+    include
+)
+
+...
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    src
+    ${OS_DIR}
+    ${EXTERNAL_DIR}/glslang
+    ${CYBSDK_INCLUDE_DIR}
+    ${ASSETS_DIR}
+)
+\end{lstlisting}
+
+But should be remembered that plenty of included directories are added by modern CMake's approach where operation of adding the headers happens while linking libraries: 
+\begin{lstlisting}[caption=Implicitly added directories (./engine/CMakeLists.txt)]
+target_link_libraries(${PROJECT_NAME} PUBLIC
+    Vulkan-Headers
+    glslang
+    SPIRV
+    openxr_loader
+    headers
+    tinyobjloader
+    ${CYBSDK_LIB}
+)
+\end{lstlisting}
+The only corner case here is glslang dependency that requires to be added manually because it doesn't support modern approach \ref{lst:exp_incl}.
 
 \subsection{Unit Tests}
 \label{sec:build_unit_tests}
