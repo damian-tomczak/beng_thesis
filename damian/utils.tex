@@ -68,7 +68,6 @@ class Singleton
 public:
     static auto& getInstance()
     {
-        // TODO: common abi
         std::lock_guard _(mutex);
         static DerivedClass instance;
         return instance;
@@ -130,57 +129,58 @@ Besides standard \texttt{TS\_CATCH\_FALLBACK} that is simply catch block, we hav
     Working with Khronos APIs besides their advantages in the form of flexibility come also with disadvantages as among others the need of writing repeating code - further elaborated in \hyperref[sec:registry]{Khronos APIs} section. All Khronos Utils are private.
     This functionality is available in \hyperref[sec:namespaces]{\texttt{khronos\_utils} namespace}.
 \begin{lstlisting}[language=c++, caption=Khronos Utils (./engine/src/khronos\_utils.h)]
-#define TS_VK_CHECK(function, ...)                                                                         \
-    {                                                                                                      \
-        VkResult result{function(__VA_ARGS__)};                                                            \
-        if (result != VK_SUCCESS)                                                                          \
-        {                                                                                                  \
-            ts::logger::error(                                                                             \
+#define TS_VK_CHECK(function, ...)               \
+    {                                            \
+        VkResult result{function(__VA_ARGS__)};  \
+        if (result != VK_SUCCESS)                \
+        {                                        \
+            ts::logger::error(                   \
                 (#function " failed with status: " + ts::khronos_utils::vkResultToString(result)).c_str(), \
-                __FILE__,                                                                                  \
-                FUNCTION_SIGNATURE,                                                                        \
-                __LINE__);                                                                                 \
-        }                                                                                                  \
+                __FILE__,                        \
+                FUNCTION_SIGNATURE,              \
+                __LINE__);                       \
+        }                                        \
     }
 
-#define TS_XR_CHECK(function, ...)                                                                         \
-    {                                                                                                      \
-        XrResult result{function(__VA_ARGS__)};                                                            \
-        if (result != XR_SUCCESS)                                                                          \
-        {                                                                                                  \
-            ts::logger::error(                                                                             \
+#define TS_XR_CHECK(function, ...)               \
+    {                                            \
+        XrResult result{function(__VA_ARGS__)};  \
+        if (result != XR_SUCCESS)                \
+        {                                        \
+            ts::logger::error(                   \
                 (#function " failed with status: " + ts::khronos_utils::xrResultToString(result)).c_str(), \
-                __FILE__,                                                                                  \
-                FUNCTION_SIGNATURE,                                                                        \
-                __LINE__);                                                                                 \
-        }                                                                                                  \
+                __FILE__,                        \
+                FUNCTION_SIGNATURE,              \
+                __LINE__);                       \
+        }                                        \
     }
 
-#define TS_VK_CHECK_MSG(msg, function, ...)                                                                \
-    {                                                                                                      \
-        VkResult result{function(__VA_ARGS__)};                                                            \
-        if (result != VK_SUCCESS)                                                                          \
-        {                                                                                                  \
-            ts::logger::error(                                                                             \
-                msg,                                                                                       \
-                __FILE__,                                                                                  \
-                FUNCTION_SIGNATURE,                                                                        \
-                __LINE__);                                                                                 \
-        }                                                                                                  \
+#define TS_VK_CHECK_MSG(msg, function, ...)     \
+    {                                           \
+        VkResult result{function(__VA_ARGS__)}; \
+        if (result != VK_SUCCESS)               \
+        {                                       \
+            ts::logger::error(                  \
+                msg,                            \
+                __FILE__,                       \
+                FUNCTION_SIGNATURE,             \
+                __LINE__);                      \
+        }                                       \
     }
 
-#define TS_XR_CHECK_MSG(msg, function, ...)                                                                \
-    {                                                                                                      \
-        XrResult result{function(__VA_ARGS__)};                                                            \
-        if (result != XR_SUCCESS)                                                                          \
-        {                                                                                                  \
-            ts::logger::error(                                                                             \
-                msg,                                                                                       \
-                __FILE__,                                                                                  \
-                FUNCTION_SIGNATURE,                                                                        \
-                __LINE__);                                                                                 \
-        }                                                                                                  \
+#define TS_XR_CHECK_MSG(msg, function, ...)     \
+    {                                           \
+        XrResult result{function(__VA_ARGS__)}; \
+        if (result != XR_SUCCESS)               \
+        {                                       \
+            ts::logger::error(                  \
+                msg,                            \
+                __FILE__,                       \
+                FUNCTION_SIGNATURE,             \
+                __LINE__);                      \
+        }                                       \
     }
+
 
 namespace khronos_utils
 {

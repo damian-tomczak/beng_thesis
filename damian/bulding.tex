@@ -1,11 +1,12 @@
 \newpage
-\section{Building of TSEngine}
+\subsection{Building of TSEngine}
 \label{sec:build}
-The main purpose of creating sophisticated building system is to assure multiplatform and non-device dependent project, simultaneously easy to set up.\\ This is obligatory in long-living projects and in non-single developer projects.
+\hspace{\parindent} The main purpose of creating sophisticated building system is to assure multiplatform and non-device dependent project, simultaneously easy to set up.\\ This is obligatory in long-living projects and in non-single developer projects.
 To fulfill those assumptions the core of every modern C++ project is \hyperref[sec:stack_cmake]{CMake}, this is no different for our project.
 Comprehensive series of article about types of libraries in C++ \cite{cpplibs} that knowledge included there may turn out to be useful in this section.
-% TODO: dominik the preface of building of tsengine can on the other hand become a fragment of theory, wydt, do you have time?
-\subsection{Build Structure}
+Our building is based on \hyperref[sec:stack_cmake]{\ref*{sec:stack_cmake} CMake} that recently become the leading tool in building C++ systems; \hyperref[ses:cmake]{\ref*{sec:cmake} TSEngine's CMake}.
+\subsubsection{Build Structure}
+\hspace{\parindent} Followed figure shows the build structure of TSEngine:
 \label{fig:build_struct}
 \begin{figure}[h]
   \includegraphics[width=\linewidth]{figures/build.png}
@@ -32,7 +33,8 @@ Assets are copied to the output directory whenever the engine or game is built. 
 \caption{CMake files}
 \end{table}
 \newpage
-\subsection{Instruction How To Build the Project}
+\subsubsection{Instruction How To Build the Project}
+\hspace{\parindent} Instructions that are needed to build the project:
 \label{sec:how_to_run}
 \begin{enumerate}
     \item Be sure that you have already installed and updated graphics drivers and your GPU's capabilities are enough- \hyperref[sec:hardware]{supported hardware}
@@ -60,9 +62,9 @@ Assets are copied to the output directory whenever the engine or game is built. 
     \item Run the project: \texttt{./build/output/tsgame/[BUILD TYPE]/tsgame.[EXECUTABLE FORMAT]}
 \end{enumerate}
 
-\subsection{Third Party Dependencies}
+\subsubsection{Third Party Dependencies}
 \label{lst:3rdparty}
-We prioritize building from source code over using precompiled binaries
+\hspace{\parindent} We prioritize building from source code over using precompiled binaries
 One of the modern way of handling compiling from source code is to use git submodules. The core of this method is \texttt{.gitsubmodules} file containing all used external dependencies.
 \begin{lstlisting}[caption=.gitsubmodules]
 [submodule "external/vulkan"]
@@ -81,10 +83,10 @@ One of the modern way of handling compiling from source code is to use git submo
 	path = external/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader.git
 \end{lstlisting}
-The major advantage of source code dependencies over precompiled binaries is having significantly less memory usage to store a project and easy way to make a fork of your dependency. However the biggest disadvantage of source code lies on compilation time.
+The major advantage of source code dependencies over precompiled binaries is having significantly less memory usage to store a project and easy way to make a fork of your dependency. However, the biggest disadvantage of source code lies on compilation time.
 
-\subsection{Cyberith SDK}
-There is one external dependency that git submodules doesn't cover, that dependency is Cybertith SDK, responsible for communication with Cyberith Virtualizer ELITE 2 treadmill.
+\subsubsection{Cyberith SDK}
+\hspace{\parindent} There is one external dependency that git submodules doesn't cover, that dependency is Cybertith SDK, responsible for communication with Cyberith Virtualizer ELITE 2 treadmill.
 This is the only 3rd party library that is included to the project as a binary and is optional to use.
 More theory about this device and its SDK is available at:
 \begin{itemize}
@@ -92,17 +94,17 @@ More theory about this device and its SDK is available at:
     \item \hyperref[sec:movement_system]{Movement System}
 \end{itemize}
 
-\subsection{Precompiled Header}
-To reduce the amount of code which you care about adding in every translation unit, a precompiled header can be used. In our project we used it to reduce the amount of often used include directives, actually we used it only to don't mess up with adding STL for the engine's part.\\
-More systemized and modern substitution of a precompiled header is C++20's Modules, simplicity-wise precompiled fragments of code. Unfortunately, when we started working on engineering thesis the implementation of it was still in bad condition, especially on the top of CMake. For the end of 2023 year, it is safe to use Modules with CMake for enthusiast projects.
+\subsubsection{Precompiled Header}
+\hspace{\parindent} To reduce the amount of code which you care about adding in every translation unit, a precompiled header can be used. In our project we used it to reduce the amount of often used include directives, actually we used it only to don't mess up with adding STL for the engine's part.\\
+More systemized and modern substitution of a precompiled header is C++20's Modules, simplicity-wise precompiled fragments of code. Unfortunately, when we started working on engineering thesis the implementation of it was still in bad condition, especially on the top of CMake. For the end of 2023 year, it is safe to use Modules with CMake for enthusiast projects, so no matter how you look at it, for an instance our engine.
 
 \begin{lstlisting}[caption=Adding precompiled header(./engine/CMakeLists.txt)]
 target_precompile_headers(${PROJECT_NAME} PUBLIC src/pch.h)
 \end{lstlisting}
 
-\subsection{Operating System Specific}
+\subsubsection{Operating System Specific}
 \label{sec:build_os}
-Multiplatform building is covered by followed \texttt{os\_files}\ref{lst:os} function that removes from the \texttt{SRC\_FILES} variable all \texttt{*.cpp} files not designed to be used on platform that is currently used to build the project.
+\hspace{\parindent} Multiplatform building is covered by followed \texttt{os\_files}\ref{lst:os} function that removes from the \texttt{SRC\_FILES} variable all \texttt{*.cpp} files not designed to be used on platform that is currently used to build the project.
 \label{lst:os}
 \begin{lstlisting}[caption=os\_files function (./engine/CMakeLists.txt)]
 function(os_files files_list_name regex)
@@ -133,9 +135,11 @@ file(GLOB_RECURSE SRC_FILES
 
 os_files(SRC_FILES *.cpp)
 \end{lstlisting}
-As we will discuss it in \hyperref[sec:problems]{Problems During the Development} section, we encountered problems with virtual reality on Linux systems, therefore to keep up the project open for further modifications and good practices we delivered layers of abstraction and where it was obvious errors are invoked with messages pointing that the followed code wasn't yet implemented for currently being built platform.\\ At the level of CMake, this problem handles \texttt{message} function with \texttt{FATAL\_ERROR} argument that stops the configuration of the project.\\ On the other hand, \texttt{\#error not implemented} preprocessor command secures this code at the level of C++.
 
-\subsection{CMake}
+As we will discuss it in \hyperref[sec:problems]{\ref{sec:problems} Problems During the Development} section, we encountered problems with virtual reality on Linux systems, therefore to keep up the project open for further modifications and good practices we delivered layers of abstraction and where it was obvious errors are invoked with messages pointing that the followed code wasn't yet implemented for currently being built platform.\\ At the level of CMake, this problem handles \texttt{message} function with \texttt{FATAL\_ERROR} argument that stops the configuration of the project.\\ On the other hand, \texttt{\#error not implemented} preprocessor command secures this code at the level of C++.
+
+\subsubsection{CMake}
+\hspace{\parindent}
 \begin{itemize}
     \item ./CMakeLists.txt
     \item ./external/CMakeLists.txt
@@ -146,13 +150,46 @@ As we will discuss it in \hyperref[sec:problems]{Problems During the Development
     \item ./game/CMakeLists.txt
 \end{itemize}
 
-\subsection{Common ABI}
-\label{sec:abi}
+\subsubsection{Common ABI}
+\label{sec:build_abi}
+\hspace{\parindent} When developing any library it is important to care about application binary interface (ABI), because the user of your product may not used the same headers used to build your library for plenty of reasons, especially when the library is dynamically linked, then a lot of opportunities for it appears.\\To avoid it you must oversee your ABI, we took it into the account but within the project's deadline was coming, exceptions from it had started to appear. One of those exceptions representant is Entity Component System's header file - \texttt{ecs.hpp} where there is no prepared any kind of intermediate interface between ECS's header and the engine.\\Therefore to provide just any kind of protection on the top of that we prepared \texttt{TS\_VER} preprocessor definition being a name of namespace - \hyperref[sec:namespaces]{\ref*{sec:namespaces} Namespaces}. But it is a partially solution because we must be aware that a change or addition to the engine breaks the exisiting ABI and update the version of the engine in the main CMake. 
 
-\subsection{Preprocess Definitions}
+\subsubsection{Preprocess Definitions}
+\hspace{\parindent} Publicly exposed the engine's preprocessor definitions are \texttt{ENGINE\_NAME} and \texttt{TS\_VER}.\\ First containing the \texttt{PROJECT\_NAME} variable so \texttt{tsengine} (so far it is used for creating Khronos's APIs' Instances because they take engine's name).\\ The latter assures \hyperref[sec:build_abi]{\ref{sec:build_abi} Common ABI}.
+\begin{lstlisting}[caption=Engine's preprocessor definitions (./engine/CMakeLists.txt)]
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    ENGINE_NAME="${PROJECT_NAME}"
+    TS_VER=v${PROJECT_VERSION_MAJOR}_${PROJECT_VERSION_MINOR}_${PROJECT_VERSION_PATCH}
+)
 
-\subsection{Included Directories}
-Decision about which directories are included to the project from the frist sight may seem to be childish topic to dicuss but it practise, not thoughtfully made decision in this aspect can be very dangerous for the development and in the long-term perspective destroy the project. It is important to add to the project only paths which clearly represent which modules they open to access.\\
+...
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    VK_USE_PLATFORM_${VK_USE_PLATFORM}_KHR
+    VK_NO_PROTOTYPES
+    XR_USE_GRAPHICS_API_VULKAN
+    $<$<BOOL:${CYBSDK_LIB}>:CYBSDK_FOUND>
+    $<$<BOOL:${ENABLE_TESTS}>:TESTER_ADAPTER>
+    $<$<PLATFORM_ID:Windows>:NOMINMAX>
+)
+\end{lstlisting}
+
+If we are talking about the game's preprocessor definitions, we are not dealing with a list but a single definition - \texttt{GAME\_NAME}\ref{game_name} storing the name of the game created with the help of the engine. It is also used for setting Khronos's APIs and among others window's name.
+\begin{lstlisting}[caption=Game's preprocessor definitions (./game/CMakeLists.txt)]
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    GAME_NAME="${GAME_NAME}"
+)
+\end{lstlisting}
+
+\label{game_name}
+The name setup of the game happens during the project configuration, so the change of the default name "Awesome Game" must be done by providing to \texttt{-DGAME\_NAME="Non-default game name"} flag to the project configuration.
+\begin{lstlisting}[caption=Game's preprocessor definitions (./CMakeLists.txt)]
+set(GAME_NAME "Awesome Game" CACHE STRING "Game name")
+message(STATUS "Game name: ${GAME_NAME}")
+\end{lstlisting}
+
+\subsubsection{Included Directories}
+\hspace{\parindent} Decision about which directories are included to the project from the first sight may seem to be childish topic to discuss, but in practice, not thoughtfully made decision in this aspect can be very dangerous for the development and from the long-term perspective destroy the project. It is important to add to the project only paths which clearly represent which modules they open to access.\\
 Taking into the account those reasons, relative included directories should be avoided.
 Followed code snippet shows which paths are explicitly added to the project:
 \label{lst:exp_incl}
@@ -186,13 +223,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 \end{lstlisting}
 The only corner case here is glslang dependency that requires to be added manually because it doesn't support modern approach \ref{lst:exp_incl}.
 
-\subsection{Unit Tests}
+\subsubsection{Unit Tests}
 \label{sec:build_unit_tests}
-One of the method of testing the software are unit tests - elaborated further in \hyperref[sec:testing]{Software Testing section}. This is the method we have chosen for testing our project.
+\hspace{\parindent} One of the method of testing the software are unit tests - elaborated further in \hyperref[sec:testing]{Software Testing section}. This is the method we have chosen for testing our project.
 Deeper deliberation about unit tests in TSEngine consisted of among others a list of those and the purpose of each one of them can be found in the section dedicated to it, namely \hyperref[sec:tests]{Tests}.
 
 Followed code listening presents adding groups of tests for the testing, a little differently tests from \texttt{GameTests} group are added, because it happens only under condition being \texttt{false} of \texttt{CI\_RUNNING} variable.
-Discussion about this variable has taken place for \texttt{./.github/workflows/.cmake.yml} \ref{lst:cicmake} code listening from the next subsection - \hyperref[sec:scv]{"Source Control Version"}.
+Discussion about this variable has a place in \texttt{./.github/workflows/.cmake.yml} \ref{lst:cicmake} code listening from the next subsubsection - \hyperref[sec:scv]{\ref*{sec:scv} Source Control Version}.
 \begin{lstlisting}[caption=Adding tests to CTest (./engine/CMakeLists.txt)]
 add_test(DummyTests ${PROJECT_NAME} --gtest_filter=DummyTests.*)
 add_test(MathTests ${PROJECT_NAME} --gtest_filter=MathTests.*)
@@ -222,11 +259,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 \end{lstlisting}
 
-\subsection{Source Control Version}
+\subsubsection{Source Control Version}
 \label{sec:scv}
-GitHub Continuous Intergration
+Even if the project is not the part of teamwork or there are no plans for long-term development it is worth to use source control version system but may turn out that the assumptions about the project may change, or you can encounter a regression that can be easily fixed with SCV system, otherwise nowadays, it is not possible to doesn't have in the project source control version system. Further explained in \hyperref[sec:teamwork]{\ref*{sec:teamwork} Teamwork}.\\
+Our decision about SCV lied on GIT and GitHub as remote server:
+
 \label{lst:cicmake}
-\begin{lstlisting}[caption=Continuous intergration's build test (./.github/workflows/.cmake.yml)]
+Continuous integration is extremely useful for avoiding regression in a product. In our case, we used CI to test only if the project builds and passes unit tests:
+\begin{lstlisting}[caption=Continuous intergration build test (./.github/workflows/.cmake.yml)]
 name: CMake
 
 on:
@@ -258,7 +298,10 @@ jobs:
       working-directory: ${{github.workspace}}/build/engine
       run: ctest -C ${{env.BUILD_TYPE}}
 \end{lstlisting}
+Every push and pull request to the \texttt{master} branch invokes a job in which a remote machine tests if configuration of CMake and building the project in \texttt{RELEASE} build type is successful, otherwise an action requested is declined.
 
+As we're describing SCV it's worth to mention our \texttt{.gitignore}\ref{lst:gitignore} file that assumes \texttt{build} directory will be the working directory, VS Code will be our helper code editor (it's worth to ignore \texttt{.vscode} dir as it is often unwantedly created by this code editor), subdirectories of \texttt{external} as so far we didn't want to make any changes to our external dependencies.
+\label{lst:gitignore}
 \begin{lstlisting}[caption=\texttt{.gitignore} (./.gitignore)]
 build
 .vscode
