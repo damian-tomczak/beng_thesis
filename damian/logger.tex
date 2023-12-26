@@ -13,14 +13,14 @@
 
 #ifndef NDEBUG
 #define TS_ASSERT(condition) \
-    if (!(condition)) \
-    { \
+    if (!(condition))        \
+    {                        \
         ts::logger::warning("Assertion Failed: " #condition, __FILE__, FUNCTION_SIGNATURE, __LINE__, true); \
     }
 
 #define TS_ASSERT_MSG(condition, msg) \
-    if (!(condition)) \
-    { \
+    if (!(condition))                 \
+    {                                 \
         ts::logger::warning(msg, __FILE__, FUNCTION_SIGNATURE, __LINE__, true); \
     }
 

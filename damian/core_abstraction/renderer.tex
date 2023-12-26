@@ -1,10 +1,7 @@
-\newpage
-\subsection{Renderer}
+\subsubsection{Renderer}
 \label{sec:renderer}
 We can distinguish the front-end of the renderer being the part of ECS - \hyperref[sec:renderer_system]{\ref*{sec:renderer_system}. ECS Renderer System}, but also back-end in classes:
 \begin{itemize}
-    \item \texttt{Context}\\
-    The main purpose of \texttt{Context} class is creation of OpenXR and Vulkan instances. Besides of it, other Vulkan structures are initialized within this class, when usually there is no reason to re-initialized them after creation of the app and used widely through the app, such structures objects are: \texttt{VkPhysicalDevice}, \texttt{VkDevice}, \texttt{VkQueue}, or \texttt{XrSystemId}. I see here a field of improvement as it can be through singleton pattern \footnote{The Singleton Pattern is a design pattern used in software engineering to ensure that a class has only one instance and provides a global point of access to it.}.
     \item \texttt{DataBuffer}\\
     It encapsulates Vulkan buffer handling, abstracting details such as buffer creation, memory management, and data transfer.
     \item \texttt{ImageBuffer}\\
@@ -18,4 +15,3 @@ We can distinguish the front-end of the renderer being the part of ECS - \hyperr
     \item \texttt{Renderer}
     Comprehensive component that manages various aspects of the rendering pipeline in a Vulkan environment that plays a role of back-end of the renderer. It orchestrates render processes, manages Vulkan resources like command pools and descriptor pools, and handles different pipelines for rendering. The class's structure emphasizes controlled resource management, synchronization, and the ability to handle multiple frames in flight, which are key elements in high-performance graphics applications.
 \end{itemize}
-All of them are available in the corresponding files \texttt{*.cpp} and \texttt{*.h} files inside \texttt{./engine/src/core/} path]
