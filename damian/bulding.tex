@@ -34,7 +34,7 @@ Assets are copied to the output directory whenever the engine or game is built. 
 \end{table}
 \newpage
 \subsubsection{Instruction How To Build the Project}
-\hspace{\parindent} Instructions that are needed to build the project:
+\hspace{\parindent} Instructions which are needed to build the project:
 \label{sec:how_to_run}
 \begin{enumerate}
     \item Be sure that you have already installed and updated graphics drivers and your GPU's capabilities are enough- \hyperref[sec:hardware]{supported hardware}
@@ -52,19 +52,20 @@ Assets are copied to the output directory whenever the engine or game is built. 
     \item Run command (cloning the repository):\\
         \texttt{git clone https://github.com/damian-tomczak/tsengine --recursive \&\& cd tsengine}
     \begin{enumerate}
-        \item Optional Virtualizer: If you want to use \hyperref[sec:virtualizer]{Virtualizer}, move Cyberith SDK to \texttt{external/CybSDK\_Cpp}
+        \item Optional Virtualizer: If you want to use \hyperref[sec:virtualizer]{Virtualizer}, move Cyberith SDK to \texttt{external/CybSDK\_Cpp} or set \texttt{CYBSDK\_DIR} with the path to where the SDK is unpacked during TSEngine configuration (\ref{proj_conf})
     \end{enumerate}
     \item Run command (creating working directory):\\
         \texttt{mkdir build \&\& cd build}
     \item Run command (creating project files - on Windows by default Visual Studio project if is installed, othwerwise use \texttt{-G} flag):\\
         \texttt{cmake ..}
+    \label{proj_conf}
     \item Build the project with your build system.
     \item Run the project: \texttt{./build/output/tsgame/[BUILD TYPE]/tsgame.[EXECUTABLE FORMAT]}
 \end{enumerate}
 
 \subsubsection{Third Party Dependencies}
-\label{lst:3rdparty}
-\hspace{\parindent} We prioritize building from source code over using precompiled binaries
+\label{sec:3rdparty}
+\hspace{\parindent} We prioritize building from source code over using precompiled binaries.
 One of the modern way of handling compiling from source code is to use git submodules. The core of this method is \texttt{.gitsubmodules} file containing all used external dependencies.
 \begin{lstlisting}[caption=.gitsubmodules]
 [submodule "external/vulkan"]
@@ -86,13 +87,10 @@ One of the modern way of handling compiling from source code is to use git submo
 The major advantage of source code dependencies over precompiled binaries is having significantly less memory usage to store a project and easy way to make a fork of your dependency. However, the biggest disadvantage of source code lies on compilation time.
 
 \subsubsection{Cyberith SDK}
-\hspace{\parindent} There is one external dependency that git submodules doesn't cover, that dependency is Cybertith SDK, responsible for communication with Cyberith Virtualizer ELITE 2 treadmill.
-This is the only 3rd party library that is included to the project as a binary and is optional to use.
-More theory about this device and its SDK is available at:
-\begin{itemize}
-    \item \hyperref[]{Virtualizer} % TODO:
-    \item \hyperref[sec:movement_system]{Movement System}
-\end{itemize}
+\label{sec:build_cybsdk}
+\hspace{\parindent} There is one external dependency that git submodules doesn't cover, that dependency is Cybertith SDK, responsible for communication with Cyberith Virtualizer ELITE 2 treadmill - \hyperref[sec:virtualizer]{\ref*{sec:virtualizer} Virtualizer}.\\
+This is the only 3rd party library that is included to the project as a binary and is optional to use.\\
+To use treadmill, Cyberith SDK must be unpacked to the project, while its configuration - \hyperref[sec:how_to_run]{\ref*{sec:how_to_run} Instruction How To Buld the Project} section contains elaborated information about it.  
 
 \subsubsection{Precompiled Header}
 \hspace{\parindent} To reduce the amount of code which you care about adding in every translation unit, a precompiled header can be used. In our project we used it to reduce the amount of often used include directives, actually we used it only to don't mess up with adding STL for the engine's part.\\
@@ -138,24 +136,13 @@ os_files(SRC_FILES *.cpp)
 
 As we will discuss it in \hyperref[sec:problems]{\ref{sec:problems} Problems During the Development} section, we encountered problems with virtual reality on Linux systems, therefore to keep up the project open for further modifications and good practices we delivered layers of abstraction and where it was obvious errors are invoked with messages pointing that the followed code wasn't yet implemented for currently being built platform.\\ At the level of CMake, this problem handles \texttt{message} function with \texttt{FATAL\_ERROR} argument that stops the configuration of the project.\\ On the other hand, \texttt{\#error not implemented} preprocessor command secures this code at the level of C++.
 
-\subsubsection{CMake}
-\hspace{\parindent}
-\begin{itemize}
-    \item ./CMakeLists.txt
-    \item ./external/CMakeLists.txt
-    \item ./engine/CMakeLists.txt
-        \begin{itemize}
-            \item ./engine/tests/CMakeLists.txt
-        \end{itemize}
-    \item ./game/CMakeLists.txt
-\end{itemize}
-
 \subsubsection{Common ABI}
 \label{sec:build_abi}
 \hspace{\parindent} When developing any library it is important to care about application binary interface (ABI), because the user of your product may not used the same headers used to build your library for plenty of reasons, especially when the library is dynamically linked, then a lot of opportunities for it appears.\\To avoid it you must oversee your ABI, we took it into the account but within the project's deadline was coming, exceptions from it had started to appear. One of those exceptions representant is Entity Component System's header file - \texttt{ecs.hpp} where there is no prepared any kind of intermediate interface between ECS's header and the engine.\\Therefore to provide just any kind of protection on the top of that we prepared \texttt{TS\_VER} preprocessor definition being a name of namespace - \hyperref[sec:namespaces]{\ref*{sec:namespaces} Namespaces}. But it is a partially solution because we must be aware that a change or addition to the engine breaks the exisiting ABI and update the version of the engine in the main CMake. 
 
 \subsubsection{Preprocess Definitions}
-\hspace{\parindent} Publicly exposed the engine's preprocessor definitions are \texttt{ENGINE\_NAME} and \texttt{TS\_VER}.\\ First containing the \texttt{PROJECT\_NAME} variable so \texttt{tsengine} (so far it is used for creating Khronos's APIs' Instances because they take engine's name).\\ The latter assures \hyperref[sec:build_abi]{\ref{sec:build_abi} Common ABI}.
+\hspace{\parindent} Publicly exposed the engine's preprocessor definitions are: \texttt{ENGINE\_NAME} and \texttt{TS\_VER}.\\ First containing the \texttt{PROJECT\_NAME} variable so \texttt{tsengine} (so far it is used for creating Khronos's APIs' Instances because they take engine's name).\\ The latter assures \hyperref[sec:build_abi]{\ref{sec:build_abi} Common ABI}.
+On the other hand private preprocessor definitions are: \texttt{VK\_USE\_PLATFORM\_\${VK\_USE\_PLATFORM}\_KHR} that is required by Vulkan headers to choose appropriate declaration based on system in use, \texttt{VK\_NO\_PROTOTYPES} is similar to the previous definition because is related to the Vulkan Headers dependency but this one turns off default Vulkan Loader this dependency comes with - \hyperref[sec:3rdparty]{\ref*{sec:3rdparty} Third Party Dependencies}, \texttt{XR\_USE\_GRAPHICS\_API\_VULKAN} is required for OpenXR to know which graphics API you use, \texttt{CYBSDK\_FOUND} this one is defined if Cyberith SDK is found - \hyperref[sec:build_cybsdk]{\ref*{sec:build_cybsdk} Cyberith SDK}, \texttt{TESTER\_ADAPTER} is defined when tests are enabled, which are by default enabled, \texttt{NOMINMAX} the purpose of it to disable \texttt{min}, \texttt{max} preprocessor functions defined in Windows API causing problems with STL.
 \begin{lstlisting}[caption=Engine's preprocessor definitions (./engine/CMakeLists.txt)]
 target_compile_definitions(${PROJECT_NAME} PUBLIC
     ENGINE_NAME="${PROJECT_NAME}"
