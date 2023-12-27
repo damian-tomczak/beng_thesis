@@ -428,6 +428,7 @@ const auto material = ts::RendererComponent<ts::PipelineType::PBR>::Material::cr
 sphere.addComponent<ts::RendererComponent<ts::PipelineType::PBR>>(material);
 \end{lstlisting}
     \item RigidBodyComponent\\
+    \label{rigidbody_component}
     This component tracks the velocity of an entity.
 \begin{lstlisting}[language=c++, caption=Rigid body component (./engine/include/tsengine/ecs/components/rigidbody\_component.h)]
 struct RigidBodyComponent : public Component
@@ -480,8 +481,10 @@ public:
 
 \subsubsection{Private Engine Systems}
 \begin{itemize}
-    \item MovementSystem
+    \item MovementSystem\\
     \label{movement_system}
+    \texttt{MovementSystem} is responsible for player's movement gameplay. Due to the lack of time, we didn't have enough time to write class as it should be, therefore instead of decorator pattern \footnote{The Decorator Pattern is a structural design pattern used in software development. It's particularly useful in scenarios where you need to add new functionalities to objects without altering their structure. This pattern creates a decorator class that wraps the original class and adds new behaviors and responsibilities to it} \texttt{ifdef} preprocessor declarations are used.
+    This system looks for entities containing \hyperref[transform_component]{\texttt{TransformComponent}}, \hyperref[rigidbody_component]{\texttt{RigidBodyComponent}} , and \texttt{player} tag. If Virtualizer is in use, constructor connects to the device - \hyperref[sec:build_cybsdk]{\ref*{sec:build_cybsdk} Cyberith SDK}.\\ The next two code listenings cover the logic behind the movement for \hyperref[cyb_movement]{Virtualizer} and \hyperref[noncyb_movement]{without}.
 \begin{lstlisting}[language=c++, caption=Movement system (./engine/src/ecs/systems/movement\_system.hpp)]
 class MovementSystem : public ts::System
 {
@@ -535,6 +538,10 @@ private:
 #endif
 };
 \end{lstlisting}
+    \begin{itemize}
+        \item Cyberith Movement\\
+        \label{cyb_movement}
+        Code here implements the basic movement of the human. Theory about the calculations used here is explained in \hyperref[sec:virtualizer]{\ref*{sec:virtualizer} Virtualizer} section.
 \begin{lstlisting}[language=c++, caption=Movement code with Cyberith (./engine/src/ecs/systems/movement\_system.hpp)]
         const auto ringHeight = mpCyberithDevice->GetPlayerHeight();
         auto ringAngle = mpCyberithDevice->GetPlayerOrientation();
@@ -559,6 +566,9 @@ private:
             playerPosition.z += offsetZ;
         }
 \end{lstlisting}
+        \item Non-Cyberith Movement
+        \label{noncyb_movement}
+        If the treadmill is not in use, the movement takes place with the use of the right controller, the direction pointed by it and the main action button moves the camera. 
 \begin{lstlisting}[language=c++, caption=Movement code without Cyberith (./engine/src/ecs/systems/movement\_system.hpp)]
         for (size_t controllerIndex{}; controllerIndex < controllers.controllerCount; ++controllerIndex)
         {
@@ -567,7 +577,6 @@ private:
             {
                 const auto controllerPose = controllers.getPose(controllerIndex)[2];
 
-                // TODO: something is wrong with this code, investigate it
                 if ((!controllerPose.isNan()) || (controllerPose == math::Vec3{0.f}))
                 {
                     const math::Vec3 forward{controllers.getPose(controllerIndex)[2]};
@@ -580,6 +589,7 @@ private:
             }
         }
 \end{lstlisting}
+    \end{itemize}
     \item RenderSystem\\
     \label{sec:renderer_system}
     This system works as the front-end of the \hyperref[sec:renderer]{\ref*{sec:renderer} Renderer}.
