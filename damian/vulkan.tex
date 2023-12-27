@@ -3,6 +3,7 @@
 \subsection{Vulkan Tools}
 TSEngine uses only one graphics API for rendering, we didn't provide a layer of abstraction for handling multiple APIs. API we have chosen for rendering is Vulkan. While working on Vulkan extremely useful or practically required is to have tools.
 \subsubsection{Shader Compiler}
+\label{sec:shader_compiler}
 We have chosen to compile shaders during the runtime, it's possible by \texttt{compilerShaders} function defined in \texttt{shaders\_compiler.h} header that takes the path to the directory with shader assets: % TODO: dominik difference between methods of compilation, history of tlou 2, proses conses
 \begin{lstlisting}[language=c++, caption=Shaders Compiler header (./engine/src/vulkan\_tools/shaders\_compiler.h)]
 void compileShaders(const std::filesystem::path shadersPath);

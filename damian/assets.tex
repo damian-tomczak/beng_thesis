@@ -1,14 +1,16 @@
 \newpage
 \subsection{Assets}
+\label{sec:assets}
 \subsubsection{Models}
-Models are saved in .obj files.\\
+\hspace{\parindent} Models are saved in .obj files, that is a pretty old way of storing models nowadays, a more expected format is glTF \cite{gltf}. And all the assets should be stored in binary packages.\\\\
 List of models:
-\begin{itemize} % TODO: provide sources for files
-    \item polonez.obj
+\begin{itemize}
+    \item polonez.obj \cite{PolonezModel}
     \item sphere.obj
-    \item village.obj
+    \item village.obj \cite{VillageModel}
 \end{itemize}
 \subsubsection{Shaders}
+\hspace{\parindent} So far, the only shaders we support are fragment and vertex shaders - \hyperref[sec:shader_compiler]{\ref*{sec:shader_compiler} Shader Compiler}.\\
 Shader structure:
 \begin{itemize}
     \item shader.h
@@ -16,7 +18,9 @@ Shader structure:
     \item shader.frag
 \end{itemize}
 
-\begin{lstlisting}[language=c++, caption=Common Shader preprocessor]
+All the shaders start with preprocessor section where the version of the shader is defined, we support with 4.5 and above versions.\\
+Extensions are enabled: \texttt{GL\_GOOGLE\_include\_directive} makes possible to add other files to the shader, \texttt{GL\_EXT\_multiview} enables \cite{multiview} functionality, the last \texttt{GL\_EXT\_debug\_printf} enables printing debug messages from \hyperref[sec:renderdoc]{\ref*{sec:renderdoc} RenderDoc} followed by include declarations:
+\begin{lstlisting}[language=c++, caption=Common a shader preprocessor]
 #version 450
 #extension GL_GOOGLE_include_directive : enable
 #extension GL_EXT_multiview : enable
@@ -25,7 +29,9 @@ Shader structure:
 [Include Section]
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Common Shader data]
+As we use single pipeline layout for all the pipelines - \hyperref[sec:renderer]{\ref*{sec:renderer} Renderer}, all the shader has the same uniform data access across the program(except uniform data sent via push constants, they are sent only for pipelines they are interested in).\\
+First binding point contains dynamically updated uniform data, which are unique for each model, so model matrix of each of them. The second contains data common of all the objects displayed on the screen, so: position of the camera, view matrix for two points of view, and projection matrix also for two points of view. The last uniform buffer contains information about positions of light sources.\\There are two pushed data constant, first used to store position of the object currently being drawing, second for sending material's properties used to draw objects with PBR lighting.
+\begin{lstlisting}[language=c++, caption=Common a shader data]
 layout(binding = 0) uniform IndividualUbo {
     mat4 modelMat;
 } individualUbo;
@@ -55,13 +61,79 @@ layout(push_constant) uniform Material {
 
 Shader list:
 \begin{itemize}
-    \item common.h
-\begin{lstlisting}[language=c++, caption=]
+    \item Shader headers\\
+    They are shared between shaders and engine code:
+    \begin{itemize}
+        \item common.h\\
+        This header points out the biggest flaw of our engine, on the scene there are always two sources of light, as we thought we would have time to store lights in shader storage buffer object, and this is the proper way how this should be implemented.
+\begin{lstlisting}[language=c++, caption=Common used shader constants(./assets/shaders/common.h)]
 #define PI 3.14159265359
 #define LIGHTS_N 2
 \end{lstlisting}
-    \item grid.frag
-\begin{lstlisting}[language=c++, caption=]
+    \item grid.h\\
+    As the grid is a plane, to draw it a draw call takes 6 vertices.
+\begin{lstlisting}[language=c++, caption=Grid constant(./assets/shaders/grid.h)]
+#define GRID_DRAW_CALL_VERTEX_COUNT 6
+\end{lstlisting}
+    \item light\_cube.h\\
+    As the cube is consisted of 6 plane each consisted of 6 vertices, to draw it a draw call takes 36 vertices.
+\begin{lstlisting}[language=c++, caption=Light cubes shader constant(./assets/shaders/light\_cube.h)]
+#pragma once
+
+#define LIGHT_CUBE_DRAW_CALL_VERTEX_COUNT 36
+\end{lstlisting}
+    \item grid\_params.h\\
+    This header defines all grid properties which allow for user's modifications to their preferences, with the constant positions of plane vertices and indices.
+\begin{lstlisting}[language=c++, caption=Grid shader parameters(./assets/shaders/grid\_params.h)]
+const float gridSize = 100.0;
+const float gridCellSize = 0.5;
+vec4 gridColorThin = vec4(1, 0, 0, 1.0);
+vec4 gridColorThick = vec4(0, 1, 0, 1.0);
+const float gridMinPixelsBetweenCells = 2.0;
+
+const vec3 pos[4] =
+{
+    vec3(-1.0, 0.0, -1.0),
+    vec3(-1.0, 0.0,  1.0),
+    vec3( 1.0, 0.0,  1.0),
+    vec3( 1.0, 0.0, -1.0)
+};
+
+const int indices[6] = {
+    0, 1, 2, 2, 3, 0
+};
+\end{lstlisting}
+    \end{itemize}
+    \item grid.vert\\
+    As the grid is a plane with "texture" drew during the fragment stage,
+    The grid moves with camera's position, so every view calculations must be multiplied by camera matrix. 
+    % TODO: todo
+\begin{lstlisting}[language=c++, caption=(./assets/shaders/grid.vert)]
+layout (location = 0) out vec2 uv;
+layout (location = 1) out vec2 camPos;
+
+void main()
+{
+    mat4 cameraMat = mat4(1.0);
+    cameraMat[3] = vec4(ubo.camPos, 1.0);
+
+    mat4 MVP = ubo.projMats[gl_ViewIndex] * ubo.viewMats[gl_ViewIndex] * cameraMat;
+
+    int idx = indices[gl_VertexIndex];
+    vec3 position = pos[idx] * gridSize;
+
+    mat4 iViewMat = inverse(ubo.viewMats[gl_ViewIndex] * cameraMat);
+    camPos = vec2(iViewMat[3][0], iViewMat[3][2]);
+
+    position.x += camPos.x;
+    position.z += camPos.y;
+
+    uv = position.xz;
+    gl_Position = MVP * vec4(position, 1.0);
+}
+\end{lstlisting}
+    \item grid.frag\\
+\begin{lstlisting}[language=c++, caption=Grid fragment shader(./assets/shaders/grid.frag)]
 layout (location=0) in vec2 uv;
 layout (location=1) in vec2 camPos;
 layout (location=0) out vec4 outColor;
@@ -122,53 +194,9 @@ void main()
     outColor = gridColor(uv, camPos);
 }
 \end{lstlisting}
-    \item grid.h
-\begin{lstlisting}[language=c++, caption=]
-#define GRID_DRAW_CALL_VERTEX_COUNT 6
-\end{lstlisting}
-    \item grid.vert
-\begin{lstlisting}[language=c++, caption=]
-layout (location = 0) out vec2 uv;
-layout (location = 1) out vec2 camPos;
-\end{lstlisting}
-    \item grid\_params.h
-\begin{lstlisting}[language=c++, caption=]
-const float gridSize = 100.0;
-const float gridCellSize = 0.5;
-vec4 gridColorThin = vec4(1, 0, 0, 1.0);
-vec4 gridColorThick = vec4(0, 1, 0, 1.0);
-const float gridMinPixelsBetweenCells = 2.0;
-
-const vec3 pos[4] =
-{
-    vec3(-1.0, 0.0, -1.0),
-    vec3(-1.0, 0.0,  1.0),
-    vec3( 1.0, 0.0,  1.0),
-    vec3( 1.0, 0.0, -1.0)
-};
-
-const int indices[6] = {
-    0, 1, 2, 2, 3, 0
-};
-
-\end{lstlisting}
-    \item light\_cube.frag
-\begin{lstlisting}[language=c++, caption=]
-layout(location = 0) out vec4 outColor;
-
-void main()
-{
-    outColor = vec4(1.0);
-}
-\end{lstlisting}
-    \item light\_cube.h
-\begin{lstlisting}[language=c++, caption=]
-#pragma once
-
-#define LIGHT_CUBE_DRAW_CALL_VERTEX_COUNT 36
-\end{lstlisting}
-    \item light\_cube.vert
-\begin{lstlisting}[language=c++, caption=]
+    \item light\_cube.vert\\
+    The source of light is a simple cube, therefore the vertex shader contains a constant array of 36 vertices of the cube. The only calculation performed in this shader is MVP.
+\begin{lstlisting}[language=c++, caption=Light cube vertex shader(./assets/shaders/light\_cube.vert)]
 const vec3 cubeVertices[36] =
 {
     {-1., -1., -1.},
@@ -189,18 +217,20 @@ void main()
         vec4(pushConst.objPos + cubeVertices[gl_VertexIndex], 1.0);
 }
 \end{lstlisting}
-    \item normal\_lighting.frag
-\begin{lstlisting}[language=c++, caption=]
-layout(location = 0) in vec3 inColor;
+    \item light\_cube.frag\\
+    The source of light is a white lighting cube, so the returned value is \texttt{vec4(1.0)}
+\begin{lstlisting}[language=c++, caption=Light cube fragment shader(./assets/shaders/light\_cube.frag)]
 layout(location = 0) out vec4 outColor;
 
 void main()
 {
-    outColor = vec4(inColor, 1.0);
+    outColor = vec4(1.0);
 }
 \end{lstlisting}
-    \item normal\_lighting.vert
-\begin{lstlisting}[language=c++, caption=]
+    \item normal\_lighting.vert\\
+    \label{vert_normal_light}
+    Normal lighting is the default method of objects lighting used in the project, as we didn't find it needed to implement textures and the simple one-color objects are not so representative as the idea of lighting the objects based on their normal vectors. Taking all of this into the account, vertex shader beside doing MVP calculation passes to the \hyperref[frag_normal_light]{normal\_lighting.frag} normalized normal vector.
+\begin{lstlisting}[language=c++, caption=Normal lighting vertex shader(./assets/shaders/normal\_lighting.vert)]
 layout(location = 0) in vec3 inPos;
 layout(location = 1) in vec3 inNormal;
 
@@ -221,10 +251,23 @@ void main()
     outColor = mat3(individualUbo.modelMat) * normalize(inNormal);
 }
 \end{lstlisting}
-    \item pbr.frag
-\begin{lstlisting}[language=c++, caption=]
+    \item normal\_lighting.frag\\
+    The only thing the normal lighting fragment shader does, is to interpret the normalized normal vector as the color passed from \hyperref[vert_normal_light]{normal\_lighting.vert}.
+    \label{frag_normal_light}
+\begin{lstlisting}[language=c++, caption=Normal lighting fragment shader(./assets/shaders/normal\_lighting.frag)]
+layout(location = 0) in vec3 inColor;
+layout(location = 0) out vec4 outColor;
+
+void main()
+{
+    outColor = vec4(inColor, 1.0);
+}
 \end{lstlisting}
-    \item pbr.vert
-\begin{lstlisting}[language=c++, caption=]
+    \item pbr.vert\\
+\begin{lstlisting}[language=c++, caption=PBR vertex shader(./assets/shaders/pbr.vert)]
+\end{lstlisting}
+    \item pbr.frag\\
+    PBR shader is straight-forward implementation of theory explained in theory part - \hyperref[sec:pbr]{\ref*{sec:pbr} Physical Based Rendering}.
+\begin{lstlisting}[language=c++, caption=PBR fragment shader(./assets/shaders/pbr.frag)]
 \end{lstlisting}
 \end{itemize}
