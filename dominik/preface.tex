@@ -57,145 +57,39 @@ Instructions on how to build the code by yourself are detailed in \hyperref[sec:
 Building a graphics/game engine is a long-term process, so this dissertation does not cover the engine's final form.
 On November 9, 2023, the code finally achieved MVP status. The rest of the thesis will be based on the status of the code from that day, unless otherwise stated or fixes are applied to the fragments of interest.
 % TODO: add yt link
-\newpage
-\section{Preface Polish}  % TODO: dominik polish it heheheh
-\newpage
-\section{What is an engine?}
-\subsection{What is a game engine?}
-\subsection{What is a graphics engine?}
-\input{dominik/history}
-\newpage
-\section{Interesting Techniques} % TODO: not only in our engine
-\subsection{Interesting Engine Techniques}
-\subsubsection{Entity Component System}
-\label{sec:theory_ecs}
-\subsubsection{Reflection System}
-\label{sec:refl}
 
 \newpage
-\subsection{Interesting Rendering Techniques}
-\subsubsection{Differed vs Forward Rendering}
+\section{Preface Polish}
+Praca dyplomowa skupia się na architekturze i implementacji oprogramowania grafiki czasu rzeczywistego przeznaczonego na urządzenia wirtualnej rzeczywistości. Aby pogłębić imersję przebywania w wirtualnym środowisku, program rozszerzony jest o możliwość obsługi bieżni dookólnej. Wyczerpujemy również temat związany z pracą zespołową oraz rozwojem oprogramowania skierowanym do osób trzecich. Praca ma na celu rozwinięcie oraz ugruntowanie umiejętności programistycznych, oraz wiedzy o grafice trójwymiarowej skupiając się na zastosowaniu w fanomatyce. Rozważamy również historię, teraźniejszość oraz przyszłość branży grafiki trójwymiarowej w kontekście gier wideo, oraz wirtualnej rzeczywistości. 
 
-\newpage
-\section{Creation of 3D World Immersion}
-\[MVP\]
-\[MV[2]P[2]\]
+Pracę dyplomową rozpoczyna część teoretyczna prezentująca ważne kroki w ewolucji technologii gier, jakim są trójwymiarowe silniki graficzne czasu rzeczywistego, począwszy od Wolfenstein’a 3D, skończywszy na kombajnach multimedialnych pokroju Unreal Engine 5 czy Unity; obejmując tym rozwój przemysłu rozrywkowego w ostatnich trzydziestu latach na podstawie generacji konsol. Specjalna uwaga skierowana jest w kierunku silnie rozwijającej się branży wirtualnej rzeczywistości, wyróżniając wczesny VR poprzedniego wieku silnie nacechowanego eksperymentalnie. Skończywszy na urządzeniach komercyjnych, których popularność wybuchła w połowie zeszłej dekady wraz z pojawieniem się na rynku startup’u w postaci firmy Oculus, aby skończyć na obserwacjach na temat III generacji urządzeń, która to generacja rozpoczyna się w momencie pisania pracy inżynierskiej. 
+ 
 
-\[
-\begin{bmatrix}
-Orthographic\\
-Projection \\
-Matrix
-\end{bmatrix} 
-*
-\begin{bmatrix}
-X\\
-Y\\
-Z\\
-1\\
-\end{bmatrix} 
-\]
+Lwia część pracy dyplomowej zorientowana jest wokół przykładowego silnika grafiki trójwymiarowej wirtualnej rzeczywistości, nazwanego na cześć autorów pracy „TSEngine”. 
 
-\[
-\begin{bmatrix}
-Perspective\\
-Projection \\
-Matrix
-\end{bmatrix} 
-*
-\begin{bmatrix}
-X\\
-Y\\
-Z\\
-1\\
-\end{bmatrix} 
-\]
+Jest to program silnie ukierunkowany na wykorzystaniu nowoczesnych technologii skupionych wokół uzyskania maksimum wydajności kosztem większego wysiłku oraz wiedzy odbiorcy takowych rozwiązań. Mając na uwadze, że nasze rzemiosło jest ogniwem pośrednim w drodze do uzyskania finalnego produktu (w odróżnieniu od tradycyjnej inżynierii oprogramowania, gdy to odbiorcą aplikacji jest osoba nietechniczna albo członek zespołu, w którym to rozwiązanie powstaje) oraz ze względu na rozmiar projektu, musimy dbać o bardzo przemyślaną architekturę oraz czysty kod. 
+ 
 
-\[
-a=\frac{h}{w}
-\]
+Kierujący się tym wszystkim implementacja jest przeprowadzona, używając języka programowania wysokiego poziomu, jakim jest C++ określonym przez Międzynarodową Organizację Normalizacyjną w dokumencie ISO/IEC 14882:2020 w ostateczności ograniczając się do rozwiązań sprecyzowanych w tym samym dokumencie w wydaniu :2017. 
 
-\[
-f=\frac{1}{tan(\theta / 2)}
-\]
+Do obsługi procesora graficznego oraz komunikacji ze sprzętem wirtualnej rzeczywistości wspomagamy się multiplatformowymi standardami grupy Khronos, w przypadku tego pierwszego korzystamy z interfejsu programistycznego Vulkan, natomiast Head-mounted display wraz z kontrolerami napędzamy api OpenXR. 
 
-\[
-\lambda=\frac{zfar}{zfar - znear)}
--
-\frac{zfar * znear}{zfar-znear}
-\]
+Ze względu na fatalną obsługę urządzeń wirtualnej rzeczywistości w rodzinie systemów Linux nie zdecydowaliśmy się mulitplatformowość w tym kontekście, jednakże nadal dbamy o możliwość rozbudowy oprogramowania na dowolnej platformie poprzez narzędzie CMake, które zostanie wykorzystane do zarządzania procesem budowania i kompilacji oprogramowania. Software zostanie jednak przede wszystkim dostosowane i testowane w środowisku Windows 10/11 oraz zoptymalizowane pod możliwości kompilatora MSVC. Poszczególne fragmenty kodu testujemy za pomocą testów jednostkowych, przy wykorzystaniu biblioteki GoogleTest. Do hardware’u, na którym testujemy oprogramowanie, zaliczamy headset’y HTC VIVE Pro, Oculus Quest 2 oraz procesory graficzne firmy NVIDIA z serii RTX 3000, oraz 2000. 
 
-\[
-\begin{bmatrix}
-x\\
-y\\
-z\\
-\end{bmatrix}
-\]
-Conversion to screen space
-\[
-\begin{bmatrix}
-afx\\
-fy\\
-\lambda z-\lambda znear\\
-\end{bmatrix}
-\]
-Perspective divide
-\[
-x/z\ y/z\ z/z
-\]
+Silnik jest dostosowany do obsługi bieżni dookólnej Cyberith Virtualizer Elite 2, będącej alternatywą do tradycyjnego poruszania się za pomocą kontrolerów. W kontekście oprogramowania, wykorzystanie bieżni wiąże się z koniecznością obsługi alternatywnego poruszania, biorącego pod uwagę dowolną prędkość poruszania się oraz rozróżnienie między skierowaniem ciała, oraz kierunkiem ruchu. 
 
-\[
-\begin{bmatrix}
-(\frac{h}{w})(\frac{1}{tan(\theta/2)}) & 0 & 0 & 0\\
-0 & (\frac{1}{tan(\theta/2)}) & 0 & 0\\
-0 & 0 & \frac{zfar}{zfar - znear)} & -\frac{zfar * znear}{zfar-znear}\\
-0 & 0 & 1 & 0
-\end{bmatrix} 
-*
-\begin{bmatrix}
-X\\
-Y\\
-Z\\
-1\\
-\end{bmatrix} 
-\]
+Ważnym założeniem pracy dyplomowej, jest wykorzystanie wzorca architektonicznego Entity Component System (ECS). Wzorzec ten wyróżnia trzy kluczowe elementy: 
 
-An example of view matrix with camera placed at: 10 5 10:
-\[
-\begin{bmatrix}
-1 & 0 & 0 & -10\\
-0 & 1 & 0 & -5\\
-0 & 0 & 1 & -10\\
-0 & 0 & 0 & 1\\
-\end{bmatrix} 
-\]
+\begin{itemize}
+    \item Entity - który za pomocą identyfikatora reprezentuje każdy obiekt w środowisku.
+    \item Component - przypisywany do elementu za pomocą modyfikacji jego sygnatury, określa jego cechy i przechowuje dane potrzebne do wykorzystania w systemie. 
+    \item System - czyli procesy wywoływane na wszystkich obiektach spełniających daną sygnaturę. 
+\end{itemize}
 
-\newpage
-\section{Software Testing}
-\label{sec:testing}
-\hspace{\parindent}
-Software development can be a lengthy and convoluted process, so to assure the quality of the project and to prevent hidden errors from disturbing workflow, it is necessary to test the code. There are various methodologies used in the process of software testing, and it is of great importance to be aware of them and best situations to use each of them.
-\subsection{Unit Tests}
-\hspace{\parindent}
-One of the simplest ways for programmers to test their code in development is to use unit tests. This method of software testing focuses on validating the functionality of a single unit or component of the tested code. Usually, unit test are written by the same person or team that coded the feature right after finishing said feature. The main advantage of using unit tests is the ease of implementation and high ratio of finding bugs that are quite obvious but potentially very dangerous for future production. As this type of testing was used in the development of TSEngine, the exact way it was used is described in \hyperref[sec:tests]{\ref*{sec:tests} Tests} section.
+Zastosowanie tego wzorca jest wysoce wskazane w przypadku rozwoju silników graficznych przeznaczonym do gier, gdyż znacząco ułatwiają implementację elementów gameplay’u oraz optymalizują cache CPU. 
 
-\subsection{Smoke Tests}
-\hspace{\parindent}
-Smoke testing, also known as sanity testing or build verification testing, is a methodology that focuses on quickly checking whether the software has any obvious errors or whether the most basic functionalities work properly. This type of testing is the most suited to determine if the software is ready for more in depth tests, or if it is ready for development of the new features. Although this way of testing was used in the development of TSEngine, there is not any documentation of the process, as it was always a simple check after implementing a new feature.
+Kolejną ważną funkcją naszego programu jest physical based rendering, który dostarcza spektakularne doświadczenia wizualne przy stosunkowo niewielkiej mocy obliczeniowej w porównaniu do innych metod oświetlenia niebazujących na grafice rastrowej. 
 
-\newpage
-\section{Teamwork}
-\label{sec:teamwork}
-\hspace{\parindent} % TODO: place here any image to make it more funny
-TSEngine and thesis based on this project is a fruit of work of two persons: Damian Tomczak(contact@damian-tomczak.pl) and Dominik Słodkowski(dominikslodkowski01@gmail.com).
-But the treadmill part of this project and the inspiration of giving to it virtual reality shape would be impossible without our thesis supervisor PhD Piotr Artiemjew that invited us to the robotic club working at Faculty of Mathematics and Computer Science at University of Warmia and Mazury, where virtual devices are open for robotic club's members.
+Przy tworzeniu oprogramowanie wyróżniamy problemy i obserwacje związane z tworzeniem narzędzia nie tylko z perspektywy dewelopera silnika, ale również skupiamy się na programistach, designerach oraz artystach, którzy z takowego software’u mieliby skorzystać. Wiąże się to z zastosowaniem odpowiedniej architektury, na której mogliby nadbudować swoją aplikację oraz bez tworzenia zbyt dużej warstwy abstrakcji, co jest zmorą obecnych rozwiązań na rynku. 
 
-As in all projects that involve multiple people, it is crucial to develop a way to share each person's work and to have access to previous iterations of the software. Nowadays, it is of great ease with the emergence of version control systems such as Git or Perforce. 
-
-The TSEngine uses Git and furthermore GitHub to accommodate this problem, as described in detail in \hyperref[sec:scv]{\ref*{sec:scv} Source Control Version} section. Git is released under the open source license -  GNU General Public License version 2.0, and as an open source software is widely used in many sites and platforms: GitHub, GitLab or Bitbucket to name the most popular ones, but there are many more developed and used to accommodate specific needs and preferences of the developers.
-
-Another popular method of version control, although not used in the development of TSEngine, is Perforce, now rebranded as Helix Core. It is a powerful tool used mainly in larger projects by AAA game developers, visual effects studios and semiconductor companies. When using Perforce, one must note that it is proprietary software of Perforce Software, Inc. and is free to use only in teams up to 5 users and 20 workspaces. Perforce is more focused on changing files and is better suited than git when dealing with binary files. As always, in software development it is important to choose the correct tool for the project and it can make the process of development much easier
-
-
-
+Jako że TSEngine jest silnikiem przeznaczonym do wirtualnej rzeczywistości, wiąże się to z odpowiednimi wyzwaniami. Silnik musi wyświetlać na headsecie dwa obrazy, co rozwiązujemy na poziomie sprzętowym korzystając z rozszerzenia do Vulkan’a VK\_KHR\_multiview. Jest to uproszczone rozwiązanie, poprawiające wydajność silnika, gdyż umożliwia renderowanie osobnego obrazu na każde oko, przy niewielkim narzucie obliczeniowym. 
