@@ -1,12 +1,16 @@
 \newpage
 \section{Thesis Conventions}
 Every path mentioned in the thesis starts from the main path of project repository.\\
-Example Inline Code Snippet: \texttt{puts("Hello World!");}
-\\
-\begin{lstlisting}[language=c++, caption=Example Code Snippet(./example\_dir/example\_file.cpp)]
+We have two methods, the separation of source code and code names from the text:
+\begin{itemize}
+    \item Inline code snippet:\\
+    \texttt{puts("Hello World!");}
+    \item Code listening:
+\begin{lstlisting}[language=c++, caption=Example code snippet (./example\_dir/example\_file.cpp)]
 std::cout << "Hello World!\n";
 \end{lstlisting}
-Paper is consisted of three distinguish main parts, theory starting from \hyperref[sec:preface]{\ref*{sec:preface} Preface}, code description of TSEngine \hyperref[sec:code_descr]{\ref*{sec:code_descr} Code Description}, and ending with \hyperref[sec:problems]{\ref*{sec:problems} Problems During The Development}
+\end{itemize}
+The paper is consisted of three distinguish main parts, theory starting from \hyperref[sec:preface]{\ref*{sec:preface} Preface}, code description of TSEngine \hyperref[sec:code_descr]{\ref*{sec:code_descr} Code Description}, and ending starting with \hyperref[sec:problems]{\ref*{sec:problems} Problems During The Development}.
 
 \newpage
 \section{Preface English} % TODO: dominik check if it is still up-to-date
@@ -170,12 +174,28 @@ An example of view matrix with camera placed at: 10 5 10:
 \newpage
 \section{Software Testing}
 \label{sec:testing}
-Software development can be a lengthy and convoluted process, so to assure the quality of the project and to prevent hidden errors from disturbing workflow, it is necessary to test the code. There are various methodologies used in the process of software testing
-\subsection{Unit Tests} % TODO: two main that immediately popping up into my mind
+\hspace{\parindent}
+Software development can be a lengthy and convoluted process, so to assure the quality of the project and to prevent hidden errors from disturbing workflow, it is necessary to test the code. There are various methodologies used in the process of software testing, and it is of great importance to be aware of them and best situations to use each of them.
+\subsection{Unit Tests}
+\hspace{\parindent}
+One of the simplest ways for programmers to test their code in development is to use unit tests. This method of software testing focuses on validating the functionality of a single unit or component of the tested code. Usually, unit test are written by the same person or team that coded the feature right after finishing said feature. The main advantage of using unit tests is the ease of implementation and high ratio of finding bugs that are quite obvious but potentially very dangerous for future production.
+
 \subsection{Smoke Tests}
+\hspace{\parindent}
+
+
 \newpage
 \section{Teamwork}
 \label{sec:teamwork}
+\hspace{\parindent}
 TSEngine and thesis based on this project is a fruit of work of two persons: Damian Tomczak(contact@damian-tomczak.pl) and Dominik Słodkowski(dominikslodkowski01@gmail.com).
-But the treadmill part of this project and the inspiration of giving to it virtual reality shape would be impossible without our thesis supervisor PhD Piotr Artmiejew that invited us to the robotic club working at Faculty of Mathematics and Computer Science at University of Warmia and Mazury, where virtual devices are open for robotic club's members.
-\hyperref[sec:scv]{\ref*{sec:scv} Source Control Version} % TODO: mentiond about git and perforce
+But the treadmill part of this project and the inspiration of giving to it virtual reality shape would be impossible without our thesis supervisor PhD Piotr Artiemjew that invited us to the robotic club working at Faculty of Mathematics and Computer Science at University of Warmia and Mazury, where virtual devices are open for robotic club's members.
+
+As in all projects that involve multiple people, it is crucial to develop a way to share each person's work and to have access to previous iterations of the software. Nowadays, it is of great ease with the emergence of version control systems such as Git or Perforce. 
+
+The TSEngine uses Git and furthermore GitHub to accommodate this problem, as described in detail in \hyperref[sec:scv]{\ref*{sec:scv} Source Control Version}. Git is released under the open source license -  GNU General Public License version 2.0, and as an open source software is widely used in many sites and platforms: GitHub, GitLab or Bitbucket to name the most popular ones, but there are many more developed and used to accommodate specific needs and preferences of the developers.
+
+Another popular method of version control, although not used in the development of TSEngine, is Perforce, now rebranded as Helix Core. It is a powerful tool used mainly in larger projects by AAA game developers, visual effects studios and semiconductor companies. When using Perforce, one must note that it
+
+
+

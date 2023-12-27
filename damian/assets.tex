@@ -264,10 +264,115 @@ void main()
 }
 \end{lstlisting}
     \item pbr.vert\\
+    In the PBR vertex shader, there are no too many things to explain, besides MVP mutiplication, coordinates of the vertex and its normal vertex are passed to the fragment shader. 
 \begin{lstlisting}[language=c++, caption=PBR vertex shader(./assets/shaders/pbr.vert)]
+layout (location = 0) out vec3 outWorldPos;
+layout (location = 1) out vec3 outNormal;
+
+void main()
+{
+    mat4 cameraMat = mat4(1.0);
+    cameraMat[3] = vec4(commonUbo.camPos, 1.0);
+
+    vec3 worldPos = inPos + pushConst.objPos;
+    outWorldPos = worldPos;
+    outNormal = mat3(individualUbo.modelMat) * inNormal;
+
+    gl_Position =
+        commonUbo.projMats[gl_ViewIndex] *
+        commonUbo.viewMats[gl_ViewIndex] *
+        cameraMat *
+        individualUbo.modelMat *
+        vec4(worldPos, 1.0);
+}
 \end{lstlisting}
     \item pbr.frag\\
-    PBR shader is straight-forward implementation of theory explained in theory part - \hyperref[sec:pbr]{\ref*{sec:pbr} Physical Based Rendering}.
+    PBR shader is a pretty straight-forward implementation of theory explained in theory part - \hyperref[sec:pbr]{\ref*{sec:pbr} Physical Based Rendering}.
 \begin{lstlisting}[language=c++, caption=PBR fragment shader(./assets/shaders/pbr.frag)]
+vec3 materialcolor()
+{
+    return vec3(material.r, material.g, material.b);
+}
+
+float D_GGX(float dotNH, float roughness)
+{
+    float alpha = roughness * roughness;
+    float alpha2 = alpha * alpha;
+    float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
+
+    return alpha2 / (PI * denom*denom);
+}
+
+float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
+    float GL = dotNL / (dotNL * (1.0 - k) + k);
+    float GV = dotNV / (dotNV * (1.0 - k) + k);
+
+    return GL * GV;
+}
+
+vec3 F_Schlick(float cosTheta, float metallic)
+{
+    vec3 F0 = mix(vec3(0.04), materialcolor(), metallic);
+    vec3 F = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+
+    return F;
+}
+
+vec3 BRDF(vec3 L, vec3 V, vec3 N, float metallic, float roughness)
+{
+    vec3 H = normalize(V + L);
+    float dotNV = max(dot(N, V), 0);
+    float dotNL = max(dot(N, L), 0);
+    float dotLH = max(dot(L, H), 0);
+    float dotNH = max(dot(N, H), 0);
+
+    vec3 lightColor = vec3(1.0);
+
+    vec3 color = vec3(0.0);
+
+    if (dotNL > 0.0)
+    {
+        float roughness = max(0.05, roughness);
+        float D = D_GGX(dotNH, roughness);
+        float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
+        vec3 F = F_Schlick(dotNV, metallic);
+
+        vec3 spec = D * F * G / (4.0 * dotNL * dotNV);
+
+        color += spec * dotNL * lightColor;
+    }
+
+    return color;
+}
+
+void main()
+{
+    vec3 N = normalize(inNormal);
+
+    vec3 temp = vec3(commonUbo.viewMats[gl_ViewIndex][3]);
+    vec3 v1 = vec3(
+        commonUbo.camPos.x + temp.x,
+        commonUbo.camPos.y + temp.y,
+        commonUbo.camPos.z + temp.z
+        );
+    vec3 V = normalize(-v1 - inWorldPos);
+
+    vec3 Lo = vec3(0.0);
+    for (int i = 0; i < lightsUbo.positions.length(); i++)
+    {
+        vec3 L = normalize(lightsUbo.positions[i] - inWorldPos);
+        Lo += BRDF(L, V, N, material.metallic, material.roughness);
+    };
+
+    vec3 color = materialcolor() * 0.02;
+    color += Lo;
+
+    color = pow(color, vec3(0.4545));
+
+    outColor = vec4(color, 1.0);
+}
 \end{lstlisting}
 \end{itemize}

@@ -1,5 +1,6 @@
 \newpage
 \subsection{TSEngine Internal Core Abstraction}
+\label{sec:core_abstr}
 \hspace{\parindent} Internal TSEngine Core covers \hyperref[sec:renderer]{\ref*{sec:renderer} Renderer} and \hyperref[sec:headset]{\ref*{sec:headset} Headset with Controllers} abstraction, there is one place where these two things share the same encapsulation, this thing is \texttt{Context} class.\\
 All of them are available in the corresponding files \texttt{*.cpp} and \texttt{*.h} files inside \texttt{./engine/src/core/} path]\\
 The main purpose of \texttt{Context} class is creation of OpenXR and Vulkan instances. So it means that Khronos structures are initialized within this class, when usually there is no reason to re-initialized them after creation of the app and used widely through the app, such structures objects are: \texttt{VkPhysicalDevice}, \texttt{VkDevice}, \texttt{VkQueue}, or \texttt{XrSystemId}. And also \texttt{Context} sets up multisampling and uniform buffer alignment. This is not the end as \texttt{Context} creates and sets up debug messengers.
