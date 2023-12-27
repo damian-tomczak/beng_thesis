@@ -178,11 +178,11 @@ An example of view matrix with camera placed at: 10 5 10:
 Software development can be a lengthy and convoluted process, so to assure the quality of the project and to prevent hidden errors from disturbing workflow, it is necessary to test the code. There are various methodologies used in the process of software testing, and it is of great importance to be aware of them and best situations to use each of them.
 \subsection{Unit Tests}
 \hspace{\parindent}
-One of the simplest ways for programmers to test their code in development is to use unit tests. This method of software testing focuses on validating the functionality of a single unit or component of the tested code. Usually, unit test are written by the same person or team that coded the feature right after finishing said feature. The main advantage of using unit tests is the ease of implementation and high ratio of finding bugs that are quite obvious but potentially very dangerous for future production.
+One of the simplest ways for programmers to test their code in development is to use unit tests. This method of software testing focuses on validating the functionality of a single unit or component of the tested code. Usually, unit test are written by the same person or team that coded the feature right after finishing said feature. The main advantage of using unit tests is the ease of implementation and high ratio of finding bugs that are quite obvious but potentially very dangerous for future production. As this type of testing was used in the development of TSEngine, the exact way it was used is described in \hyperref[sec:tests]{\ref*{sec:tests} Tests} section.
 
 \subsection{Smoke Tests}
 \hspace{\parindent}
-
+Smoke testing, also known as sanity testing or build verification testing, is a methodology that focuses on quickly checking whether the software has any obvious errors or whether the most basic functionalities work properly. This type of testing is the most suited to determine if the software is ready for more in depth tests, or if it is ready for development of the new features. Although this way of testing was used in the development of TSEngine, there is not any documentation of the process, as it was always a simple check after implementing a new feature.
 
 \newpage
 \section{Teamwork}
@@ -193,9 +193,9 @@ But the treadmill part of this project and the inspiration of giving to it virtu
 
 As in all projects that involve multiple people, it is crucial to develop a way to share each person's work and to have access to previous iterations of the software. Nowadays, it is of great ease with the emergence of version control systems such as Git or Perforce. 
 
-The TSEngine uses Git and furthermore GitHub to accommodate this problem, as described in detail in \hyperref[sec:scv]{\ref*{sec:scv} Source Control Version}. Git is released under the open source license -  GNU General Public License version 2.0, and as an open source software is widely used in many sites and platforms: GitHub, GitLab or Bitbucket to name the most popular ones, but there are many more developed and used to accommodate specific needs and preferences of the developers.
+The TSEngine uses Git and furthermore GitHub to accommodate this problem, as described in detail in \hyperref[sec:scv]{\ref*{sec:scv} Source Control Version} section. Git is released under the open source license -  GNU General Public License version 2.0, and as an open source software is widely used in many sites and platforms: GitHub, GitLab or Bitbucket to name the most popular ones, but there are many more developed and used to accommodate specific needs and preferences of the developers.
 
-Another popular method of version control, although not used in the development of TSEngine, is Perforce, now rebranded as Helix Core. It is a powerful tool used mainly in larger projects by AAA game developers, visual effects studios and semiconductor companies. When using Perforce, one must note that it
+Another popular method of version control, although not used in the development of TSEngine, is Perforce, now rebranded as Helix Core. It is a powerful tool used mainly in larger projects by AAA game developers, visual effects studios and semiconductor companies. When using Perforce, one must note that it is proprietary software of Perforce Software, Inc. and is free to use only in teams up to 5 users and 20 workspaces. Perforce is more focused on changing files and is better suited than git when dealing with binary files. As always, in software development it is important to choose the correct tool for the project and it can make the process of development much easier
 
 
 

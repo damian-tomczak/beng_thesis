@@ -359,8 +359,9 @@ struct RendererComponent : public RendererComponentBase
 
 A special case of \texttt{RendererComponent} is a physical based rendering renderer component that requires creation of material.\\
 The process of adding a PBR renderer component to an entity presents the next code snippet \hyperref[lst:renderer_component_pbr]{\texttt{PBRRendererComponent}}.
-Followed listening presents compile time oriented PBR Renderer Component. Materials' properties are based on article of Sébastien Lagarde "Feeding a physically based shading model"\cite{feedingpbr}. % TODO: link doesnt work
-\begin{lstlisting}[language=c++, caption=Renderer PBR Component struct (./engine/include/tsengine/ecs/components/renderer\_component.h)]
+Followed listening presents compile time oriented PBR Renderer Component. Materials' properties are based on article of Sébastien Lagarde "Feeding a physically based shading model"\cite{feedingpbr}.
+\label{lst:renderer_component_pbr}
+\begin{lstlisting}[language=c++, caption=Renderer PBR component struct (./engine/include/tsengine/ecs/components/renderer\_component.h)]
 template<>
 struct RendererComponent<PipelineType::PBR> : public RendererComponentBase
 {
@@ -417,7 +418,6 @@ struct RendererComponent<PipelineType::PBR> : public RendererComponentBase
 };
 \end{lstlisting}
 
-\label{lst:renderer_component_pbr}
 \begin{lstlisting}[language=c++, caption=Process of adding PBR Renderer Component with material (./game/game.cpp)]
 auto sphere = ts::getMainReg().createEntity();
 ...
@@ -427,9 +427,9 @@ const auto material = ts::RendererComponent<ts::PipelineType::PBR>::Material::cr
 
 sphere.addComponent<ts::RendererComponent<ts::PipelineType::PBR>>(material);
 \end{lstlisting}
-
     \item RigidBodyComponent\\
-\begin{lstlisting}[language=c++, caption=]
+    This component tracks the velocity of an entity.
+\begin{lstlisting}[language=c++, caption=Rigid body component (./engine/include/tsengine/ecs/components/rigidbody\_component.h)]
 struct RigidBodyComponent : public Component
 {
     float velocity;
@@ -439,7 +439,9 @@ struct RigidBodyComponent : public Component
 };
 \end{lstlisting}
     \item TransformComponent\\
-\begin{lstlisting}[language=c++, caption=]
+    \label{transform_component}
+    This component stores the position of an entity in world space.
+\begin{lstlisting}[language=c++, caption=Trasnform component (./engine/include/tsengine/ecs/components/transform\_component.h)]
 struct TransformComponent : public Component
 {
     math::Vec3 pos;
@@ -454,14 +456,33 @@ struct TransformComponent : public Component
 \subsubsection{Public Engine Systems}
 \begin{itemize}
     \item AssetStore\\
-    It's worth noting that the \texttt{AssetStore} is an exception here, as it is not placed in the system subfolder. \texttt{AssetStore} uniquely benefits from being a system through its ability to retrieve every entity from the register that possesses the required components.
+    It's worth noting that the \texttt{AssetStore} is an exception here, as it is not placed in the \texttt{systems} subfolder. \texttt{AssetStore} uniquely benefits from being a system through its ability to retrieve every entity from the register that possesses the required components.
+\begin{lstlisting}[language=c++, caption=Asset store (./engine/include/tsengine/asset\_store.h)]
+class AssetStore final : public System
+{
+public:
+    AssetStore()
+    {
+        requireComponent<MeshComponent>();
+    }
+
+    struct Models
+    {
+        static void load();
+        static void writeTo(char* const destination);
+
+        static size_t getIndexOffset();
+        static size_t getSize();
+    };
+};
+\end{lstlisting}    
 \end{itemize}
 
 \subsubsection{Private Engine Systems}
 \begin{itemize}
     \item MovementSystem
     \label{movement_system}
-\begin{lstlisting}[language=c++, caption=]
+\begin{lstlisting}[language=c++, caption=Movement system (./engine/src/ecs/systems/movement\_system.hpp)]
 class MovementSystem : public ts::System
 {
 public:
@@ -514,7 +535,7 @@ private:
 #endif
 };
 \end{lstlisting}
-\begin{lstlisting}[language=c++, caption=]
+\begin{lstlisting}[language=c++, caption=Movement code with Cyberith (./engine/src/ecs/systems/movement\_system.hpp)]
         const auto ringHeight = mpCyberithDevice->GetPlayerHeight();
         auto ringAngle = mpCyberithDevice->GetPlayerOrientation();
         const auto movementDirection = mpCyberithDevice->GetMovementDirection();
@@ -538,7 +559,7 @@ private:
             playerPosition.z += offsetZ;
         }
 \end{lstlisting}
-\begin{lstlisting}[language=c++, caption=]
+\begin{lstlisting}[language=c++, caption=Movement code without Cyberith (./engine/src/ecs/systems/movement\_system.hpp)]
         for (size_t controllerIndex{}; controllerIndex < controllers.controllerCount; ++controllerIndex)
         {
             const auto flyState = controllers.getFlyState(controllerIndex);
@@ -559,9 +580,12 @@ private:
             }
         }
 \end{lstlisting}
-    \item RenderSystem
+    \item RenderSystem\\
     \label{sec:renderer_system}
-\begin{lstlisting}[language=c++, caption=]
+    This system works as the front-end of the \hyperref[sec:renderer]{\ref*{sec:renderer} Renderer}.
+    It has two sub-systems \texttt{Lights} and \texttt{Meshes}, first to check if the right amount of lights are added to the scene, it is due to the bottleneck that we haven't prepared yet non-constant number of lights in the shader via shader storage buffer object. On the other hand, \texttt{Meshes} system is used to calculate the number of meshes needed to add to the memory.\\
+    Other than that, what \texttt{RenderSystem} does is calling draw calls and binding uniform buffer data.
+\begin{lstlisting}[language=c++, caption=Front-end of the rendrer (./engine/src/ecs/systems/render\_system.hpp)]
 class RenderSystem : public System
 {
 public:
@@ -723,8 +747,10 @@ private:
 \subsubsection{Game Components}
 \label{sec:game_components}
 \begin{itemize}
-    \item EchoComponent
-\begin{lstlisting}[language=c++, caption=]
+    \item EchoComponent\\
+    \label{echo_component}
+    This component is used to bind a message to an entity with its ID to avoid bottleneck with comparing huge strings.
+\begin{lstlisting}[language=c++, caption=Echo component (./game/components/echo\_component.hpp)]
 struct EchoComponent : public ts::Component
 {
     std::string message;
@@ -737,8 +763,10 @@ struct EchoComponent : public ts::Component
     }
 };
 \end{lstlisting}
-    \item ExampleComponent
-\begin{lstlisting}[language=c++, caption=]
+    \item ExampleComponent\\
+    \label{example_component}
+    This component is required by \hyperref[example_system]{\texttt{ExampleSystem}} to store the state of the "animation".
+\begin{lstlisting}[language=c++, caption=Example component (./game/components/example\_component.hpp)]
 struct ExampleComponent : public ts::Component
 {
     ts::math::Vec3 startPos;
@@ -756,9 +784,10 @@ struct ExampleComponent : public ts::Component
 
 \subsubsection{Game Systems}
 \begin{itemize}
-    \item ExampleSystem
-    \label{sec:example_system}
-\begin{lstlisting}[language=c++, caption=]
+    \item ExampleSystem\\
+    \label{example_system}
+    This system takes entities with \hyperref[transform_component]{\texttt{TransformComponent}} if those have \hyperref[echo_component]{\texttt{EchoComponent}} with the message hasn't already printed, theirs message is printed. If an entity has \texttt{ExampleComponent} and belongs to \texttt{spheres} group, its position changes from the \texttt{startPos} to \texttt{endPos} defined in \texttt{ExampleComponent} and vice versa, in cycles lasting the time defined by \texttt{spheresMovementDuration} variable.
+\begin{lstlisting}[language=c++, caption=Example system (./game/systems/example\_system.hpp)]
 class ExampleSystem : public ts::System
 {
     inline static constexpr std::chrono::seconds spheresMovementDuration{2s};
@@ -824,4 +853,4 @@ public:
 \newpage
 \subsubsection{Problems With Our ECS Implementation}
 We didn't have time to provide true not breaking ABI ECS, the only protection has the form of inline namespaces with version - more about it in \hyperref[sec:abi]{Building of TSEngine - Common ABI} section.\\
-Due to the lack of time and already existing project size, we also didn't test and described in the thesis events system, the part of this feature exists in the project in the form of the header \texttt{./engine/include/tsengine/event\_bus.hpp}.
+Due to the lack of time and already existing project size, we also didn't test and described in the thesis event system, the part of this feature already exists in the project in the form of the header \texttt{./engine/include/tsengine/event\_bus.hpp}.

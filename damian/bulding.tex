@@ -100,7 +100,7 @@ More systemized and modern substitution of a precompiled header is C++20's Modul
 target_precompile_headers(${PROJECT_NAME} PUBLIC src/pch.h)
 \end{lstlisting}
 
-\subsubsection{Operating System Specific}
+\subsubsection{Building Operating System Specific}
 \label{sec:build_os}
 \hspace{\parindent} Multiplatform building is covered by followed \texttt{os\_files}\ref{lst:os} function that removes from the \texttt{SRC\_FILES} variable all \texttt{*.cpp} files not designed to be used on platform that is currently used to build the project.
 \label{lst:os}

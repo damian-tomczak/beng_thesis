@@ -1,9 +1,10 @@
 \newpage
 \subsection{Engine Core}
 \label{sec:engine_core}
-When saying about TSEngine Core, we distinguish public and private part. The first visible for a game and the latter unavailable for a game.
+\hspace{\parindent} When saying about TSEngine Core, we distinguish public and private part. The first visible for a game and the latter unavailable for a game.
 \subsubsection{Public TSEngine Core}
 \label{sec:engine_class}
+\hspace{\parindent} Every game must be derived from \texttt{Engine} class declared inside \texttt{core.h}. It contains four methods, which names explain themselves. We have chosen in our opinion an interesting approach during designing this class as it doesn't contain any members, it is helpful among others for not breaking ABI, and every action as initialization (\texttt{init} function) has to be consciously chosen. Besides of it, \texttt{Engine} class uses default constructor and copy and move operations are not allowed (however we could use here \hyperref[sec:utils]{\ref*{sec:utils}} Utils) header already containing macros for that, but we wanted to keep the headers across the whole project as lightweight as possible.\\
 \begin{lstlisting}[language=c++, caption=Engine class (./engine/include/tsengine/core.h)]
 class Engine
 {
@@ -22,40 +23,39 @@ public:
 };
 \end{lstlisting}
 
-\begin{lstlisting}[language=c++, caption=Start of the Example Game (./game/game.cpp)]
-TS_MAIN()
+Preferable way to start the engine is to call \texttt{TS\_MAIN} macro with the game class that is derived from \texttt{Engine} class. 
+\begin{lstlisting}[language=c++, caption=Start of the example game (./game/game.cpp)]
+TS_MAIN(gameClass)
 \end{lstlisting}
-
-\label{sec:run_fun}
-\begin{lstlisting}[language=c++, caption=Run function (./engine/include/tsengine/core.h)]
-int run(Engine* const engine);
-\end{lstlisting}
-
-\begin{lstlisting}[language=c++, caption=]
-#define TS_MAIN()                            \
-    int main()                               \
-    {                                        \
-        try                                  \
-        {                                    \
-            auto result = ts::run(new Game); \
-            if (result != ts::TS_SUCCESS)    \
-            {                                \
-                return result;               \
-            }                                \
-        }                                    \
-        catch (const std::exception& e)      \
-        {                                    \
-            std::cerr << e.what() << "\n";   \
-            return EXIT_FAILURE;             \
-        }                                    \
-                                             \
-        return EXIT_SUCCESS;                 \
+But keep it in mind that \texttt{TS\_MAIN} macro is just a simple wrapper around \texttt{main} function that creates an instance of the class provided as the argument to the macro, then the pointer to it is passed to \texttt{run} function, and all of this inside try-catch exception block.
+\begin{lstlisting}[language=c++, caption=\texttt{TS\_MAIN} definition (./engine/include/tsengine/core.h)]
+#define TS_MAIN(gameClass)                        \
+    int main()                                    \
+    {                                             \
+        try                                       \
+        {                                         \
+            auto result = ts::run(new gameClass); \
+            if (result != ts::TS_SUCCESS)         \
+            {                                     \
+                return result;                    \
+            }                                     \
+        }                                         \
+        catch (const std::exception& e)           \
+        {                                         \
+            std::cerr << e.what() << "\n";        \
+            return EXIT_FAILURE;                  \
+        }                                         \
+                                                  \
+        return EXIT_SUCCESS;                      \
     }
 \end{lstlisting}
 
-Let's take a look at the heart of the engine's namely, run function.
-For simplification-wise in this code snippet we will avoid discussion about main loop and in its place just we will leave [Main Loop].
-The time for main loop will come in the next one
+\label{sec:run_fun}
+Let's take a look at the heart of the engine's namely, run function, declared inside \texttt{core.h} alongside with \hyperref[sec:engine_class]{\texttt{Engine} class declaration}.
+\begin{lstlisting}[language=c++, caption=Run function (./engine/include/tsengine/core.h)]
+int run(Engine* const engine);
+\end{lstlisting}
+For simplification-wise in this code snippet we will avoid discussion about the main loop that is the part of \texttt{run} function, but we will focus on it in the \hyperref[main_loop]{next code snippet}.
 \begin{lstlisting}[language=c++, caption=Engine's run function (./engine/src/core/core.cpp)]
 int run(Engine* const game) try
 {
@@ -147,6 +147,7 @@ int run(Engine* const game) try
 TS_CATCH_FALLBACK_WITH_CLEANER(runCleaner)
 \end{lstlisting}
 
+\label{main_loop}
 \begin{lstlisting}[language=c++, caption=Engine main loop (./engine/src/core/core.cpp)]
     auto loop = true;
     auto previousTime = std::chrono::high_resolution_clock::now();
@@ -225,10 +226,11 @@ TS_CATCH_FALLBACK_WITH_CLEANER(runCleaner)
 
 \newpage
 \subsubsection{Private TSEngine Core}
-The only private part of TSEngine core that is not simultaneously the part of renderer and headset abstraction (read \hyperref[sec:core_abstr]{\ref*{sec:core_abstr} TSEngine Core Abstraction}) is \texttt{Window} class that is an interface to be implemented by \hyperref[sec:os]{\ref*{sec:os} Operating System Specific}.
-\subsubsection{Window}
 \label{sec:window}
+\hspace{\parindent} The only private part of TSEngine core that is not simultaneously the part of renderer and headset abstraction (read \hyperref[sec:core_abstr]{\ref*{sec:core_abstr} TSEngine Core Abstraction}) is \texttt{Window} class that is an interface to be implemented by \hyperref[sec:os]{\ref*{sec:os} Operating System Specific}.
 
+As the \texttt{Window} class is strongly based on operating system as it is the layer of abstraction on the system's window, you may be interested in of development on other platforms for its more information can be found in \hyperref[sec:build_os]{\ref*{sec:build_os} Building Operating System Specific}.
+\texttt{Window} class contains common window members which are width and height of a window and the name of it. Abstract methods: \texttt{createWindow}, \texttt{show}, \texttt{peekMessage}, \texttt{dispatchMessage}. \texttt{Message} enumeration containing handled actions sent by a windows server. 
 \begin{lstlisting}[language=c++, caption=Engine window interface (./engine/src/core/window.h)]
 class Window
 {
@@ -265,4 +267,28 @@ protected:
     const size_t mHeight;
     const std::string mWindowName;
 };
+\end{lstlisting}
+The most important however is static \texttt{createWindowInstance} function that chooses and creates appropriate window based on the system in use.
+\begin{lstlisting}[language=c++, caption=\texttt{createWindowInstance} (./engine/src/core/window.cpp)]
+std::shared_ptr<Window> Window::createWindowInstance(const std::string_view windowName, const size_t width, const size_t height)
+{
+    if (isWindowAlreadyCreated)
+    {
+        TS_ERR("Window is already created");
+    }
+
+    std::shared_ptr<Window> window;
+
+#ifdef _WIN32
+    window = std::make_shared<Win32Window>(windowName, width, height);
+#else
+    #error "not implemented"
+#endif // _WIN32
+
+    window->createWindow();
+
+    isWindowAlreadyCreated = true;
+
+    return window;
+}
 \end{lstlisting}

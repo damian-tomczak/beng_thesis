@@ -1,15 +1,15 @@
 \newpage
 \subsection{Utils}
+\label{sec:utils}
 To ease the writing and debugging of ourselves, we created a few helper functionalities:
-
 \begin{itemize}
     \item Engine Utils
     \begin{itemize}
         \item Public Engine Utils\\
         To make move semantics easier to use, we add a few extremely useful macros which provide a possibility to define available objects behaviors through human's writable way.\\
-        In the future, we are planning to add a \hyperref[sec:refl]{reflection system} that would remove the need of passing as an argument class name, instead doing it "inline".\\
+        In the future, we are planning to add a \hyperref[sec:refl]{reflection system} that would remove the need of passing as an argument class name, instead doing it "inline". Besides of this header provides wrapper around Singleton classes.\\
         
-\begin{lstlisting}[language=c++, caption=Macros of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Preprocessor definitions of public Engine Utils(./engine/include/tsengine/utils.hpp)]
 #define TS_NOT_COPYABLE(ClassName)                   \
     ClassName(const ClassName&) = delete;            \
     ClassName& operator=(const ClassName&) = delete;
@@ -29,7 +29,7 @@ To ease the writing and debugging of ourselves, we created a few helper function
 \end{lstlisting}
 \label{sec:return_codes}
 List of standard return codes our engine uses:
-\begin{lstlisting}[language=c++, caption=Return Codes of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Return codes of public Engine Utils(./engine/include/tsengine/utils.hpp)]
 enum
 {
     TS_SUCCESS,
@@ -45,7 +45,7 @@ enum
     \item \texttt{TS\_UNKNOWN\_FAILURE} indicates the failure of Engine API that is unknown
 \end{itemize}
 Engine uses its own Exception Class that is thrown among others while the error detected by \hyperref[sec:logger]{the logger}.
-\begin{lstlisting}[language=c++, caption=Exception of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Exception of public Engine Utils(./engine/include/tsengine/utils.hpp)]
 class Exception : public std::exception
 {
 public:
