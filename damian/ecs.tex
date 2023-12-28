@@ -1,5 +1,6 @@
 \subsection{Entity Component System}
-Theoretical part about Entity Component Systems you can find in the \hyperref[sec:theory_ecs]{section dedicated to this}.
+\label{sec:code_ecs}
+\hspace{\parindent} Theoretical part about Entity Component Systems you can find in the \hyperref[sec:theory_ecs]{section dedicated to this}.
 
 Our ECS takes an advantage of speed over usage of the memory, therefore we store duplicated information about interested object. For an instance of Registry class (discussed in the next section \hyperref[sec:registry]{Registry}) names (called as tags) of entities are stored in two unordered associative containers. Such solution makes the code much faster in both situation, searching for the name of the entity, but having only entity nonetheless also in the case of searching for entity and having only entity's name.\\
 As we mentioned at the beginning, this doesn't come without cost, and the cost in this case is bigger usage of memory.
@@ -14,6 +15,7 @@ std::unordered_map<Id, std::string> tagPerEntity;
 
 \subsubsection{Registry}
 \label{sec:registry}
+\hspace{\parindent} The purpose of Registry is to be so kind of database, it is achieved by storing all needed systems, entities' data.\\
 \begin{lstlisting}[language=c++, caption=Registry class]
 class Registry
 {
@@ -32,7 +34,6 @@ class Registry
     ...
 };
 \end{lstlisting}
-The purpose of Registry is to be so kind of database, it is achieved by storing all needed systems, entities' data.\\
 It's possible to have in game multiple registries, but the engine always has a main registry that is exposed by \texttt{getMainReg} function for developers and inside the Engine simply by global variable \texttt{gReg}.
 Game Developer are allowed to create their own Registers, this can turn out to be useful in the case when the main registry is too much overloaded.
 

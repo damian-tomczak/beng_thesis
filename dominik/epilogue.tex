@@ -16,11 +16,17 @@
 TSEngine and thesis based on this project is a fruit of work of two persons: Damian Tomczak(contact@damian-tomczak.pl) and Dominik Słodkowski(dominikslodkowski01@gmail.com).
 But the treadmill part of this project and the inspiration of giving to it virtual reality shape would be impossible without our thesis supervisor PhD Piotr Artiemjew that invited us to the robotic club working at Faculty of Mathematics and Computer Science at University of Warmia and Mazury, where virtual devices are open for robotic club's members.
 
-As we have been working strongly close to each other, it is impossible to point out one person is responsible only for specific part of the work. However, still we can say who more contributed to some of the parts of the work or rather who played the role of the guardian for the specific parts.\\
-In the aspect of thesis Dominik's contribution played the biggest role in theory part, on the other hand Damian was mostly responsible for code description, as he played the architect role while developing TSEngine and graphics programmer. Dominik was responsible to implement the treadmill working in the project and in many aspects of the math library, should also not be forgotten his role in refactoring the tedious parts of code.\\ Damian's knowledge based on his experience in game and graphics engines was playing  undervalued support during creation of the thesis when something was not exactly clear.  
+As we have been strongly cooperating when working on the project, it is impossible to point out which person is responsible for each specific part of the work. Still, it is feasible to differentiate who contributed more or played the role of the supervisor for some parts of the work.\\
+In the aspect of writing the thesis, Dominik mainly contributed to the theory part, while Damian was mostly responsible for code description, as he played the architect and graphics programmer roles while developing TSEngine. Dominik was responsible for implementing the treadmill functionality and for many aspects of the math library, his role in refactoring the tedious parts of code should also not be forgotten.\\ Damian's knowledge based on his experience in game and graphics engine development was crucial support during the process of creation of the thesis when something was not exactly clear.  
+
 \section{Epilogue}
-\section{Plans for TSEngine Future}
+While developing the engine with the spirit of simultaneously game, graphics and virtual reality, we have consolidated a lot of knowledge gained during our higher education, private projects and professional experience. Development of such engine is an arduous and long-term process, therefore we have plans for the future of our project. 
+\section{Plans for TSEngine's Future}
+\label{sec:future}
+So far we have plans for two features of TSEngine, and although they are not what want we want to develop now, they both have a strong impact on the code architecture so they need to be implemented before everything else: 
 \begin{itemize}
-    \item Deferred rendering
-    \item ui
+    \item Deferred rendering\\
+    Currently, most of the games have a lot of light sources in their scenes, therefore forward method of rendering is much heavier for CPU than deferred - \hyperref[sec:defer_vs_forward]{\ref*{sec:defer_vs_forward} Deferred vs Forward Rendering}
+    \item Graphical User Interface\\
+    Engines without GUI are the song of the past, therefore we need to as soon as possible provide way for graphical interaction with the ECS and core of the engine. Nowadays, popular and smart decision is to base UI on the ImGui library that is the leading tool in this aspect.  
 \end{itemize}

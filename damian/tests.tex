@@ -8,6 +8,7 @@ More theory about software development and methods of testing are available in \
 \noindent \\The interface for testing the engine:
 \subsubsection{Engine Tester Header}
 \label{sec:tester_adapter}
+Differently to a game, tests must be derived from \texttt{TesterAdapter} that provides a standardized way to timeout the rendering, instead of \hyperref[lst:engine_class]{Engine class}. 
 \begin{lstlisting}[language=c++, caption=Tester Engine class (./engine/tests/tester.cpp)]
 struct TesterEngine : public Engine
 {
@@ -28,7 +29,7 @@ struct TesterEngine : public Engine
 \end{lstlisting}
 
 
-Testing also requires a few inserts to the engine main loop. Tester Adapter code is inserted only if \texttt{TESTER\_ADAPTER} preprocessor definition is defined, it helps to avoid unnecessary operation in shippable product. Testing is turned on at the level of project configuration - more about it in \hyperref[sec:build_unit_tests]{Bulding Unit Tests} section. 
+Testing also requires a few inserts to the engine main loop. Tester Adapter code is inserted only if \texttt{TESTER\_ADAPTER} preprocessor definition is defined, it helps to avoid unnecessary operation in shippable product. Testing is turned on at the level of project configuration - more about it in \hyperref[sec:build_unit_tests]{\ref*{sec:build_unit_tests} Bulding Unit Tests} section. 
 \begin{lstlisting}[language=c++, caption=Tester related code inside Engine Main Loop (./engine/src/core/core.cpp)]
     \\ Before entering the main loop
     const auto testerAdapter = dynamic_cast<TesterEngine*>(game);

@@ -3,8 +3,9 @@
 \label{sec:engine_core}
 \hspace{\parindent} When saying about TSEngine Core, we distinguish public and private part. The first visible for a game and the latter unavailable for a game.
 \subsubsection{Public TSEngine Core}
-\label{sec:engine_class}
+\label{sec:public_engine}
 \hspace{\parindent} Every game must be derived from \texttt{Engine} class declared inside \texttt{core.h}. It contains four methods, which names explain themselves. We have chosen in our opinion an interesting approach during designing this class as it doesn't contain any members, it is helpful among others for not breaking ABI, and every action as initialization (\texttt{init} function) has to be consciously chosen. Besides of it, \texttt{Engine} class uses default constructor and copy and move operations are not allowed (however we could use here \hyperref[sec:utils]{\ref*{sec:utils}} Utils) header already containing macros for that, but we wanted to keep the headers across the whole project as lightweight as possible.\\
+\label{lst:engine_class}
 \begin{lstlisting}[language=c++, caption=Engine class (./engine/include/tsengine/core.h)]
 class Engine
 {
@@ -56,6 +57,8 @@ Let's take a look at the heart of the engine's namely, run function, declared in
 int run(Engine* const engine);
 \end{lstlisting}
 For simplification-wise in this code snippet we will avoid discussion about the main loop that is the part of \texttt{run} function, but we will focus on it in the \hyperref[main_loop]{next code snippet}.
+
+The most important part of work what \texttt{run} function does is being a wrapper over \hyperref[lst:engine_class]{\textt{Engine} class}. It means that \texttt{run} function is responsible for initialization of \hyperref[sec:tester_adapter]{\ref*{sec:tester_adapter} Engine Tester Header}, compilation of shaders (\hyperref[sec:shader_compiler]{\ref*{sec:shader_compiler} Shader Compiler}), initialization of ECS (\hyperref[sec:code_ecs]{\ref*{sec:code_ecs} Entity Component System}), \hyperref[context]{\ref*{context} \texttt{Context}}, and \hyperref[window]{\ref*{window} \texttt{Window}}. Foremost, the initialization of \hyperref[sec:renderer]{\ref*{sec:renderer} Renderer}. Eventually to deinitialization all the before mentioned environment after leaving \hyperref[main_loop]{\ref*{main_loop}the main loop}. All of this secured by \hyperref[fallbacks]{\ref*{fallbacks} fallback macro}.
 \begin{lstlisting}[language=c++, caption=Engine's run function (./engine/src/core/core.cpp)]
 int run(Engine* const game) try
 {
@@ -148,11 +151,11 @@ TS_CATCH_FALLBACK_WITH_CLEANER(runCleaner)
 \end{lstlisting}
 
 \label{main_loop}
+While developing the main loop, you must be extremely careful as performance here is very important because this code will be executed at least 16.6 times per second. At the beginning of the loop \texttt{deltaTime} since the last time is calculated. Update of \hyperref[sec:code_ecs]{\ref*{sec:code_ecs} Entity Component System}'s systems, registry, and controllers. The last thing is synchronization between headset and \hyperref[sec:renderer]{\ref*{sec:renderer} Renderer}.
 \begin{lstlisting}[language=c++, caption=Engine main loop (./engine/src/core/core.cpp)]
     auto loop = true;
     auto previousTime = std::chrono::high_resolution_clock::now();
     auto startTime = std::chrono::steady_clock::now();
-    // TODO: firstly render to the window then copy to the headset
     while (loop)
     {
         const auto nowTime = std::chrono::high_resolution_clock::now();
@@ -226,11 +229,21 @@ TS_CATCH_FALLBACK_WITH_CLEANER(runCleaner)
 
 \newpage
 \subsubsection{Private TSEngine Core}
-\label{sec:window}
-\hspace{\parindent} The only private part of TSEngine core that is not simultaneously the part of renderer and headset abstraction (read \hyperref[sec:core_abstr]{\ref*{sec:core_abstr} TSEngine Core Abstraction}) is \texttt{Window} class that is an interface to be implemented by \hyperref[sec:os]{\ref*{sec:os} Operating System Specific}.
-
-As the \texttt{Window} class is strongly based on operating system as it is the layer of abstraction on the system's window, you may be interested in of development on other platforms for its more information can be found in \hyperref[sec:build_os]{\ref*{sec:build_os} Building Operating System Specific}.
-\texttt{Window} class contains common window members which are width and height of a window and the name of it. Abstract methods: \texttt{createWindow}, \texttt{show}, \texttt{peekMessage}, \texttt{dispatchMessage}. \texttt{Message} enumeration containing handled actions sent by a windows server. 
+\hspace{\parindent} The core of the TSEngine seems to be quite poor comparing to the rest of the codebase, but it is due to the size of \hyperref[sec:renderer]{\ref*{sec:renderer} Renderer} that takes most of the space in the core of the engine.\\
+All the followed classes are available in the corresponding files \texttt{*.cpp} and \texttt{*.h} files inside \texttt{./engine/src/core/} path]\\
+\begin{itemize}
+    \item Context\\
+    \label{context}
+    The starting point for the whole app, especially for the renderer abstraction, is \texttt{Context} class that shares the common encapsulation.\\
+    The main purpose of \texttt{Context} class is creation of OpenXR and Vulkan instances. So it means that Khronos structures are initialized within this class, when usually there is no reason to re-initialized them after creation of the app and used widely through the app, such structures objects are: \texttt{VkPhysicalDevice}, \texttt{VkDevice}, \texttt{VkQueue}, or \texttt{XrSystemId}. And also \texttt{Context} sets up multisampling and uniform buffer alignment. This is not the end as \texttt{Context} creates and sets up debug messengers.
+    It's worth to point out that Context also loading Vulkan functions with the help of \hyperref[sec:vkLoader]{\ref*{sec:vkLoader} Vulkan Loader}, unfortunately we didn't have time to provide our own OpenXR loader.\\
+    I see here a field of improvement as it can be accessible through singleton pattern
+    \footnote{The Singleton Pattern is a design pattern used in software engineering to ensure that a class has only one instance and provides a global point of access to it.}.
+    \item Window\\
+    \label{window}
+    \texttt{Window} class that is an interface to be implemented by \hyperref[sec:os]{\ref*{sec:os} Operating System Specific}.\\
+    As the \texttt{Window} class is strongly based on operating system as it is the layer of abstraction on the system's window, you may be interested in of development on other platforms for its more information can be found in \hyperref[sec:build_os]{\ref*{sec:build_os} Building Operating System Specific}.\\
+    \texttt{Window} class contains common window members which are width and height of a window and the name of it. Abstract methods: \texttt{createWindow}, \texttt{show}, \texttt{peekMessage}, \texttt{dispatchMessage}. \texttt{Message} enumeration containing handled actions sent by a windows server. 
 \begin{lstlisting}[language=c++, caption=Engine window interface (./engine/src/core/window.h)]
 class Window
 {
@@ -268,7 +281,7 @@ protected:
     const std::string mWindowName;
 };
 \end{lstlisting}
-The most important however is static \texttt{createWindowInstance} function that chooses and creates appropriate window based on the system in use.
+    The most important however is static \texttt{createWindowInstance} function that chooses and creates appropriate window based on the system in use.
 \begin{lstlisting}[language=c++, caption=\texttt{createWindowInstance} (./engine/src/core/window.cpp)]
 std::shared_ptr<Window> Window::createWindowInstance(const std::string_view windowName, const size_t width, const size_t height)
 {
@@ -292,3 +305,48 @@ std::shared_ptr<Window> Window::createWindowInstance(const std::string_view wind
     return window;
 }
 \end{lstlisting}
+    \item \texttt{Controllers}\\
+    Controllers abstraction provides a basic layer of abstraction over OpenXR control devices, but the real logic related to them is hidden in \hyperref[movement_system]{\ref*{movement_system} MovementSystem}. \texttt{Controllers} class itself is responsible for setup of devices used for movement so creation of actions, update of those actions and getting the action states.
+\begin{lstlisting}[language=c++, caption=Controllers header(./engine/src/core/controllers.h)]
+class Controllers final
+{
+    TS_NOT_COPYABLE_AND_MOVEABLE(Controllers);
+
+    static constexpr std::string_view actionSetName{"actionset"};
+    static constexpr std::string_view localizedActionSetName{"Actions"};
+    static constexpr std::string_view interactionProfile{"/interaction_profiles/khr/simple_controller"};
+
+public:
+    Controllers(XrInstance xrInstance, XrSession xrSession) : mInstance(xrInstance), mSession(xrSession)
+    {}
+    ~Controllers();
+
+    static constexpr size_t controllerCount{2};
+
+    void setupControllers();
+    void sync(const XrSpace space, const XrTime time);
+
+    [[nodiscard]] bool getFlyState(const size_t controllerIndex) const { return mFlyStates.at(controllerIndex); }
+    [[nodiscard]] math::Mat4 getPose(const size_t controllerIndex) const { return mPoses.at(controllerIndex); }
+
+private:
+    XrInstance mInstance{};
+    XrSession mSession{};
+    std::array<XrSpace, controllerCount> mSpaces;
+    XrActionSet mActionSet{};
+    XrAction mPoseAction{}, mFlyAction{}, mTriggerAction{};
+    std::array<XrPath, controllerCount> mPaths;
+    std::array<math::Mat4, controllerCount> mPoses{};
+    std::array<float, controllerCount> mFlyStates{};
+
+    void createAction(
+        const std::string& actionName,
+        const std::string& localizedActionName,
+        const XrActionType type,
+        XrAction& action);
+
+    void updateActionStatePose(const XrSession session, const XrAction action, const XrPath path, XrActionStatePose& state);
+    void updateActionStateFloat(const XrSession session, const XrAction action, const XrPath path, XrActionStateFloat& state);
+};
+\end{lstlisting}
+\end{itemize}

@@ -82,7 +82,7 @@ private:
 \end{lstlisting}
         \item Private Engine Utils
 Fallback functions that are used by every Engine API function, to make sure that every problem is appropriate handled.\\
-\label{sec:fallbacks}
+\label{fallbacks}
 Besides standard \texttt{TS\_CATCH\_FALLBACK} that is simply catch block, we have also \texttt{TS\_CATCH\_FALLBACK\_WITH\_CLEANER(cleanerFunction)} that calls cleaner function to reset state of the engine.
 \begin{lstlisting}[language=c++, caption=Private Engine Utils (./engine/src/internal\_utils.h)]
 #define TS_CATCH_FALLBACK                                                           \
