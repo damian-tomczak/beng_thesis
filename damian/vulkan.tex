@@ -1,15 +1,15 @@
 \newpage
-
 \subsection{Vulkan Tools}
+\hspace{\parindent}
 TSEngine uses only one graphics API for rendering, we didn't provide a layer of abstraction for handling multiple APIs. API we have chosen for rendering is Vulkan. While working on Vulkan extremely useful or practically required is to have tools.
 \subsubsection{Shader Compiler}
 \label{sec:shader_compiler}
-We have chosen to compile shaders during the runtime, it's possible by \texttt{compilerShaders} function defined in \texttt{shaders\_compiler.h} header that takes the path to the directory with shader assets: % TODO: dominik difference between methods of compilation, history of tlou 2, proses conses
+We have chosen to compile shaders during the runtime, it's possible by \texttt{compilerShaders} function defined in \texttt{shaders\_compiler.h} header that takes the path to the directory with shader assets: 
 \begin{lstlisting}[language=c++, caption=Shaders Compiler header (./engine/src/vulkan\_tools/shaders\_compiler.h)]
 void compileShaders(const std::filesystem::path shadersPath);
 \end{lstlisting}
 We are not satisfied how it is done. In the future versions, we are going to define \texttt{ASSETS\_DIR} preprocessor definition, because shaders should be placed only in one path \texttt{./assets/shaders}.\\
-For shader compilation, we use third party \hyperref[lst:3rdparty]{glslang library}.
+For shader compilation, we use third party \hyperref[lst:3rdparty]{\ref*{lst:3rdparty} glslang library}.
 \begin{lstlisting}[language=c++, caption=Shader Compiler implementation(./engine/src/vulkan\_tools/shaders\_compiler.cpp)]
 
 void compileShaders(const std::filesystem::path shadersPath)
@@ -58,7 +58,7 @@ void compileShaders(const std::filesystem::path shadersPath)
 \end{lstlisting}
 \label{problem_with_shader_compilation}
 Our shader compiler required more work because for now shader compilation in \texttt{DEBUG} mode happens every start of the game, however in release build type engine checks only if the shader has been already compiled.\\
-Optimally, compilation should happen only during for modified or new files. Nonetheless, TSEngine during development copies all the assets every time from the main directory to the output directory  \hyperref[lst:build]{Building of TSEngine}. Therefore, within the every start of the engine assets files are modified that prevents from tracking which assets should be again compiled. It requires changes at the level of project generation - copy only modified or new assets to the output directory, we were lack of time to implement it.
+Optimally, compilation should happen only during for modified or new files. Nonetheless, TSEngine during development copies all the assets every time from the main directory to the output directory  \hyperref[lst:build]{\ref*{lst:build} Building of TSEngine}. Therefore, within the every start of the engine assets files are modified that prevents from tracking which assets should be again compiled. It requires changes at the level of project generation - copy only modified or new assets to the output directory, we were lack of time to implement it.
 
 \begin{lstlisting}[language=c++, caption=Shader Compiler supported shader stages (./engine/src/vulkan\_tools/shaders\_compiler.cpp)]
 glslang_stage_t getShaderStage(const std::filesystem::path& file)
@@ -78,7 +78,7 @@ glslang_stage_t getShaderStage(const std::filesystem::path& file)
     return GLSLANG_STAGE_COUNT;
 }
 \end{lstlisting}
-The only shader stages we take into account are vertex and fragment. It is another limitation should be aware. Another shaders would need much more sophisticated \hyperref[sec:renderer]{renderer pipelines}.
+The only shader stages we take into account are vertex and fragment. It is another limitation should be aware. Another shaders would need much more sophisticated \hyperref[sec:renderer]{\ref*{sec:renderer} renderer pipelines}.
 
 Another nice feature is a possibility for printing errors with helping information while shaders compilation
 \begin{lstlisting}[language=c++, caption=Shader Compiler logging (./engine/src/vulkan\_tools/shaders\_compiler.cpp)]
@@ -105,10 +105,10 @@ if (!glslang_shader_preprocess(shader, &input))
 In the future, here would be nice to add a feature that adds more information about the compilation failure by printing shader code with highlighted lines that are corrupted. 
 
 \newpage
-
 \subsubsection{Vulkan Loader}
 \label{sec:vkLoader}
-To make possible to use Vulkan we need to have Vulkan header, in our case we take it from 3rd party repository  \hyperref[sec:3rdparty]{\texttt{Vulkan-Headers}}. But definitions of those functions are available on the driver user mode side, a "tool" delivered by graphics card manufacture that exposes those API functions in the case of Vulkan is vulkan-1.dll.\\\\
+\hspace{\parindent}
+To make possible to use Vulkan we need to have Vulkan header, in our case we take it from 3rd party repository  \hyperref[sec:3rdparty]{\ref*{sec:3rdparty} \texttt{Vulkan-Headers}}. But definitions of those functions are available on the driver user mode side, a "tool" delivered by graphics card manufacture that exposes those API functions in the case of Vulkan is vulkan-1.dll.\\\\
 Despite that Khronos provides in the same repo with headers, the loader that automatize this action of binding function declarations with definition. It is worth to know how this process looks like in the case of errors, especially if you are going to work in bleeding-edge environments like WSL (Windows Subsystem for Linux).\\
 Our loader available at \texttt{./engine/src/vulkan\_tools/vulkan\_loader.h} exposes a few functions that should be called in the order how they are placed. Within the progress of loading, functions will be required to pass also a pointer to \texttt{VkInstance}, and some of the needs also list of extensions.
 \begin{lstlisting}[language=c++, caption=(./engine/src/vulkan\_tools/vulkan\_loader.h)]
@@ -122,7 +122,7 @@ void loadDeviceLevelFunctions(const VkDevice device, const std::vector<std::stri
 Usage of the Vulkan loader can be found in \texttt{Context::createVulkanContext() (./engine/src/core/context.cpp)} method.
 
 Even the best loader can not avoid being repetitive code, therefore let's take a look at the most representative functions:
-\texttt{connectWithLoader} function of the Vulkan loader assignees pointer to the vulkan-1.dll dynamic library using corresponding OS functions and variable type from \texttt{./engine/src/os/[system in use]/os.h} -  \hyperref[sec:os]{more about operating system dependent}.
+\texttt{connectWithLoader} function of the Vulkan loader assignees pointer to the vulkan-1.dll dynamic library using corresponding OS functions and variable type from \texttt{./engine/src/os/[system in use]/os.h} -  \hyperref[sec:os]{\ref*{sec:os} more about operating system dependent}.
 \begin{lstlisting}[language=c++, caption=Connecting with the Vulkan-1.dll (./engine/src/vulkan\_tools/vulkan\_loader.cpp)]
 LIBRARY_TYPE vulkanLibrary{};
 
@@ -196,7 +196,7 @@ INSTANCE_LEVEL_VULKAN_FUNCTION(vkEnumeratePhysicalDevices)
 ...
 \end{lstlisting}
 
-\texttt{vulkan\_functions.h} exposes Vulkan functions for the engine by externing function pointers filled by the loader from \hyperref[lst:vk_functions_cpp]{\texttt{vulkan\_functions.cpp}}
+\texttt{vulkan\_functions.h} exposes Vulkan functions for the engine by externing function pointers filled by the loader from \hyperref[lst:vk_functions_cpp]{\ref*{lst:vk_functions_cpp} \texttt{vulkan\_functions.cpp}}
 \begin{lstlisting}[language=c++, caption=(./engine/src/vulkan\_tools/vulkan\_functions.h]
 #include "vulkan/vulkan.h"
 

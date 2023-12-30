@@ -1,30 +1,64 @@
 \newpage
-\section{Interesting Techniques} % TODO: not only in our engine
-\subsection{Interesting Engine Techniques}
-\subsubsection{Entity Component System}
-\label{sec:theory_ecs}
-\subsubsection{Reflection System}
-\label{sec:refl}
+\section{Interesting Techniques}
+\hspace{\parindent}
+In this section, some techniques that, although not necessarily all of them have been used in the TSEngine, could prove to be beneficial to know and implement when coding a game or graphics engine.
 
-\newpage
-\subsection{Interesting Rendering Techniques}
-\subsubsection{Deferred vs Forward Rendering}
-\label{sec:defer_vs_forward}
-
-\subsubsection{Frustum Culling}
-\subsubsection{Entity Component System}
-The followed image presents the basic idea working behind ECS idea:
+\subsection{Frustum Culling}
+\hspace{\parindent}
+Frustum culling is a technique used in graphics programming that makes sure that the objects  not visible to camera are not included in the rendering process. As a result, it usually brings great performance improvement, especially in scenes with  complex geometry or numerous objects.
 \begin{figure}[H]
-  \includegraphics[width=\linewidth]{ecs.png}
+    \begin{center}
+    \includegraphics[width=0.8\textwidth]{figures/VisualCameraFrustum.png}
+    \end{center}
+    \caption{What is view frustum, image from \textit{LearnOpenGL} \cite{learnopengl} }
+\end{figure}
+As one can see in the image above, to implement frustum culling, the first step is to find six planes that create the boundaries of the view frustum. Objects that lie completely outside the view frustum are not visible to the camera and therefore can be removed from the rendering process. To efficiently determine which object lay completely outside of the six-sided pyramid created by the planes,
+
+\subsection{Entity Component System}
+\label{sec:theory_ecs}
+\hspace{\parindent}
+Entity component system, or ECS for short, is a technique widely used in game engines that has gained great popularity in recent years. This game development architecture offers several benefits over traditional object-oriented programming approaches, making it an attractive choice for game developers, and it was also implemented in TSEngine. The basic idea behind the ECS is to separate the data from its desired behavior and modifications. It is achieved using three types of objects: entities, which essentially are containers for components grouping them together in a way that is readable for a human, components - structures containing all the data, and systems - methods taking all the components of the same type that interact with each other, and achieving some result with it. 
+
+The main advantage of such architecture, is that it is data oriented, focusing on efficient data access and manipulation. It is achieved by storing all components of the same type, near each other in the memory cache, allowing for faster access to them when doing calculations by systems. Another advantage of ECS for many programmers is that it is easily readable and maintainable, allowing for easier development and debugging.
+
+As the entity component system have been used in TSEngine, the following image, representing some implemented code, presents the basic idea behind ECS:
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{ecs.png}
+  \end{center}
   \caption{ECS in work}
 \end{figure}
+In this example we have three entities: Player, Polonez and Sphere. Each one has some components assigned to it, and each component can also be assigned to a system that governs it. Taking a closer look at the Movement system, one can see, that to work, it needs a Transform and RigidBody components. When the movement system is invoked, it looks for all such components and uses them to simulate movement. The only entity that has a RigidBody component is Player, and it also has a Transform component, so, when invoked, the Movement system takes Player's RigidBody and Transform components and works with their data, changing their values as the result. The exact details of the implementation of ECS in TSEngine can be found in the section \hyperref[sec:code_ecs]{\ref*{sec:code_ecs} Entity Component System}
+
+\subsection{Reflection System}
+\label{sec:refl}
+\hspace{\parindent}
+
+\subsection{Deferred vs Forward Rendering}
+\label{sec:defer_vs_forward}
+\hspace{\parindent}
+
 
 \newpage
 \section{Creation of 3D World Immersion}
-\[MVP\]
-\[MV[2]P[2]\]
+\hspace{\parindent}
+One might be curious how, from a collection of points, it is possible to create a 3D image. The most important aspect of creating a 3D image on 2D space is perspective. It is achieved thanks to the model, view and projection matrices
+\begin{equation}
+MVP
+\label{mvpequation}
+\end{equation}
 
-\[
+In some VR devices, because there are two screens for each eye, the matrix has 2 view and projection matrices: 
+
+\begin{equation}
+MV[2]P[2]
+\label{mvp2equation}
+\end{equation}
+
+%For simplicity of explanation, model matrix will be omitted, as it is not always necessary to use it, its main use is to track the object own position in respect to its parent.
+The most important matrix to achieve chosen perspective is the projection matrix. It can be different depending on the perspective one would like to achieve, but two most used ones are orthographic projection matrix used for 2D and the matrix for 3D that will be further discussed - perspective projection matrix:
+
+\begin{equation}
 \begin{bmatrix}
 Orthographic\\
 Projection \\
@@ -37,9 +71,9 @@ Y\\
 Z\\
 1\\
 \end{bmatrix} 
-\]
-
-\[
+% \]
+\text{ and }
+% \[
 \begin{bmatrix}
 Perspective\\
 Projection \\
@@ -51,22 +85,52 @@ X\\
 Y\\
 Z\\
 1\\
-\end{bmatrix} 
-\]
+\end{bmatrix}
+\label{projectionmatrices}
+\end{equation}
 
-\[
+To create correct perspective, some additional variables are needed. Due to the fact that nowadays the screens have different proportions, it is vital to have a way to take this into account when creating projection matrix. The solution is to measure the aspect ratio and to scale the rest of the values by it, the aspect ratio of the display device is defined as:
+
+\begin{equation}
 a=\frac{h}{w}
-\]
+\label{aequation}
+\end{equation}
 
-\[
+Next, we need to consider the way that both field of view and distance of the object from the viewer affect the scale of the visible object. The bigger the field of view, the smaller the object should appear, and the smaller the distance  between the object and viewer, the larger it should appear.
+\begin{figure}[H]
+  \begin{center}
+  \includegraphics[width=0.3\textwidth]{figures/f_factor.png}  
+  \end{center}
+  \caption{calculating the f factor}
+\end{figure}
+
+ As one can see in the previous image, to deal with the both values at once, we can calculate the tangent of $\theta/2$ angle, and the received value is called factor f, which by we scale the matrix.
+
+\begin{equation}
 f=\frac{1}{tan(\theta / 2)}
-\]
+\label{fequation}
+\end{equation} 
 
-\[
+Now, to properly convert the image to the screen space as a matrix, we need to also normalize the value of z's. To do so two values are needed: zfar which basically is the maximum distance that objects can be visualized, and znear - the closest possible value that objects can be visualized. 
+
+\begin{figure}[H]
+  \begin{center}
+  \includegraphics[width=0.3\textwidth]{figures/normalizing_z.png}  
+  \end{center}
+  \caption{calculating the f factor}
+\end{figure}
+
+The values are then used to calculate the new, normalized value of the z coordinate, let's call it $\lambda$, according to the equation:
+\begin{equation}
 \lambda=\frac{zfar}{zfar - znear)}
 -
 \frac{zfar * znear}{zfar-znear}
-\]
+\label{zequation}
+\end{equation} 
+
+Now that we have gathered all the necessary elements, finally, we can go through the process of normalizing the device space.
+
+At first, we begin with coordinates:
 
 \[
 \begin{bmatrix}
@@ -75,7 +139,7 @@ y\\
 z\\
 \end{bmatrix}
 \]
-Conversion to screen space
+which we then convert to screen space with calculated values 
 \[
 \begin{bmatrix}
 afx\\
@@ -83,12 +147,18 @@ fy\\
 \lambda z-\lambda znear\\
 \end{bmatrix}
 \]
-Perspective divide
-\[
-x/z\ y/z\ z/z
-\]
+next we do a simple perspective divide $x/z\ y/z\ z/z$, and as the end result we should be left with normalized device space such as the one in the image below.
 
-\[
+
+\begin{figure}[H]
+  \begin{center}
+  \includegraphics[width=0.5\textwidth]{figures/space.png}  
+  \end{center}
+  \caption{Normalized device space}
+\end{figure}
+
+Now that the theory behind the projection matrix is explained, one question remain: how to implement it? In programming, so as not to lose any values, it is necessary to implement the projection matrix as a four by four matrix: 
+\begin{equation}
 \begin{bmatrix}
 (\frac{h}{w})(\frac{1}{tan(\theta/2)}) & 0 & 0 & 0\\
 0 & (\frac{1}{tan(\theta/2)}) & 0 & 0\\
@@ -102,7 +172,9 @@ Y\\
 Z\\
 1\\
 \end{bmatrix} 
-\]
+\label{projectionmatrixequation}
+\end{equation} 
+
 
 An example of view matrix with camera placed at: 10 5 10:
 \[

@@ -2,7 +2,8 @@
 \subsection{Assets}
 \label{sec:assets}
 \subsubsection{Models}
-\hspace{\parindent} Models are saved in .obj files, that is a pretty old way of storing models nowadays, a more expected format is glTF \cite{gltf}. And all the assets should be stored in binary packages.\\\\
+\hspace{\parindent}
+Models are saved in .obj files, that is a pretty old way of storing models nowadays, a more expected format is glTF \cite{gltf}. And all the assets should be stored in binary packages.\\\\
 List of models:
 \begin{itemize}
     \item polonez.obj \cite{PolonezModel}
@@ -10,7 +11,8 @@ List of models:
     \item village.obj \cite{VillageModel}
 \end{itemize}
 \subsubsection{Shaders}
-\hspace{\parindent} So far, the only shaders we support are fragment and vertex shaders - \hyperref[sec:shader_compiler]{\ref*{sec:shader_compiler} Shader Compiler}.\\
+\hspace{\parindent}
+So far, the only shaders we support are fragment and vertex shaders - \hyperref[sec:shader_compiler]{\ref*{sec:shader_compiler} Shader Compiler}.\\
 Shader structure:
 \begin{itemize}
     \item shader.h
@@ -106,8 +108,7 @@ const int indices[6] = {
     \end{itemize}
     \item grid.vert\\
     As the grid is a plane with "texture" drew during the fragment stage,
-    The grid moves with camera's position, so every view calculations must be multiplied by camera matrix. 
-    % TODO: todo
+    The grid moves with camera position, so every view calculations must be multiplied by camera matrix.
 \begin{lstlisting}[language=c++, caption=(./assets/shaders/grid.vert)]
 layout (location = 0) out vec2 uv;
 layout (location = 1) out vec2 camPos;
@@ -133,6 +134,19 @@ void main()
 }
 \end{lstlisting}
     \item grid.frag\\
+    \texttt{dudv} contains the screen space length of derivatives of uv coordinates of the grid. Current LOD of the grid can be calculated by taking into account \texttt{gridMinPixelsBetweenCells}, the value of this variable controls how fast we want our LOD level to increase. Fractional part of the LOD is used as fading factor to render smooth transitions between the adjacent levels. The logarithm base of 10 is used to ensure each next LOD covers at least \texttt{pow(10, lodLevel)} more cells of the previous LOD.\\
+    The LOD levels are blended between each other. To render them, we have to calculate the cell size for each LOD. The cell size is essentially the frequency at which a new line should be visible.\\
+    To be able to draw antialiased lines using alpha transparency, we need to increase the screen coverage of our lines - to make it, each line must cover up to 4 pixels \texttt{dudv *= 4.0}.\\
+    Then coverage alpha value that corresponds to each calculated LOD level of the grid calculating the absolute distances to the cell line centers and pick the maximum coordinate.\\
+\begin{equation}
+S_{saturate}\left(x\right)=\left\{x>1:1,x<0:0,x\right\}
+\end{equation}
+\begin{equation}
+max\left(1-\operatorname{abs}\left(S_{saturate}\left(\frac{\operatorname{mod}\left(x,c\right)}{\left(w\right)}\right)\cdot2-1\right)\right)
+\end{equation}
+    Nonzero alpha values represent non-empty transition area of the grid. Let's blend between them using values of \texttt{gridColorThick} and \texttt{gridColorThin} variables.\\
+    To make the grid disappear when it is far away from the camera, the value of \texttt{opacityFalloff} is needed.\\
+    Finally, blend of the LOD level alpha values and scale the result with the opacity falloff factor can be done \texttt{c.a *= (lod2a > 0.0 ? lod2a : lod1a > 0.0 ? lod1a : (lod0a * (1.0-lodFade))) * opacityFalloff;}
 \begin{lstlisting}[language=c++, caption=Grid fragment shader(./assets/shaders/grid.frag)]
 layout (location=0) in vec2 uv;
 layout (location=1) in vec2 camPos;
@@ -264,7 +278,7 @@ void main()
 }
 \end{lstlisting}
     \item pbr.vert\\
-    In the PBR vertex shader, there are no too many things to explain, besides MVP mutiplication, coordinates of the vertex and its normal vertex are passed to the fragment shader. 
+    In the PBR vertex shader, there are no too many things to explain, besides MVP multiplication, coordinates of the vertex and its normal vertex are passed to the fragment shader. 
 \begin{lstlisting}[language=c++, caption=PBR vertex shader(./assets/shaders/pbr.vert)]
 layout (location = 0) out vec3 outWorldPos;
 layout (location = 1) out vec3 outNormal;

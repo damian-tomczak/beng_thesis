@@ -2,6 +2,7 @@
 
 \subsection{Engine Math Library}
 \label{sec:math}
+\hspace{\parindent}
 One of the component of our engine is math library that is delivered as \hyperref[sec:build_struct]{header only template compile time library}, highly inspired by GLM library \cite{glm}.\\Math library provides two, three, four dimensional vectors:
 \begin{lstlisting}[language=c++, caption=Vector class(./engine/include/tsengine/math.hpp)]
 struct Vec4 final
@@ -71,7 +72,7 @@ Conversion from degrees to radians couldn't be omitted:
 template<typename T>
 inline auto radians(T degrees)
 \end{lstlisting}
-Besides of all of it, Math library has a rotate function, but we didn't have an opportunity to use it in a \hyperref[sec:rotation_test]{non-testing environment}. Therefore, we won't elaborate about rotation. % TODO: dominik do you have time?
+Besides of all of it, Math library has a rotate function, but we didn't have an opportunity to use it in a \hyperref[sec:rotation_test]{non-testing environment}. Therefore, we won't elaborate about rotation.
 \begin{lstlisting}[language=c++, caption=Rotation function(./engine/include/tsengine/math.hpp)]
 inline Mat4 rotate(const Mat4& matrix, const Vec3& axis, T angle)
 \end{lstlisting}

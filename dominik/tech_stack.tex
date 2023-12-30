@@ -1,16 +1,29 @@
 \newpage
 \section{Technology Stack}
 \hspace{\parindent}
-
+When developing a piece of software, tools used for it can shape the end product, so, it is important to choose the right tools to achieve intended results. In this section, tools used in the development of the TSEngine will be discussed briefly.
 
 \subsection{Programming Languages}
+\hspace{\parindent}
+As the most basic, the choice of programming language is an important one, shaping the overall architecture of the project.
 \subsubsection{C++}
+\hspace{\parindent}
+In development of TSEngine the choice was made to use the modern C++ with the 2017 edition as standard. It is a robust, versatile and fast, allowing for programmers to adapt to problems they face. Much of our knowledge of C++ can be traced back to book \textit{"Opus Magnum"} \cite{OpusMagnum}, but for the philosophy behind modern C++ we used \textit{"C++ Core Guidelines"} \cite{CppCoreGuidelines}
 \subsubsection{GLSL}
+\hspace{\parindent}
 \label{sec:glsl}
+As much of the project involved graphics, the obvious choice for this fart was GLSL - OpenGL Shading Language. It is a high-level programming language based on the C programming language used to write shaders for OpenGL. We used the book \textit{Learn OpenGL: Learn modern OpenGL graphics programming in a step-by-step fashion} \cite{learnopengl} as a source of our knowledge of dealing with GLSL and OpenGL.
+
 \subsubsection{CMake}
+\hspace{\parindent}
 \label{sec:stack_cmake}
+To provide cross-platforming, CMake has been chosen to manage build automation. It is an open-source software for build automation and project management, used to generate native builds of software projects for various platforms, including Windows, macOS, Linux, Android, and iOS. It was an obvious choice as it pairs well with C++ programming language.
+
 \subsection{Services}
+In this section, some services that played the biggest role in developing TSEngine will be mentioned.
 \subsubsection{GIT and Github}
+As already mentioned in the section \hyperref[sec:teamwork]{\ref*{sec:teamwork} Teamwork}, we for version control and sharing the work, service GitHub have been used. 
+
 \subsection{Khronos APIs}
 \label{sec:khronos}
 sec:renderer sec:headset
