@@ -1,41 +1,42 @@
 \newpage
 \section{Thesis Conventions}
-Every path mentioned in the thesis starts from the main path of project repository.\\
-We have two methods, the separation of source code and code names from the text:
+Every path mentioned in the thesis starts from the main path of the project repository.\\
+We have two methods of separating the source code and code names from the text:
 \begin{itemize}
     \item Inline code snippet:\\
     \texttt{puts("Hello World!");}
-    \item Code listening:
+    \item Code listing:
 \begin{lstlisting}[language=c++, caption=Example code snippet (./example\_dir/example\_file.cpp)]
 std::cout << "Hello World!\n";
 \end{lstlisting}
 \end{itemize}
-The paper is consisted of three distinguish main parts, theory starting from \hyperref[sec:preface]{\ref*{sec:preface} Preface}, code description of TSEngine \hyperref[sec:code_descr]{\ref*{sec:code_descr} Code Description}, and ending starting with \hyperref[sec:problems]{\ref*{sec:problems} Problems During The Development}.
+The paper consists of three main parts, theory starting from section \hyperref[sec:preface]{\ref*{sec:preface} Preface}, code description of TSEngine at section \hyperref[sec:code_descr]{\ref*{sec:code_descr} Code Description}, and ending starting with the section \hyperref[sec:problems]{\ref*{sec:problems} Problems During The Development}.
 
 \newpage
-\section{Preface English} % TODO: dominik check if it is still up-to-date
+\section{Preface English} 
 \label{sec:preface}
-The thesis focuses on the architecture and implementation of real-time graphics software for virtual reality devices. To deepen the immersion of being in a virtual environment, the software is extended to support an omnidirectional treadmill. We also cover a topic related to teamwork and software development aimed at third parties. The work aims to develop and solidify programming skills, and knowledge of three-dimensional graphics, focusing on application in fanomatics. We also consider the history, present and future of the 3D graphics industry in the context of video games, and virtual reality.
+\hspace{\parindent}
+The thesis focuses on the architecture and implementation of real-time graphics software for virtual reality devices. To deepen the immersion of being in a virtual environment, the software is extended to support an omnidirectional treadmill. We also cover a topic related to teamwork and software development aimed at third parties. The work aims to develop and solidify programming skills, and knowledge of three-dimensional graphics, focusing on application in phantomatics. We also consider the history, present and future of the 3D graphics industry in the context of video games, and virtual reality.
 
-The thesis begins with a theoretical section presenting the important steps in the evolution of game technology, which is 3D real-time graphics engines, starting with Wolfenstein 3D and ending with multimedia giants like Unreal Engine 5 or Unity; covering the development of the entertainment industry in the last thirty years on the basis of console generations. Special attention is given to the strongly developing virtual reality industry, touching the subject of the early VR of the previous highly experimental age. It concludes with commercial devices, whose popularity exploded in the middle of the last decade with the emergence of a startup in the form of Oculus, to end with observations on the third generation of devices, which is the generation that begins at the time of writing the engineering thesis.
+The thesis begins with a theoretical section presenting the important steps in the evolution of game technology, which is 3D real-time graphics engines, starting with Wolfenstein 3D and ending with multimedia giants like Unreal Engine 5 or Unity. Special attention is given to the strongly developing virtual reality industry, touching the subject of the early VR of the previous highly experimental age. It concludes with commercial devices, whose popularity exploded in the middle of the last decade with the emergence of a startup in the form of Oculus, to end with observations on the third generation of devices, which is the generation that begins at the time of writing the engineering thesis.
 
-The lion's share of the thesis is oriented around a sample 3D virtual reality graphics engine, named TSEngine in honor of the thesis authors.
+The lion's share of the thesis is oriented around a sample 3D virtual reality graphics engine, named TSEngine in the honor of the thesis authors.
 
-This is a program strongly focused on the use of modern technologies centered around obtaining maximum performance at the expense of greater effort and knowledge of the recipient of such solutions. Bearing in mind that our craftsmanship is an intermediate link on the way to the final product (as opposed to traditional software engineering, when the recipient of the application is either a non-technical person or a member of the team in which the solution is developed) and due to the size of the project, we must take create software with suitable architecture and clean code.
+This is a program strongly focused on the use of modern technologies centered around obtaining maximum performance at the expense of greater effort and knowledge of the recipient of such solutions. Bearing in mind that our craftsmanship is an intermediate link on the way to the final product (as opposed to traditional software engineering, when the recipient of the application is either a non-technical person or a member of the team in which the solution is developed) and due to the size of the project, we must create software with a suitable architecture and clean code.
 
-Guided by all this, the implementation is carried out, using a high-level programming language such as C++ as defined by the International Organization for Standardization in the document ISO/IEC 14882:2020 ultimately limiting itself to the solutions specified in the same document in the :2017 edition.
+Guided by all of this, the implementation is carried out, using a high-level programming language such as C++ as defined by the International Organization for Standardization in the document ISO/IEC 14882:2020 ultimately limiting itself to the solutions specified in the same document in the :2017 edition.
 
 For GPU support and communication with virtual reality hardware, we support the Khronos group's multiplatform standards, for the former we use the Vulkan programming interface, while the head-mounted display along with the controllers is driven by the OpenXR API.
 
-Due to the abysmal support for virtual reality devices in the Linux family, we have decided not to multiplatform in this context, however, we still ensure that the software can be developed on any platform through the CMake tool, which will be used to manage the software build and compilation process. Software, however, will be primarily customized and tested in a Windows 10/11 environment and optimized for MSVC compiler capabilities. We will test individual code fragments with unit tests, using the GoogleTest library. The hardware on which we test the software includes HTC VIVE Pro headset, Oculus Quest 2 and NVIDIA's RTX 3000, and 2000 series GPUs.
+Due to the abysmal support for virtual reality devices in the Linux family systems, we have decided not to multiplatform in this context, however, we still ensure that the software can be developed on any platform through the CMake tool, which is used to manage the software build and compilation processes. Software, however, is primarily customized and tested in a Windows 10/11 environment and optimized for MSVC compiler capabilities. We test individual code fragments with unit tests, using the GoogleTest library. The hardware on which we test the software includes the headsets HTC VIVE Pro, Oculus Quest 2 and the GPUs NVIDIA's RTX from 3000 and 2000 series.
 
-The engine is to support the Cyberith Virtualizer Elite 2 omnidirectional treadmill, an alternative to traditional movement with controllers. In the context of the software, the use of the treadmill involves the need to support alternative movement, considering not constant movement speed and the distinction between body direction, and direction of movement.
+The engine supports the Cyberith Virtualizer Elite 2 omnidirectional treadmill, an alternative to traditional movement with controllers. In the context of the software, the use of the treadmill involves the need to support alternative movement, considering not constant movement speed and the distinction between body direction, and direction of movement.
 
 An important premise of the thesis is the use of the Entity Component System (ECS) architectural pattern. This pattern distinguishes three key elements:
 \begin{itemize}
     \item Entity - which, by means of an identifier, represents each object in the environment.
     \item Component - which is assigned to an entity by means of a modification of its signature, defines its characteristics, and stores the data needed for use in the system.
-    \item System - that is, processes called on all objects that meet a given signature.
+    \item System - that is, processes called on all objects which meet a given signature.
 \end{itemize}
 
 The use of this architecture is highly recommended for the development of graphics engines for games, as they significantly facilitate the implementation of gameplay elements and optimize the CPU cache.
@@ -44,38 +45,38 @@ Another important feature of our software is physically based rendering, which p
 
 In developing the software, we distinguish the problems and observations involved in creating the tool not only from the perspective of the engine developer, but also focus on the programmers, designers and artists who would benefit from such software. This involves using the right architecture on which they could superstructure their application and without creating too much of a layer of abstraction, which is the bane of current solutions on the market.
 
-Since TSEngine is an engine designed for virtual reality, this comes with its corresponding challenges. The engine needs to display two images on the headset, which we solve at the hardware level by using the Vulkan extension VK\_KHR\_multiview. This is a simplified solution that improves the engine's performance, as it allows rendering a separate image for each eye, with little computational overhead.
+Since TSEngine is an engine designed for virtual reality, this comes with its corresponding challenges. The engine needs to display two images on the headset, which we solve at the hardware level by using the Vulkan extension VK\_KHR\_multiview. This is a simplified solution that improves the engine performance, as it allows rendering a separate image for each eye, with little computational overhead.
 
 Source code of this project is available at:\\
 \href{https://github.com/damian-tomczak/tsengine}{https://github.com/damian-tomczak/tsengine}\\
-Whereas prebuilt binaries of the project are available at (those executables were built with Release build configuration and are available in two variants with and without \hyperref[sec:hardware]{Virtualizer} support):\\
-\href{https://github.com/damian-tomczak/tsengine/releases}{https://github.com/damian-tomczak/tsengine/releases}.\\
+Whereas prebuilt binaries of the project are available at (those executables were built with Release build configuration and are available in two variants with and without Virtualizer support):\\
+\href{https://github.com/damian-tomczak/tsengine/releases}{https://github.com/damian-tomczak/tsengine/releases}\\
 Non-compiled \LaTeX thesis is available at:\\
 \href{https://github.com/damian-tomczak/beng_thesis}{https://github.com/damian-tomczak/beng\_thesis}\\
-Instructions on how to build the code by yourself are detailed in \hyperref[sec:how_to_run]{Instruction How To Build the Project} section.
+Instructions on how to build the code by yourself are detailed in \hyperref[sec:how_to_run]{\ref*{sec:how_to_run} Instruction How To Build the Project} section.
 
-Building a graphics/game engine is a long-term process, so this dissertation does not cover the engine's final form.
-On November 9, 2023, the code finally achieved MVP status. The rest of the thesis will be based on the status of the code from that day, unless otherwise stated or fixes are applied to the fragments of interest.
+On November 9, 2023, the code finally achieved MVP status. The rest of the thesis is based on the status of the code from that day, unless otherwise stated or fixes are applied to the fragments of interest.
 
 There is also a video presentation of the project available at \href{https://youtu.be/CxIDORRARdA}{https://youtu.be/CxIDORRARdA}
 
 \newpage
 \section{Preface Polish}
+\hspace{\parindent}
 Praca dyplomowa skupia się na architekturze i implementacji oprogramowania grafiki czasu rzeczywistego przeznaczonego na urządzenia wirtualnej rzeczywistości. Aby pogłębić imersję przebywania w wirtualnym środowisku, program rozszerzony jest o możliwość obsługi bieżni dookólnej. Wyczerpujemy również temat związany z pracą zespołową oraz rozwojem oprogramowania skierowanym do osób trzecich. Praca ma na celu rozwinięcie oraz ugruntowanie umiejętności programistycznych, oraz wiedzy o grafice trójwymiarowej skupiając się na zastosowaniu w fanomatyce. Rozważamy również historię, teraźniejszość oraz przyszłość branży grafiki trójwymiarowej w kontekście gier wideo, oraz wirtualnej rzeczywistości. 
 
-Pracę dyplomową rozpoczyna część teoretyczna prezentująca ważne kroki w ewolucji technologii gier, jakim są trójwymiarowe silniki graficzne czasu rzeczywistego, począwszy od Wolfenstein’a 3D, skończywszy na kombajnach multimedialnych pokroju Unreal Engine 5 czy Unity; obejmując tym rozwój przemysłu rozrywkowego w ostatnich trzydziestu latach na podstawie generacji konsol. Specjalna uwaga skierowana jest w kierunku silnie rozwijającej się branży wirtualnej rzeczywistości, wyróżniając wczesny VR poprzedniego wieku silnie nacechowanego eksperymentalnie. Skończywszy na urządzeniach komercyjnych, których popularność wybuchła w połowie zeszłej dekady wraz z pojawieniem się na rynku startup’u w postaci firmy Oculus, aby skończyć na obserwacjach na temat III generacji urządzeń, która to generacja rozpoczyna się w momencie pisania pracy inżynierskiej. 
+Pracę dyplomową rozpoczyna część teoretyczna prezentująca ważne kroki w ewolucji technologii gier, jakim są trójwymiarowe silniki graficzne czasu rzeczywistego, począwszy od Wolfenstein’a 3D, skończywszy na kombajnach multimedialnych pokroju Unreal Engine 5 czy Unity. Specjalna uwaga skierowana jest w kierunku silnie rozwijającej się branży wirtualnej rzeczywistości, wyróżniając wczesny VR poprzedniego wieku silnie nacechowanego eksperymentalnie. Skończywszy na urządzeniach komercyjnych, których popularność wybuchła w połowie zeszłej dekady wraz z pojawieniem się na rynku startup’u w postaci firmy Oculus, aby skończyć na obserwacjach na temat III generacji urządzeń, która to generacja rozpoczyna się w momencie pisania pracy inżynierskiej. 
  
 
-Lwia część pracy dyplomowej zorientowana jest wokół przykładowego silnika grafiki trójwymiarowej wirtualnej rzeczywistości, nazwanego na cześć autorów pracy „TSEngine”. 
+Lwia część pracy dyplomowej zorientowana jest wokół przykładowego silnika grafiki trójwymiarowej wirtualnej rzeczywistości, nazwanego na cześć autorów pracy TSEngine. 
 
 Jest to program silnie ukierunkowany na wykorzystaniu nowoczesnych technologii skupionych wokół uzyskania maksimum wydajności kosztem większego wysiłku oraz wiedzy odbiorcy takowych rozwiązań. Mając na uwadze, że nasze rzemiosło jest ogniwem pośrednim w drodze do uzyskania finalnego produktu (w odróżnieniu od tradycyjnej inżynierii oprogramowania, gdy to odbiorcą aplikacji jest osoba nietechniczna albo członek zespołu, w którym to rozwiązanie powstaje) oraz ze względu na rozmiar projektu, musimy dbać o bardzo przemyślaną architekturę oraz czysty kod. 
  
 
 Kierujący się tym wszystkim implementacja jest przeprowadzona, używając języka programowania wysokiego poziomu, jakim jest C++ określonym przez Międzynarodową Organizację Normalizacyjną w dokumencie ISO/IEC 14882:2020 w ostateczności ograniczając się do rozwiązań sprecyzowanych w tym samym dokumencie w wydaniu :2017. 
 
-Do obsługi procesora graficznego oraz komunikacji ze sprzętem wirtualnej rzeczywistości wspomagamy się multiplatformowymi standardami grupy Khronos, w przypadku tego pierwszego korzystamy z interfejsu programistycznego Vulkan, natomiast Head-mounted display wraz z kontrolerami napędzamy api OpenXR. 
+Do obsługi procesora graficznego oraz komunikacji ze sprzętem wirtualnej rzeczywistości wspomagamy się multiplatformowymi standardami grupy Khronos, w przypadku tego pierwszego korzystamy z interfejsu programistycznego Vulkan, natomiast Head-Mounted Display wraz z kontrolerami napędzamy API OpenXR. 
 
-Ze względu na fatalną obsługę urządzeń wirtualnej rzeczywistości w rodzinie systemów Linux nie zdecydowaliśmy się mulitplatformowość w tym kontekście, jednakże nadal dbamy o możliwość rozbudowy oprogramowania na dowolnej platformie poprzez narzędzie CMake, które zostanie wykorzystane do zarządzania procesem budowania i kompilacji oprogramowania. Software zostanie jednak przede wszystkim dostosowane i testowane w środowisku Windows 10/11 oraz zoptymalizowane pod możliwości kompilatora MSVC. Poszczególne fragmenty kodu testujemy za pomocą testów jednostkowych, przy wykorzystaniu biblioteki GoogleTest. Do hardware’u, na którym testujemy oprogramowanie, zaliczamy headset’y HTC VIVE Pro, Oculus Quest 2 oraz procesory graficzne firmy NVIDIA z serii RTX 3000, oraz 2000. 
+Ze względu na fatalną obsługę urządzeń wirtualnej rzeczywistości w rodzinie systemów Linux nie zdecydowaliśmy się mulitplatformowość w tym kontekście, jednakże nadal dbamy o możliwość rozbudowy oprogramowania na dowolnej platformie poprzez narzędzie CMake, które zostało wykorzystane do zarządzania procesem budowania i kompilacji oprogramowania. Software jest jednak przede wszystkim dostosowane i testowane w środowisku Windows 10/11 oraz zoptymalizowane pod możliwości kompilatora MSVC. Poszczególne fragmenty kodu testujemy za pomocą testów jednostkowych, przy wykorzystaniu biblioteki GoogleTest. Do hardware’u, na którym testujemy oprogramowanie, zaliczamy headset’y HTC VIVE Pro, Oculus Quest 2 oraz procesory graficzne firmy NVIDIA z serii RTX 3000, oraz 2000. 
 
 Silnik jest dostosowany do obsługi bieżni dookólnej Cyberith Virtualizer Elite 2, będącej alternatywą do tradycyjnego poruszania się za pomocą kontrolerów. W kontekście oprogramowania, wykorzystanie bieżni wiąże się z koniecznością obsługi alternatywnego poruszania, biorącego pod uwagę dowolną prędkość poruszania się oraz rozróżnienie między skierowaniem ciała, oraz kierunkiem ruchu. 
 
@@ -89,8 +90,20 @@ Ważnym założeniem pracy dyplomowej, jest wykorzystanie wzorca architektoniczn
 
 Zastosowanie tego wzorca jest wysoce wskazane w przypadku rozwoju silników graficznych przeznaczonym do gier, gdyż znacząco ułatwiają implementację elementów gameplay’u oraz optymalizują cache CPU. 
 
-Kolejną ważną funkcją naszego programu jest physical based rendering, który dostarcza spektakularne doświadczenia wizualne przy stosunkowo niewielkiej mocy obliczeniowej w porównaniu do innych metod oświetlenia niebazujących na grafice rastrowej. 
+Kolejną ważną funkcją naszego programu jest Physically Based Rendering, który dostarcza spektakularne doświadczenia wizualne przy stosunkowo niewielkiej mocy obliczeniowej w porównaniu do innych metod oświetlenia niebazujących na grafice rastrowej. 
 
-Przy tworzeniu oprogramowanie wyróżniamy problemy i obserwacje związane z tworzeniem narzędzia nie tylko z perspektywy dewelopera silnika, ale również skupiamy się na programistach, designerach oraz artystach, którzy z takowego software’u mieliby skorzystać. Wiąże się to z zastosowaniem odpowiedniej architektury, na której mogliby nadbudować swoją aplikację oraz bez tworzenia zbyt dużej warstwy abstrakcji, co jest zmorą obecnych rozwiązań na rynku. 
+Przy tworzeniu oprogramowanie wyróżniamy problemy i obserwacje związane z tworzeniem narzędzia nie tylko z perspektywy dewelopera silnika, ale również skupiamy się na programistach, designerach oraz artystach, którzy z takowego software’u mieliby skorzystać. Wiąże się to z zastosowaniem odpowiedniej architektury, na której mogliby nadbudować swoją aplikację oraz unikaniem tworzenia zbyt dużej warstwy abstrakcji, co jest zmorą obecnych rozwiązań na rynku. 
 
 Jako że TSEngine jest silnikiem przeznaczonym do wirtualnej rzeczywistości, wiąże się to z odpowiednimi wyzwaniami. Silnik musi wyświetlać na headsecie dwa obrazy, co rozwiązujemy na poziomie sprzętowym korzystając z rozszerzenia do Vulkan’a VK\_KHR\_multiview. Jest to uproszczone rozwiązanie, poprawiające wydajność silnika, gdyż umożliwia renderowanie osobnego obrazu na każde oko, przy niewielkim narzucie obliczeniowym. 
+
+Kod źródłowy projektu jest dostępny pod linkiem:\\
+\href{https://github.com/damian-tomczak/tsengine}{https://github.com/damian-tomczak/tsengine}\\
+Podczas gdy już przekompilowane są dostępne w wariencie Release'owym z ogsługą Virtualizer'a lub bez:\\
+\href{https://github.com/damian-tomczak/tsengine/releases}{https://github.com/damian-tomczak/tsengine/releases}\\
+Nie przekompilowana praca dyplomowa w formacie \LaTeX jest dostępna pod adresem:\\
+\href{https://github.com/damian-tomczak/beng_thesis}{https://github.com/damian-tomczak/beng\_thesis}\\
+Instrukcja odnośnie wybudowania kodu jest dostępna w rozdziale \hyperref[sec:how_to_run]{\ref*{sec:how_to_run} Instruction How To Build the Project}.
+
+9 listopada 2023 roku, projekt osiągnął status produktu o minimalnej koniecznej funkcjonalności. Praca dyplomowa oparta jest o status projektu z tego dnia.
+
+Dostępna jest również prezentacja wideo pod adresem \href{https://youtu.be/CxIDORRARdA}{https://youtu.be/CxIDORRARdA}

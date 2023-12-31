@@ -2,15 +2,14 @@
 \section{Rendering Process}
 \label{sec:rendering_process}
 \hspace{\parindent}
-Although the rendering process was briefly discussed in a previous section, the exact details may differ depending on used technology and implementation. This section is a step by step presentation of the rendering process in TSEngine.\\
+looking at the render process of any graphics engine can give one a valuable lesson, as the exact details may differ depending on used technology and implementation. This section is a step by step presentation of the rendering process in TSEngine.\\
 \begin{figure}[H]
   \includegraphics[width=\linewidth]{frame_generation/part1-3.png}
   \caption{Rendering process steps 1-3}
 \end{figure}
-In the first step, one can see an empty frame. It, as well as all others shown in this section, are consecutive framebuffers stored in RAM memory.
+In the first step, one can see an empty frame. It, as well as all others shown in this section, are consecutive framebuffers stored in GPU memory.
 Secondly, the predefined grid is rendered.
-% TODO: maybe cite  loadLVL to game.tex
-In the next steps, TSEngine loads all entities. Order of rendering them is dependent on the implementation of the \texttt{loadLvL} function. In this provided example environment, the first rendered entity is the village, which mesh component is the village model \cite{VillageModel}.
+In the next steps, TSEngine loads all entities. Order of rendering them is dependent on each entity's \texttt{z value}. In this provided example environment, the first rendered entity is the village, which mesh component is the village model \cite{VillageModel}.
 
 \begin{figure}[H]
   \includegraphics[width=\linewidth]{frame_generation/part4-6.png}
@@ -25,11 +24,11 @@ The sixth step is almost the same as the last one - it renders a sphere. The onl
   \includegraphics[width=\linewidth]{figures/frame_generation/part7-9.png}
   \caption{Rendering process steps 7-9}
 \end{figure}
-The seventh step is the last one rendering a sphere, again, the sphere is the exact replica of its predecessors, excluding the offset. The three sphere entities were implemented via a simple loop and are the same, save for their tags and positions. All 
-In the eight step, finally some change can be observed - the frame has a source of light now. It is also an entity with only two components: transform component for position and renderer component, which in this case specifies that this is a light.
-The frame in the ninth step is visually the same as the eight frame. It is because in this step the second light is loaded. This step could be skipped with the process called viewing-frustum culling implemented, but TSEngine does not implement it. 
+The seventh step is the last one rendering a sphere, again, the sphere is the exact replica of its predecessors, excluding the offset. The three sphere entities were implemented via a simple loop and are the same, save for their tags and positions.
+In the eight step, finally some change can be observed - the frame has a source of light now. It is also an entity with renderer component with template variable, specifying that this is a light.
+The frame in the ninth step is visually the same as the eight frame. It is because in this step the second light is rendered. This step could be skipped with the process called viewing-frustum culling implemented, but TSEngine does not implement it. 
 \begin{figure}[H]
   \includegraphics[width=\linewidth]{frame_generation/part10.jpg}
   \caption{Rendering process step 10}
 \end{figure}
-The tenth and final frame as one can see has different proportions compared to the previous frames. It is so, because all the previous frames were framebuffers of the headset and this one is a framebuffer of the pc monitor.
+The tenth and final frame as one can see has different proportions compared to the previous frames. It is so, because all the previous frames were framebuffers of the headset and this one is a framebuffer of the mirrored window displayed on the monitor.

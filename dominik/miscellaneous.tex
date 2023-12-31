@@ -12,50 +12,58 @@ Frustum culling is a technique used in graphics programming that makes sure that
     \end{center}
     \caption{What is view frustum, image from \textit{LearnOpenGL} \cite{learnopengl} }
 \end{figure}
-As one can see in the image above, to implement frustum culling, the first step is to find six planes that create the boundaries of the view frustum. Objects that lie completely outside the view frustum are not visible to the camera and therefore can be removed from the rendering process. To efficiently determine which object lay completely outside of the six-sided pyramid created by the planes,
+As one can see in the image above, to implement frustum culling, the first step is to find six planes that create the boundaries of the view frustum. Objects that lie completely outside the view frustum are not visible to the camera and therefore can be removed from the rendering process. To efficiently determine which object lay completely outside of the six-sided pyramid created by the planes, the bounding volumes of the objects are tested against the planes. The ones that do not intersect the view frustum can be safely removed from the rendering process.
 
 \subsection{Entity Component System}
 \label{sec:theory_ecs}
 \hspace{\parindent}
-Entity component system, or ECS for short, is a technique widely used in game engines that has gained great popularity in recent years. This game development architecture offers several benefits over traditional object-oriented programming approaches, making it an attractive choice for game developers, and it was also implemented in TSEngine. The basic idea behind the ECS is to separate the data from its desired behavior and modifications. It is achieved using three types of objects: entities, which essentially are containers for components grouping them together in a way that is readable for a human, components - structures containing all the data, and systems - methods taking all the components of the same type that interact with each other, and achieving some result with it. 
+Entity component system, or ECS for short, is a technique widely used in game engines that has gained great popularity in recent years. This game development architecture offers several benefits over traditional object-oriented programming approaches, making it an attractive choice for game developers, and it was also implemented in TSEngine. The basic idea behind the ECS is to separate the data from its desired behavior and modifications. It is achieved using three types of objects: entities, which essentially are identifiers for objects in the scene, components - structures containing all the data, and systems - methods taking all the components of the same type that interact with each other, and achieving some result with it. 
 
 The main advantage of such architecture, is that it is data oriented, focusing on efficient data access and manipulation. It is achieved by storing all components of the same type, near each other in the memory cache, allowing for faster access to them when doing calculations by systems. Another advantage of ECS for many programmers is that it is easily readable and maintainable, allowing for easier development and debugging.
 
-As the entity component system have been used in TSEngine, the following image, representing some implemented code, presents the basic idea behind ECS:
+As the entity component system has been used in TSEngine, the following image, representing some implemented code, presents the basic idea behind ECS:
 \begin{figure}[H]
   \begin{center}
     \includegraphics[width=0.8\textwidth]{ecs.png}
   \end{center}
   \caption{ECS in work}
 \end{figure}
-In this example we have three entities: Player, Polonez and Sphere. Each one has some components assigned to it, and each component can also be assigned to a system that governs it. Taking a closer look at the Movement system, one can see, that to work, it needs a Transform and RigidBody components. When the movement system is invoked, it looks for all such components and uses them to simulate movement. The only entity that has a RigidBody component is Player, and it also has a Transform component, so, when invoked, the Movement system takes Player's RigidBody and Transform components and works with their data, changing their values as the result. The exact details of the implementation of ECS in TSEngine can be found in the section \hyperref[sec:code_ecs]{\ref*{sec:code_ecs} Entity Component System}
+In this example we have three entities: Player, Polonez and Sphere. Each one has some components bound to it, and each component can also be used in a system that is filtered for it. Taking a closer look at the Movement system, one can see, that to work, it needs a Transform and RigidBody components. When the movement system is invoked, the registry assigns correct components to it, and the system uses them to simulate movement. The only entity that has a RigidBody component is Player, and it also has a Transform component, so, when invoked, the Movement is assigned Player's RigidBody and Transform components and works with their data, changing their values as the result. The exact details of the implementation of ECS in TSEngine can be found in the section \hyperref[sec:code_ecs]{\ref*{sec:code_ecs} Entity Component System}
 
 \subsection{Reflection System}
 \label{sec:refl}
 \hspace{\parindent}
+Reflection system is a feature that allows a program to examine, introspect, and modify its own structure and behavior at runtime. This means that the program can dynamically discover the types of its own objects, their methods, and their properties. It is used to generate code at runtime, which can be useful for tasks such as creating dynamic UIs or generating reports, can serialize and deserialize objects improving the process of saving and loading data or even be used to write code that manipulates other parts of the program.
+
+Despite being advantageous in many situations, this technique also comes with some risks or annoyances. It can sometimes have slower performance than traditionally written code, have unnecessary code, decrease readability, make the software maintenance more difficult or even create vulnerabilities in the code.
 
 \subsection{Deferred vs Forward Rendering}
 \label{sec:defer_vs_forward}
 \hspace{\parindent}
+Forward rendering is a traditional rendering technique that has been used for decades. It works by rendering each object in the scene one by one, and calculating the lighting for each object in a single pass. This can be inefficient for scenes with complex lighting, as the lighting calculations can be very computational heavy.
 
+Deferred rendering is a more modern rendering technique that was developed in the 2000s. It works by rendering each object in the scene once, but storing the lighting information for each object in a separate buffer. This allows for more efficient lighting calculations, as the lighting information can be reused for multiple objects.
+
+With clear advantages of the deffered rendering, it is quite natural that it will become the leading one in the future. The forward rendering will still be used though, as it is simpler to implement, and can be more efficient for small scenes.
 
 \newpage
 \section{Creation of 3D World Immersion}
 \hspace{\parindent}
-One might be curious how, from a collection of points, it is possible to create a 3D image. The most important aspect of creating a 3D image on 2D space is perspective. It is achieved thanks to the model, view and projection matrices
+One might be curious how, from a collection of points, it is possible to create a 3D image. The most important aspect of creating a 3D image on 2D space is perspective. It is achieved thanks to the model, view and projection matrices:
 \begin{equation}
 MVP
+\text{ .}
 \label{mvpequation}
 \end{equation}
 
-In some VR devices, because there are two screens for each eye, the matrix has 2 view and projection matrices: 
+In some VR devices, because there are two screens, one for each eye, the matrix has 2 view and projection matrices: 
 
 \begin{equation}
 MV[2]P[2]
+\text{ .}
 \label{mvp2equation}
 \end{equation}
 
-%For simplicity of explanation, model matrix will be omitted, as it is not always necessary to use it, its main use is to track the object own position in respect to its parent.
 The most important matrix to achieve chosen perspective is the projection matrix. It can be different depending on the perspective one would like to achieve, but two most used ones are orthographic projection matrix used for 2D and the matrix for 3D that will be further discussed - perspective projection matrix:
 
 \begin{equation}
@@ -86,6 +94,7 @@ Y\\
 Z\\
 1\\
 \end{bmatrix}
+\text{ .}
 \label{projectionmatrices}
 \end{equation}
 
@@ -93,6 +102,7 @@ To create correct perspective, some additional variables are needed. Due to the 
 
 \begin{equation}
 a=\frac{h}{w}
+\text{ .}
 \label{aequation}
 \end{equation}
 
@@ -101,23 +111,24 @@ Next, we need to consider the way that both field of view and distance of the ob
   \begin{center}
   \includegraphics[width=0.3\textwidth]{figures/f_factor.png}  
   \end{center}
-  \caption{calculating the f factor}
+  \caption{Calculating the f factor}
 \end{figure}
 
  As one can see in the previous image, to deal with the both values at once, we can calculate the tangent of $\theta/2$ angle, and the received value is called factor f, which by we scale the matrix.
 
 \begin{equation}
 f=\frac{1}{tan(\theta / 2)}
+\text{ .}
 \label{fequation}
 \end{equation} 
 
-Now, to properly convert the image to the screen space as a matrix, we need to also normalize the value of z's. To do so two values are needed: zfar which basically is the maximum distance that objects can be visualized, and znear - the closest possible value that objects can be visualized. 
+Now, to properly convert the image to the screen space as a matrix, we need to also normalize the value of z's. To do so, two values are needed: zfar which basically is the maximum distance that objects can be visualized, and znear - the closest possible value that objects can be visualized. 
 
 \begin{figure}[H]
   \begin{center}
   \includegraphics[width=0.3\textwidth]{figures/normalizing_z.png}  
   \end{center}
-  \caption{calculating the f factor}
+  \caption{Calculating the f factor}
 \end{figure}
 
 The values are then used to calculate the new, normalized value of the z coordinate, let's call it $\lambda$, according to the equation:
@@ -125,6 +136,7 @@ The values are then used to calculate the new, normalized value of the z coordin
 \lambda=\frac{zfar}{zfar - znear)}
 -
 \frac{zfar * znear}{zfar-znear}
+\text{ .}
 \label{zequation}
 \end{equation} 
 
@@ -138,6 +150,7 @@ x\\
 y\\
 z\\
 \end{bmatrix}
+\text{,}
 \]
 which we then convert to screen space with calculated values 
 \[
@@ -146,8 +159,9 @@ afx\\
 fy\\
 \lambda z-\lambda znear\\
 \end{bmatrix}
+\text{,}
 \]
-next we do a simple perspective divide $x/z\ y/z\ z/z$, and as the end result we should be left with normalized device space such as the one in the image below.
+next we do a simple perspective divide $x/z\ y/z\ z/z$, and as the end result we should be left with normalized device space such as the one in the image on the next page.
 
 
 \begin{figure}[H]
@@ -172,6 +186,7 @@ Y\\
 Z\\
 1\\
 \end{bmatrix} 
+\text{ .}
 \label{projectionmatrixequation}
 \end{equation} 
 
@@ -184,6 +199,7 @@ An example of view matrix with camera placed at: 10 5 10:
 0 & 0 & 1 & -10\\
 0 & 0 & 0 & 1\\
 \end{bmatrix} 
+\text{ .}
 \]
 
 \newpage
@@ -193,11 +209,11 @@ An example of view matrix with camera placed at: 10 5 10:
 Software development can be a lengthy and convoluted process, so to assure the quality of the project and to prevent hidden errors from disturbing workflow, it is necessary to test the code. There are various methodologies used in the process of software testing, and it is of great importance to be aware of them and best situations to use each of them.
 \subsection{Unit Tests}
 \hspace{\parindent}
-One of the simplest ways for programmers to test their code in development is to use unit tests. This method of software testing focuses on validating the functionality of a single unit or component of the tested code. Usually, unit test are written by the same person or team that coded the feature right after finishing said feature. The main advantage of using unit tests is the ease of implementation and high ratio of finding bugs that are quite obvious but potentially very dangerous for future production. As this type of testing was used in the development of TSEngine, the exact way it was used is described in \hyperref[sec:tests]{\ref*{sec:tests} Tests} section.
+One of the simplest ways for programmers to test their code in development is to use unit tests. This method of software testing focuses on validating the functionality of a single unit or component of the tested code. Usually, unit tests are written by the same person or team that coded the feature right after finishing said feature. The main advantage of using unit tests is the ease of implementation and high ratio of finding bugs that are quite obvious but potentially very dangerous for future production. As this type of testing was used in the development of TSEngine, the exact way it was used is described in \hyperref[sec:tests]{\ref*{sec:tests} Tests} section.
 
 \subsection{Smoke Tests}
 \hspace{\parindent}
-Smoke testing, also known as sanity testing or build verification testing, is a methodology that focuses on quickly checking whether the software has any obvious errors or whether the most basic functionalities work properly. This type of testing is the most suited to determine if the software is ready for more in depth tests, or if it is ready for development of the new features. Although this way of testing was used in the development of TSEngine, there is not any documentation of the process, as it was always a simple check after implementing a new feature.
+Smoke testing, also known as sanity testing or build verification testing, is a methodology that focuses on quickly checking whether the software has any obvious errors or whether the most basic functionalities work properly. This type of testing is the most suited to determine if the software is ready for more in depth tests, or if it is ready for development of the new features.
 
 \newpage
 \section{Teamwork}
@@ -210,7 +226,7 @@ The TSEngine uses Git and furthermore GitHub to accommodate this problem, as des
 
 Another popular method of version control, although not used in the development of TSEngine, is Perforce, now rebranded as Helix Core. It is a powerful tool used mainly in larger projects by AAA game developers, visual effects studios and semiconductor companies. When using Perforce, one must note that it is proprietary software of Perforce Software, Inc. and is free to use only in teams up to 5 users and 20 workspaces. Perforce is more focused on changing files and is better suited than git when dealing with binary files. As always, in software development it is important to choose the correct tool for the project, and it can make the process of development much easier.
 
-The labor of work we put into the project is explained in \hyperref[]{\ref*{sec:labor} Division Of The Labor}.
+The way we divided the labor we put into the project is explained in the section \hyperref[sec:labor]{\ref*{sec:labor} Division Of The Labor}.
 
 
 

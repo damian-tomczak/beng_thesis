@@ -2,6 +2,7 @@
 \usepackage{xcolor}
 \usepackage[colorlinks=true, linkcolor=blue, urlcolor=red, citecolor=green, filecolor=magenta]{hyperref}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{pmboxdraw}
 \usepackage{amsmath}
 \usepackage{float,graphicx}
@@ -79,7 +80,42 @@
   \endgroup
   \vfill\thispagestyle{empty}
   {\centering\large {Olsztyn, 2024}\par}\end{titlepage}%
+
+  \let\footnotesize\small
+  \let\footnoterule\relax
+  \let \footnote \thanks
+  \begin{center}
+    \Large
+    \hbox to \hsize{\hfil\textsc{Uniwersytet Warmińsko-Mazurski}\hfil}
+    \hbox to \hsize{\hfil\textsc{Wydział Matematyki i Informatyki}\hfil}
+  \end{center}
+  \vskip 0pt plus 0.25 fill
+  \begin{center}
+    \large
+    \textbf{Kierunek: Informatyka}
+  \end{center}
+  \vfill
+  \begin{center}%
+    \begin{tabular}[t]{c}%
+      \Large\strut\bfseries{Damian Tomczak} \\
+      \Large\strut{Indeks Studenta 162601}\\
+      \Large\strut\bfseries{Dominik Słodkowski}\\
+      \Large\strut{Indeks Studenta 162592}
+    \end{tabular}\par%
+    \vskip9ex
+    {\LARGE\bfseries{Architektura i Implementacja Silnika Grafiki Trójwymiarowej Wirtualnej Rzeczywistości}\par}
+    \vskip6ex
+  \end{center}\par
+  \vfill
+  \begingroup%
+    \leftskip0pt plus.124\hsize\parfillskip0pt \parindent 0 pt \spaceskip.3333em \xspaceskip.5em \pretolerance9999\tolerance9999\exhyphenpenalty9999\interlinepenalty9999\hyphenpenalty9999\let\\=\break
+    \normalsize \parindent0pt {Praca Inżynierksa napisana } \hangindent2em\hangafter1\par
+    \smallskip pod kierunkiem \par{\frenchspacing{dr hab. Piotra Artiemjewa }\hangindent2em\hangafter1\par}
+  \endgroup
+  \vfill\thispagestyle{empty}
+  {\centering\large {Olsztyn, 2024}\par}\end{titlepage}%
 }
+
 
 \geometry{
   left=3cm,

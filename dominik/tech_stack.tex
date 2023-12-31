@@ -8,11 +8,11 @@ When developing a piece of software, tools used for it can shape the end product
 As the most basic, the choice of programming language is an important one, shaping the overall architecture of the project.
 \subsubsection{C++}
 \hspace{\parindent}
-In development of TSEngine the choice was made to use the modern C++ with the 2017 edition as standard. It is a robust, versatile and fast, allowing for programmers to adapt to problems they face. Much of our knowledge of C++ can be traced back to book \textit{"Opus Magnum"} \cite{OpusMagnum}, but for the philosophy behind modern C++ we used \textit{"C++ Core Guidelines"} \cite{CppCoreGuidelines}
+In development of TSEngine the choice was made to use the modern C++ 17 as the base. It is robust, versatile and fast, allowing programmers to adapt to problems they face. Much of our knowledge of C++ can be traced back to book \textit{"Opus Magnum"} \cite{OpusMagnum}, but for the philosophy behind modern C++ we used \textit{"C++ Core Guidelines"} \cite{CppCoreGuidelines}
 \subsubsection{GLSL}
 \hspace{\parindent}
 \label{sec:glsl}
-As much of the project involved graphics, the obvious choice for this fart was GLSL - OpenGL Shading Language. It is a high-level programming language based on the C programming language used to write shaders for OpenGL. We used the book \textit{Learn OpenGL: Learn modern OpenGL graphics programming in a step-by-step fashion} \cite{learnopengl} as a source of our knowledge of dealing with GLSL and OpenGL.
+As much of the project involved graphics, the obvious choice for this part was GLSL - OpenGL Shading Language. It is a high-level programming language based on the C programming language used to write shaders for OpenGL. We used the book \textit{"Learn OpenGL: Learn modern OpenGL graphics programming in a step-by-step fashion"} \cite{learnopengl} as a source of our knowledge of dealing with GLSL and OpenGL.
 
 \subsubsection{CMake}
 \hspace{\parindent}
@@ -20,23 +20,35 @@ As much of the project involved graphics, the obvious choice for this fart was G
 To provide cross-platforming, CMake has been chosen to manage build automation. It is an open-source software for build automation and project management, used to generate native builds of software projects for various platforms, including Windows, macOS, Linux, Android, and iOS. It was an obvious choice as it pairs well with C++ programming language.
 
 \subsection{Services}
+\hspace{\parindent}
 In this section, some services that played the biggest role in developing TSEngine will be mentioned.
 \subsubsection{GIT and Github}
-As already mentioned in the section \hyperref[sec:teamwork]{\ref*{sec:teamwork} Teamwork}, we for version control and sharing the work, service GitHub have been used. 
+\hspace{\parindent}
+As already mentioned in the section \hyperref[sec:teamwork]{\ref*{sec:teamwork} Teamwork}, for version control and sharing the work, service GitHub has been used. 
 
 \subsection{Khronos APIs}
+\hspace{\parindent}
 \label{sec:khronos}
-sec:renderer sec:headset
-Khronos's APIs play a significant role in our engine, those technologies used in TSEngine are \hyperref[sec:stack_vk]{\ref*{sec:stack_vk}. Vulkan} and \hyperref[sec:stack_xr]{\ref*{sec:stack_xr}. OpenXR}. 
-
-
-\cite{VulkanCookbook}, alongside with its documentation - \textit{Vulkan Documentation} \cite{VkDoc}.\\ Unfortunately OpenXR is a representant of a niche field of Virtual Reality, so no books are available right now to recommend, however documentation \textit{The OpenXR Specification} \cite{XrDoc} and \textit{"OpenXR Code Examples and References"} \cite{OpenXrExamples} are everything what you are looking for. % TODO: test
-
+Khronos's APIs play a significant role in our engine, as the TSEngine uses Vulkan and OpenXR. 
 
 \subsubsection{Vulkan}
 \label{sec:stack_vk}
+\hspace{\parindent}
+Vulkan is a low-level, cross-platform graphics API, designed for high performance and efficiency. It was originally developed by AMD and then donated to the Khronos Group, where it has become an open standard. Vulkan is a successor to OpenGL, and it aims to address some of the shortcomings of OpenGL, such as its high overhead and lack of control over the GPU.
+
+For Vulkan, the book \textit{"Vulkan Cookbook"} can be recommended\cite{VulkanCookbook}, alongside with its documentation - \textit{"Vulkan Documentation"} \cite{VkDoc}.
+
 \subsubsection{OpenXR}
 \label{sec:stack_xr}
+\hspace{\parindent}
+OpenXR is an open-source, royalty-free standard for access to virtual and augmented reality platforms and devices. It is designed to provide a standardized way for developers to create VR and AR applications that can run on a wide variety of devices, including headsets, smartphones, and tablets.
+
+Unfortunately OpenXR is a niche field of Virtual Reality, so no books available right now are worth recommending, however the documentation \textit{"The OpenXR Specification"} \cite{XrDoc} and \textit{"OpenXR Code Examples and References"} \cite{OpenXrExamples} are everything one needs when using OpenXR.
+
 \subsection{Tools}
+\hspace{\parindent}
+In this section, software tools used in the development of TSEngine are described.
 \subsubsection{RenderDoc}
+\hspace{\parindent}
 \label{sec:renderdoc}
+RenderDoc is an open source graphics debugger that can be used to analyze single frames generated by other software programs and provide in-depth analysis of single frames from any application that uses Vulkan and OpenGL, so it was the perfect tool for debuging single frames of TSEngine.
