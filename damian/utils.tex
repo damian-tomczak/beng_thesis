@@ -1,15 +1,16 @@
 \newpage
 \subsection{Utils}
 \label{sec:utils}
-To ease the writing and debugging of ourselves, we created a few helper functionalities:
+To ease the writing and debugging for ourselves, we created a few helper functionalities:
 \begin{itemize}
     \item Engine Utils
     \begin{itemize}
         \item Public Engine Utils\\
-        To make move semantics easier to use, we add a few extremely useful macros which provide a possibility to define available objects behaviors through human's writable way.\\
-        In the future, we are planning to add a \hyperref[sec:refl]{reflection system} that would remove the need of passing as an argument class name, instead doing it "inline". Besides of this header provides wrapper around Singleton classes.\\
+        To make move semantics easier to use, we add a few extremely useful macros which provide a possibility to define available objects behaviors in a way writable by a human.
         
-\begin{lstlisting}[language=c++, caption=Preprocessor definitions of public Engine Utils(./engine/include/tsengine/utils.hpp)]
+        In the future, we are planning to add a \hyperref[sec:refl]{\ref*{sec:refl} reflection system} that would remove the need of passing as an argument class name, instead doing it "inline". Besides of this header provides wrapper around Singleton classes.\\
+        
+\begin{lstlisting}[language=c++, caption=Preprocessor definitions of public Engine Utils (./engine/include/tsengine/utils.hpp)]
 #define TS_NOT_COPYABLE(ClassName)                   \
     ClassName(const ClassName&) = delete;            \
     ClassName& operator=(const ClassName&) = delete;
@@ -29,7 +30,7 @@ To ease the writing and debugging of ourselves, we created a few helper function
 \end{lstlisting}
 \label{sec:return_codes}
 List of standard return codes our engine uses:
-\begin{lstlisting}[language=c++, caption=Return codes of public Engine Utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Return codes of public Engine Utils (./engine/include/tsengine/utils.hpp)]
 enum
 {
     TS_SUCCESS,
@@ -44,8 +45,8 @@ enum
     \item \texttt{TS\_STL\_FAILURE} indicates the failure of Engine API on the level of STL,
     \item \texttt{TS\_UNKNOWN\_FAILURE} indicates the failure of Engine API that is unknown
 \end{itemize}
-Engine uses its own Exception Class that is thrown among others while the error detected by \hyperref[sec:logger]{the logger}.
-\begin{lstlisting}[language=c++, caption=Exception of public Engine Utils(./engine/include/tsengine/utils.hpp)]
+Engine uses its own Exception Class that is thrown among others while the error detected by \hyperref[sec:logger]{\ref*{sec:logger} the logger}.
+\begin{lstlisting}[language=c++, caption=Exception of public Engine Utils (./engine/include/tsengine/utils.hpp)]
 class Exception : public std::exception
 {
 public:
@@ -59,7 +60,7 @@ private:
 };
 \end{lstlisting}
 Singleton wrapper:
-\begin{lstlisting}[language=c++, caption=Singleton of Public Engine Utils(./engine/include/tsengine/utils.hpp)]
+\begin{lstlisting}[language=c++, caption=Singleton of Public Engine Utils (./engine/include/tsengine/utils.hpp)]
 template<typename DerivedClass>
 class Singleton
 {
@@ -80,10 +81,12 @@ private:
     inline static std::mutex mutex;
 };
 \end{lstlisting}
-        \item Private Engine Utils
-Fallback functions that are used by every Engine API function, to make sure that every problem is appropriate handled.\\
+        \item Private Engine Utils\\
+Fallback functions that are used by every Engine API function, to make sure that every problem is appropriately handled.\\
+
 \label{fallbacks}
-Besides standard \texttt{TS\_CATCH\_FALLBACK} that is simply catch block, we have also \texttt{TS\_CATCH\_FALLBACK\_WITH\_CLEANER(cleanerFunction)} that calls cleaner function to reset state of the engine.
+Besides standard \texttt{TS\_CATCH\_FALLBACK} that is simply catch block, we also have \\
+\texttt{TS\_CATCH\_FALLBACK\_WITH\_CLEANER(cleanerFunction)} that calls cleaner function to reset state of the engine.
 \begin{lstlisting}[language=c++, caption=Private Engine Utils (./engine/src/internal\_utils.h)]
 #define TS_CATCH_FALLBACK                                                           \
     catch (const Exception&)                                                        \
@@ -126,8 +129,8 @@ Besides standard \texttt{TS\_CATCH\_FALLBACK} that is simply catch block, we hav
     \end{itemize}
     \item Engine Khronos Utils\\
     \label{sec:khronos_utils}
-    Working with Khronos APIs besides their advantages in the form of flexibility come also with disadvantages as among others the need of writing repeating code - further elaborated in \hyperref[sec:registry]{Khronos APIs} section. All Khronos Utils are private.
-    This functionality is available in \hyperref[sec:namespaces]{\texttt{khronos\_utils} namespace}.
+    Working with Khronos APIs besides their advantages in the form of flexibility, also comes with disadvantages like the need to write repeating code - further elaborated in \hyperref[sec:registry]{\ref*{sec:registry} Khronos APIs} section. All Khronos Utils are private.
+    This functionality is available in \hyperref[sec:namespaces]{\ref*{sec:namespaces} \texttt{khronos\_utils} namespace}.
 \begin{lstlisting}[language=c++, caption=Khronos Utils (./engine/src/khronos\_utils.h)]
 #define TS_VK_CHECK(function, ...)               \
     {                                            \
@@ -229,7 +232,7 @@ math::Mat4 createXrProjectionMatrix(const XrFovf fov, const float nearClip, cons
 math::Mat4 xrPoseToMatrix(const XrPosef& pose);
 }
 \end{lstlisting}
-Macro \texttt{TS\_VK\_CHECK} and \texttt{TS\_XR\_CHECK} check if Vulkan or OpenXR API call was ended successfully, otherwise throws a message with corresponding information about the unsuccessfully ended function, using for this purpose \hyperref[sec:logger]{Logger Class}.\\
+Macro \texttt{TS\_VK\_CHECK} and \texttt{TS\_XR\_CHECK} check if Vulkan or OpenXR API call was ended successfully, otherwise throws a message with corresponding information about the unsuccessfully ended function, using for this purpose \hyperref[sec:logger]{\ref*{sec:logger} Logger Class}.\\
 If more specialized message is required \texttt{TS\_??\_CHECK\_MSG} macro can be used.\\
 The rest of the file provides a possibility to convert results of Khronos API's to strings, callbacks for validation layers with the level of their debug messages and math primitives for OpenXR.
 \end{itemize}

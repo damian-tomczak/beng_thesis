@@ -1,11 +1,13 @@
 \newpage
 \subsection{Operating System Specific}
 \label{sec:os}
-So far, engine supports only Windows system. Due to the among others poor support of VR devices on Linux system.
-Further explained in the section with \hyperref[sec:problems]{\ref*{sec:problems} Problems During the Development}.
-Every OS specific implementations should be specified inside \texttt{./engine/src/os/[OS API TYPE]/} with declarations at \texttt{./engine/src/os/[OS API TYPE]/os.h}.\\
-For compilation only are added \texttt{.cpp} files only from interested operating system, the same applies to headers, especially \texttt{os.h} that existence is required and from which the engine takes OS specific staff.
-\begin{lstlisting}[language=c++, caption=Windows OS Header(./engine/src/os/win32/os.h)]
+\hspace{\parindent}
+So far, engine supports only Windows system. The main reason for this is poor support of VR devices on Linux systems.
+It is further explained in the section \hyperref[sec:problems]{\ref*{sec:problems} Problems During the Development}.
+Every OS specific implementations should be specified inside \texttt{./engine/src/os/[OS API TYPE]/} with declarations at \texttt{./engine/src/os/[OS API TYPE]/os.h}.
+
+Only \texttt{.cpp} files used in active operating system are chosen for the compilation, the same applies to headers, especially \texttt{os.h} which existence is required and from which the engine takes OS specific stuff.
+\begin{lstlisting}[language=c++, caption=Windows OS Header (./engine/src/os/win32/os.h)]
 #define LIBRARY_TYPE HMODULE
 #define LoadFunction GetProcAddress
 
@@ -35,7 +37,9 @@ private:
 };
 \end{lstlisting}
 
-So far, in the \texttt{os.h} header, obligatory to make engine working is to define \texttt{LIBRARY\_TYPE} and \texttt{LoadFunction} preprocessor definitions for \hyperref[sec:vkLoader]{\ref*{sec:vkLoader} Vulkan Loader}, and \texttt{Window} class that creates window and handles user actions using interface's methods, in the case of Windows using Win32 API.\\
-Unfortunately, it's not possible to close everything in one header file, therefore for an instance, object of \texttt{Window} class must be created inside \texttt{std::shared\_ptr<Window> Window::createWindowInstance(const std::string\_view windowName, const size\_t width, const size\_t height)};.
-How despite testing only one OS, we provided an architecture possible to grow on other platforms is explained in
-\hyperref[sec:build_specfic]{\ref*{sec:build_specfic} Building OS Specific} section.
+So far, in the \texttt{os.h} header, for engine to work, it is obligatory to define \texttt{LIBRARY\_TYPE} and \texttt{LoadFunction} preprocessor definitions for \hyperref[sec:vkLoader]{\ref*{sec:vkLoader} Vulkan Loader}, and \texttt{Window} class that creates window and handles user actions using interface's methods, in the case of Windows using Win32 API.
+
+Unfortunately, it's not possible to fit everything in one header file, therefore for an instance, object of \texttt{Window} class must be created inside 
+\texttt{Window::createWindowInstance} function.
+However, despite testing only one OS, we provided an architecture which is capable of being used on other platforms, which is explained in the
+\hyperref[sec:build_os]{\ref*{sec:build_os} Building OS Specific} section.

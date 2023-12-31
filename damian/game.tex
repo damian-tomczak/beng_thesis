@@ -1,6 +1,6 @@
 \newpage
 \subsection{Example Game}
-The starting project:
+\hspace{\parindent}The starting project:
 \begin{verbatim}
 └───game
     ├───components
@@ -15,9 +15,12 @@ The starting project:
 \begin{table}[h]
 \caption{Structure of the starting project}
 \end{table}
-Starting project is consisted of two directories that are the part of ECS system: \texttt{components} and \texttt{systems}.\\Elaboration about the content of them can be found in \hyperref[sec:game_components]{Game Components} section.\\ The heart of game is placed in \texttt{game.cpp} and \texttt{game.h} files. The last item to mention is \texttt{CMakeLists.txt} file that is the part of \hyperref[sec:build]{build system}.
 
-To make possible to run the process, a class that implements \hyperref[sec:engine_class]{\texttt{Engine} interface} is mandatory. 
+Starting project consists of two directories that are the part of ECS system: \texttt{components} and \texttt{systems}.\\Elaboration about their content can be found in \hyperref[sec:game_components]{\ref*{sec:game_components} game components} section.
+
+The heart of game is placed in \texttt{game.cpp} and \texttt{game.h} files. The last item to mention is \texttt{CMakeLists.txt} file that is the part of \hyperref[sec:build]{\ref*{sec:build} build system}.
+
+To make it possible to run the process, a class that implements \hyperref[sec:engine_class]{\texttt{Engine} interface} is mandatory. 
 \begin{lstlisting}[language=c++, caption=An example of a game class header (./game/game.h)]
 class Game final : public ts::Engine
 {
@@ -34,7 +37,7 @@ To then create an instance of Game class and \hyperref[sec:run_fun]{\ref*{sec:ru
 \begin{lstlisting}[language=c++, caption=A game instance (./game/game.cpp)]
 TS_MAIN(Game)
 \end{lstlisting}
-Default a game's \texttt{init} function sets only game name used further as the part of \hyperref[window]{\ref*{window} window name} and passed to GPU's driver.
+Default game's \texttt{init} function only sets the game name, that is used further as the part of \hyperref[window]{\ref*{window} window name} and passed to GPU's driver.
 \begin{lstlisting}[language=c++, caption=An example of a game \texttt{init} function (./game/game.cpp)]
 bool Game::init(const char*& gameName, unsigned&, unsigned&)
 {
@@ -43,7 +46,10 @@ bool Game::init(const char*& gameName, unsigned&, unsigned&)
     return true;
 }
 \end{lstlisting}
-\texttt{loadLvL} method sets up the scene of the game, which means adding systems, creation of entities with binding to them needed components with starting values and tagging them and grouping, that's all is the part of \hyperref[sec:ecs]{\ref*{sec:ecs} Entity Component System}.\\ The followed code snippet adds one system to the \texttt{MainRegistry} - \texttt{ExampleSystem}. Creates two  entities with \texttt{MeshComponent}: \texttt{village} and \texttt{polonez}. Moreover, creates three spheres with \hyperref[sec:pbr]{\ref*{sec:pbr} Physical Based Rendering}, and two light sources.
+
+\texttt{loadLvL} method sets up the scene of the game, which means adding systems, creation of entities and binding to them to the needed components with starting values, tagging and grouping them, all of which is the part of \hyperref[sec:code_ecs]{\ref*{sec:code_ecs} Entity Component System}.
+
+The following code snippet adds one system to the main registry - \texttt{ExampleSystem}. It creates two entities with \texttt{MeshComponent}: \texttt{village} and \texttt{polonez}. Moreover, it creates three spheres with \hyperref[sec:pbr]{\ref*{sec:pbr} Physical Based Rendering}, and two light sources.
 \begin{lstlisting}[language=c++, caption=An example of a game load level function (./game/game.cpp)]
 void Game::loadLvL()
 {
@@ -92,7 +98,7 @@ void Game::loadLvL()
     light2.addComponent<ts::RendererComponent<ts::PipelineType::LIGHT>>();
 }
 \end{lstlisting}
-In the default game's tick function, there is no too much to explain - \texttt{ExampleSystem} is updated.
+In the default game's tick function, there is not too much to explain - \texttt{ExampleSystem} is updated.
 \begin{lstlisting}[language=c++, caption=An example of a game \texttt{tick} function (./game/game.cpp)]
 bool Game::tick(const float dt)
 {

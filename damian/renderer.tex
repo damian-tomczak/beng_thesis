@@ -1,13 +1,16 @@
 \subsubsection{Renderer}
 \label{sec:renderer}
 \hspace{\parindent} The renderer uses \hyperref[context]{\ref*{context} Context} that provides global properties of this renderer.\\
-Despite the \hyperref[sec:headset]{\ref*{sec:headset} Headset} is not responsible for the \hyperref[sec:rendering_process]{\ref*{sec:rendering_process} Rendering Process}, that class has a big influence on the renderer, as our engine is designed for virtual reality purposes, we decided that headset's swapchain has a priority over window's swapchain due to that rendering depends on the image created by the headset (for an instance from the user experience it can be noticed by not having anything displayed on the window if a headset stays in standby mode). Therefore, \texttt{Headset} is explained here instead of having separated dedicated section.\\ Graphical presentation of the relations in the renderer portrays \hyperref[fig:renderer]{the followed image}.\\
-The same applies \texttt{MirroView} class that is used as an intermediate layer of abstraction between \hyperref[window]{\ref*{window} \texttt{Window} class}, and the renderer.
+Despite the fact that the \hyperref[sec:headset]{\ref*{sec:headset} Headset} is not responsible for the \hyperref[sec:rendering_process]{\ref*{sec:rendering_process} Rendering Process}, that class has a big influence on the renderer. As our engine is designed for virtual reality purposes, we decided that headset's swapchain has a priority over window's swapchain due to the fact that rendering depends on the image created by the headset (for an instance from the user experience it can be noticed by not having anything displayed on the window if a headset stays in standby mode). Therefore, \texttt{Headset} class is explained here instead of having separated dedicated section.
+
+Graphical presentation of the relations in the renderer is portrayed in the following image.
+The same applies to \texttt{MirroView} class that is used as an intermediate layer of abstraction between \hyperref[window]{\ref*{window} \texttt{Window} class}, and the renderer.
 \label{fig:renderer}
 \begin{figure}[H]
   \includegraphics[width=\linewidth]{renderer.png}
-  \caption{Renderer}
+  \caption{Renderer relations}
 \end{figure}
+\newpage
 We can distinguish the front-end of the renderer being the part of ECS - \hyperref[sec:renderer_system]{\ref*{sec:renderer_system}. ECS Renderer System}, but also back-end in classes:
 \begin{itemize}
     \item \texttt{Renderer}\\
@@ -108,7 +111,7 @@ private:
 };
 \end{lstlisting}
     \item \texttt{Pipeline}\\
-    This class encompass the complexity of Vulkan many different stages and settings, from shader stages to fixed-function state like blending, depth testing, providing a more streamlined interface for setting up and using these pipelines in rendering operations.
+    This class encompasses the complexity of Vulkan's many different stages and settings, from shader stages to fixed-function state like blending, depth testing, providing a more streamlined interface for setting up and using these pipelines in rendering operations.
 \begin{lstlisting}[language=c++, caption=\texttt{Pipeline} class (./engine/src/core/pipeline.h)]
 class Pipeline final
 {
@@ -133,8 +136,8 @@ private:
     VkPipeline mPipeline{};
 };
 \end{lstlisting}
-    \item \texttt{RenderTarget}
-    It is designed to encapsulate the concept of a render target in Vulkan. It manages the creation and lifecycle of a framebuffer and associated image views, which are fundamental to rendering operations. The framebuffer combines color and depth/stencil attachments, which are used during a render pass.
+    \item \texttt{RenderTarget}\\
+    It is designed to encapsulate the concept of a render target in Vulkan. It manages the creation and lifecycle of a framebuffer and associated image views, which are fundamental to rendering operations. The framebuffer combines color and depth and stencil attachments, which are used during a render pass.
 \begin{lstlisting}[language=c++, caption=\texttt{RenderTarget} class (./engine/src/core/render\_target.h)]
 class RenderTarget final
 {
@@ -292,7 +295,7 @@ private:
 \end{lstlisting}
         \item \texttt{MirrorView}\\
         \texttt{MirrorView} presents framebuffer on the connected a window's surface.
-\begin{lstlisting}[language=c++, caption=\texttt{MirroView} class (./engine/src/core/mirror\_view.h)]
+\begin{lstlisting}[language=c++, caption=\texttt{MirrorView} class (./engine/src/core/mirror\_view.h)]
 class MirrorView final
 {
     TS_NOT_COPYABLE_AND_MOVEABLE(MirrorView);

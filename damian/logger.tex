@@ -3,7 +3,7 @@
 \subsection{Logger}
 \label{sec:logger}
 
-\hspace{\parindent} As CppCoreGuidelines \cite{CppCoreGuidelines} Error handling section stands - "Develop an error-handling strategy early in a design; A consistent and complete strategy for handling errors and resource leaks is hard to retrofit into a system.". Therefore, it was crucial for us to provide a robust and straight-forward logger tool.
+\hspace{\parindent} As \textit{"CppCoreGuidelines"} \cite{CppCoreGuidelines} Error handling section stands - \textit{"Develop an error-handling strategy early in a design; A consistent and complete strategy for handling errors and resource leaks is hard to retrofit into a system"}. Therefore, it was crucial for us to provide a robust and straightforward logger tool.
 \begin{lstlisting}[language=c++, caption=Logger macros (./engine/include/tsengine/logger.h)]
 #define NOT_PRINT_LINE_NUMBER -1
 
@@ -32,8 +32,8 @@
 
 \newpage
 
-Logger functionality is also exposed through functions, but it should be avoided because it makes the code less readable. The same logger is exposed for the engine and a game, therefore it can not break the ABI from this reason functions takes C arguments - more in \hyperref[sec:build]{Building of TSEngine} section.
-Strong usage of those raw functions has Khronos utils, where appears a big need to reduce amount of validation code by macros - more in \hyperref[sec:khronos_utils]{Khronos Utils} section
+Logger functionality is also exposed through functions, but it should be avoided because it makes the code less readable. The same logger is exposed for the engine and a game, therefore it can not break the ABI for the reason that functions take C arguments - more in \hyperref[sec:build]{\ref*{sec:build} Building of TSEngine} section.
+Strong usage of those raw functions appears in Khronos utils, where there is a great need to reduce amount of validation of code by macros - more in \hyperref[sec:khronos_utils]{\ref*{sec:khronos_utils} Khronos Utils} section.
 \begin{lstlisting}[language=c++, caption=Logger's functions (./engine/include/tsengine/logger.h)]
 void log(
     const char* message,
@@ -56,9 +56,9 @@ void error(
     bool throwException = true,
     bool debugBreak = true);
 \end{lstlisting}
-% TODO: message format
 
-Behavior of those functions can be a slightly modified by theirs arguments but generally:
+\newpage
+Behavior of those functions can be slightly modified by theirs arguments but generally:
 \begin{itemize}
     \item \texttt{log} function\\
     Prints green information on the console.
@@ -71,9 +71,9 @@ Behavior of those functions can be a slightly modified by theirs arguments but g
 Example of the message:\\
 \texttt{[INFO][19-12-2023 22:53:30 at C:\textbackslash Users\textbackslash damian\textbackslash source\textbackslash repos\textbackslash tsengine\textbackslash engine\textbackslash src\textbackslash core\textbackslash core.cpp int \_\_cdecl ts::v1\_0\_0::run(class ts::v1\_0\_0::Engine *const ):121]: tsengine initialization completed successfully}\\
 
-Firstly the type of message is displayed in square brackets, secondly info about the date and time when the message was printed. Consequently, on debug builds info about the place where the logger was called is presented - file, the function and a line number. To finally display the text message. 
+Firstly, the type of message is displayed in square brackets, secondly, information about the date and time when the message was printed. Consequently, on debug builds info about the place where the logger was called is presented - file, the function and a line number. And finally, it displays the text message. 
 
-\begin{lstlisting}[language=c++, caption=An example of the logger message(./engine/include/tsengine/logger.h)]
+\begin{lstlisting}[language=c++, caption=An example of the logger message (./engine/include/tsengine/logger.h)]
 void Game::close()
 {
     TS_LOG("Thanks for playing!");

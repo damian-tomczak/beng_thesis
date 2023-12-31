@@ -3,8 +3,8 @@
 \subsection{Engine Math Library}
 \label{sec:math}
 \hspace{\parindent}
-One of the component of our engine is math library that is delivered as \hyperref[sec:build_struct]{header only template compile time library}, highly inspired by GLM library \cite{glm}.\\Math library provides two, three, four dimensional vectors:
-\begin{lstlisting}[language=c++, caption=Vector class(./engine/include/tsengine/math.hpp)]
+One of the component of our engine is math library that is delivered as a header only template compile time library, highly inspired by GLM library \cite{glm}.\\Math library provides two, three and four dimensional vectors:
+\begin{lstlisting}[language=c++, caption=Vector class (./engine/include/tsengine/math.hpp)]
 struct Vec4 final
 {
     float x, y, z, w;
@@ -21,13 +21,15 @@ struct Vec4 final
     bool isInf() const { return std::isinf(x) or std::isinf(y) or std::isinf(z) or std::isinf(w); }
 };
 \end{lstlisting}
-Only operation that can be performed on the vector is normalization:
-\begin{lstlisting}[language=c++, caption=Vector operations(./engine/include/tsengine/math.hpp)]
+
+The only operation that can be performed on the vector is normalization:
+\begin{lstlisting}[language=c++, caption=Vector operations (./engine/include/tsengine/math.hpp)]
 inline Vec4 normalize(const Vec4& vec);
 \end{lstlisting}
-Math library provides two, three, four dimensional matrices:
+
+Math library provides two, three and four dimensional matrices:
 \label{sec:mat}
-\begin{lstlisting}[language=c++, caption=Matrix class(./engine/include/tsengine/math.hpp)]
+\begin{lstlisting}[language=c++, caption=Matrix class (./engine/include/tsengine/math.hpp)]
 struct Mat4
 {
     std::array<Vec4, 4> data;
@@ -46,8 +48,11 @@ struct Mat4
     const Vec4& operator[](const size_t index) const;
 };
 \end{lstlisting}
-The followed code snippet presents operations that can be performed with matrices, the most common is multiplication (we were limited ourselves only to multiplication between the same size matrices due to the scale of the project). A very important note about matrix multiplication is that we mimic \hyperref[sec:glsl]{GLSL} behavior, so the multiplication happens from the right side to the left.\\Other possible operations are: transposition, translation by the vector, scale, inversion and printing matrix on the console for debug purposes.
-\begin{lstlisting}[language=c++, caption=Matrix operations(./engine/include/tsengine/math.hpp)]
+
+The following code snippet presents operations that can be performed with matrices, the most common is multiplication (we have limited ourselves only to multiplication between the same size matrices due to the scale of the project). A very important note about the matrix multiplication is that we mimic \hyperref[sec:glsl]{\ref*{sec:glsl} GLSL} behavior, so the multiplication happens from the right side to the left.
+
+Other possible operations are: transposition, translation by the vector, scale, inversion and printing matrix on the console for debug purposes.
+\begin{lstlisting}[language=c++, caption=Matrix operations (./engine/include/tsengine/math.hpp)]
 inline constexpr Mat4 operator*(const Mat4& lhs, const Mat4& rhs);
 inline constexpr Mat4 transpose(const Mat4& mat);
 inline constexpr Mat4 translate(const Mat4& matrix, const Vec3& translation);
@@ -55,24 +60,28 @@ inline constexpr Mat4 scale(const Mat4& matrix, const Vec3& scaleVec);
 inline Mat4 inverse(const Mat4& mat);
 inline std::string to_string(const Mat4 mat);
 \end{lstlisting}
-Quaternions are represented by simply structure with four floating point fields. Every \hyperref[sec:mat]{Matrix} has a constructor taking this structure as a parameter, the equation used to convert quaternion to matrix is described in this article: \cite{quatToMat}.
-\begin{lstlisting}[language=c++, caption=Quaternion class(./engine/include/tsengine/math.hpp)]
+
+Quaternions are represented by simple structure with four floating point fields. Every matrix has a constructor taking this structure as a parameter, the equation used to convert quaternion to matrix is described in the article: \textit{"Conversion Quaternion to Matrix"} \cite{quatToMat}.
+\begin{lstlisting}[language=c++, caption=Quaternion class (./engine/include/tsengine/math.hpp)]
 struct Quat
 {
     float w, x, y, z;
 };
 \end{lstlisting}
-Math library allows for linear interpolation between two any size vectors, by providing a value ranges from 0.0 to 1.0.
+
+Math library allows for linear interpolation between two vectors of any size, by providing a value ranges from 0.0 to 1.0.
 An example of the usage can be seen in \hyperref[sec:example_system]{\texttt{ExampleSystem}}
-\begin{lstlisting}[language=c++, caption=Linear interpolation of Vector(./engine/include/tsengine/math.hpp)]
+\begin{lstlisting}[language=c++, caption=Linear interpolation of Vector (./engine/include/tsengine/math.hpp)]
 inline Vec4 lerp(const Vec4 start, const Vec4 end, const float t);
 \end{lstlisting}
+
 Conversion from degrees to radians couldn't be omitted:
-\begin{lstlisting}[language=c++, caption=Radians conversion(./engine/include/tsengine/math.hpp)]
+\begin{lstlisting}[language=c++, caption=Radians conversion (./engine/include/tsengine/math.hpp)]
 template<typename T>
 inline auto radians(T degrees)
 \end{lstlisting}
-Besides of all of it, Math library has a rotate function, but we didn't have an opportunity to use it in a \hyperref[sec:rotation_test]{non-testing environment}. Therefore, we won't elaborate about rotation.
-\begin{lstlisting}[language=c++, caption=Rotation function(./engine/include/tsengine/math.hpp)]
+
+Besides of all of it, Math library has a rotate function, but we didn't have an opportunity to use it in a \hyperref[sec:rotation_test]{\ref*{sec:rotation_test} non-testing environment}. Therefore, we won't elaborate about rotation.
+\begin{lstlisting}[language=c++, caption=Rotation function (./engine/include/tsengine/math.hpp)]
 inline Mat4 rotate(const Mat4& matrix, const Vec3& axis, T angle)
 \end{lstlisting}
