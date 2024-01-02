@@ -146,7 +146,7 @@ On the other hand, \texttt{\#error not implemented} preprocessor command secures
 
 \subsubsection{Common ABI}
 \label{sec:build_abi}
-\hspace{\parindent} When developing any library, it is important to care about application binary interface (ABI), because the user of your product may not be using the same headers used to build your library. It can happen for plenty of reasons, especially when the library is dynamically linked, what is prone to errors.
+\hspace{\parindent} When developing any library, it is important to care about application binary interface (ABI)\footnote{Understanding and conforming to the ABI is crucial for ensuring that code compiled with different compilers, or different versions of the same compiler, can work together. For instance, when linking libraries compiled with different tools or settings, ABI compatibility is necessary to prevent issues like function calls going to the wrong addresses, or objects being laid out incorrectly in memory.}, because the user of your product may not be using the same headers used to build your library. It can happen for plenty of reasons, especially when the library is dynamically linked, what is prone to errors.
 
 To avoid it, you must oversee your ABI, we took it into the account but as the project's deadline was coming, exceptions from it had started to appear. One of those exceptions representant is Entity Component System's header file - \texttt{ecs.hpp} where there is not any intermediate interface between ECS's header and the engine prepared.
 

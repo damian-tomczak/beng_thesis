@@ -8,7 +8,7 @@ looking at the render process of any graphics engine can give one a valuable les
   \caption{Rendering process steps 1-3}
 \end{figure}
 In the first step, one can see an empty frame. It, as well as all others shown in this section, are consecutive framebuffers stored in GPU memory.
-Secondly, the predefined grid is rendered.
+Secondly, the predefined grid is rendered, creation of which was inspired by the series of articles \textit{"Borderland between Rendering and Editor"} \cite{GridRendering}.
 In the next steps, TSEngine loads all entities. Order of rendering them is dependent on each entity's \texttt{z value}. In this provided example environment, the first rendered entity is the village, which mesh component is the village model \cite{VillageModel}.
 
 \begin{figure}[H]
@@ -16,7 +16,7 @@ In the next steps, TSEngine loads all entities. Order of rendering them is depen
   \caption{Rendering process steps 4-6}
 \end{figure}
 % TODO: we should include polonez.obj in refs
-The fourth step is similar to the previous one, it only renders polonez entity with \texttt{polonez.obj} file as its mesh component. It could be useful to mention that both village and polonez entities are rendered with normal lightning and don't use physically based shading.
+The fourth step is similar to the previous one, it only renders polonez entity with \texttt{polonez.obj} \cite{PolonezModel} file as its mesh component. It could be useful to mention that both village and polonez entities are rendered with normal lightning and don't use physically based shading.
 Conversely, in the fifth step, the sphere entity that is rendered, takes full advantage of physically based rendering implemented in the TSEngine. In its renderer component, it uses PBR with gold as material. 
 The sixth step is almost the same as the last one - it renders a sphere. The only difference is a slight offset in comparison to the sphere rendered in the fifth step.
 

@@ -3,6 +3,8 @@
 \hspace{\parindent} The renderer uses \hyperref[context]{\ref*{context} Context} that provides global properties of this renderer.\\
 Despite the fact that the \hyperref[sec:headset]{\ref*{sec:headset} Headset} is not responsible for the \hyperref[sec:rendering_process]{\ref*{sec:rendering_process} Rendering Process}, that class has a big influence on the renderer. As our engine is designed for virtual reality purposes, we decided that headset's swapchain has a priority over window's swapchain due to the fact that rendering depends on the image created by the headset (for an instance from the user experience it can be noticed by not having anything displayed on the window if a headset stays in standby mode). Therefore, \texttt{Headset} class is explained here instead of having separated dedicated section.
 
+When writing renderer, we have used \textit{"3D Graphics Rendering Cookbook: A comprehensive guide to exploring rendering algorithms in modern OpenGL and Vulkan"} \cite{3DGraphicsRenderingCookbook} as a reference.
+
 Graphical presentation of the relations in the renderer is portrayed in the following image.
 The same applies to \texttt{MirroView} class that is used as an intermediate layer of abstraction between \hyperref[window]{\ref*{window} \texttt{Window} class}, and the renderer.
 \label{fig:renderer}

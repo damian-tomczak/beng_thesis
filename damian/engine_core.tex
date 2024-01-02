@@ -244,7 +244,7 @@ All the following classes are available in the corresponding files \texttt{*.cpp
     \item Window\\
     \label{window}
     \texttt{Window} class that is an interface to be implemented by \hyperref[sec:os]{\ref*{sec:os} Operating System Specific}.\\
-    As the \texttt{Window} class is strongly based on operating system as it is the layer of abstraction on the system's window, you may be interested in of development on other platforms for its more information can be found in \hyperref[sec:build_os]{\ref*{sec:build_os} Building Operating System Specific}.\\
+    As the \texttt{Window} class is strongly based on operating system as it is the layer of abstraction on the system's window, you may be interested in the development on other platforms, more information can be found in \hyperref[sec:build_os]{\ref*{sec:build_os} Building Operating System Specific}.\\
     \texttt{Window} class contains common window members which are width and height of a window and the name of it. Abstract methods are: \texttt{createWindow}, \texttt{show}, \texttt{peekMessage}, \texttt{dispatchMessage}. \texttt{Message} enumeration containing handled actions is sent by a windows server. 
 \begin{lstlisting}[language=c++, caption=Engine window interface (./engine/src/core/window.h)]
 class Window

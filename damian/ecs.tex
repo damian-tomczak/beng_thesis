@@ -866,11 +866,3 @@ public:
 };
 \end{lstlisting}
 \end{itemize}
-
-\newpage
-\subsubsection{Problems With Our ECS Implementation}
-\hspace{\parindent}
-We didn't have time to provide true not breaking ABI ECS. The only protection it has, is the form of inline namespaces with version - more about it in the \hyperref[sec:build_abi]{\ref*{sec:build_abi} Building of TSEngine - Common ABI} section.
-
-Due to the lack of time and already existing project size, we also didn't test and describe it in the thesis event system, even though the part of this feature already exists in the project in the form of the header \\
-\texttt{./engine/include/tsengine/event\_bus.hpp}.
