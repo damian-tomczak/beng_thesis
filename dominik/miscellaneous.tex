@@ -35,7 +35,7 @@ In this example we have three entities: Player, Polonez and Sphere. Each one has
 \hspace{\parindent}
 Reflection system is a feature that allows a program to examine, introspect, and modify its own structure and behavior at runtime. This means that the program can dynamically discover the types of its own objects, their methods, and their properties. It is used to generate code at runtime, which can be useful for tasks such as creating dynamic UIs or generating reports, can serialize and deserialize objects improving the process of saving and loading data or even be used to write code that manipulates other parts of the program.
 
-Despite being advantageous in many situations, this technique also comes with some risks or annoyances. It can sometimes have slower performance than traditionally written code, have unnecessary code, decrease readability, make the software maintenance more difficult or even create vulnerabilities in the code.
+Despite being advantageous in many situations, this technique also comes with some risks or drawbacks. It can sometimes have slower performance than traditionally written code, have unnecessary code, decrease readability, make the software maintenance more difficult or even create vulnerabilities in the code.
 
 \subsection{Deferred vs Forward Rendering}
 \label{sec:defer_vs_forward}
@@ -64,7 +64,7 @@ MV[2]P[2]
 \label{mvp2equation}
 \end{equation}
 
-The most important matrix to achieve chosen perspective is the projection matrix. It can be different depending on the perspective one would like to achieve, but two most used ones are orthographic projection matrix used for 2D and the matrix for 3D that will be further discussed - perspective projection matrix:
+The most important matrix to achieve chosen perspective is the projection matrix. It can be modified depending on the perspective one would like to achieve, but two most used ones are orthographic projection matrix used for 2D and the matrix for 3D that will be further discussed - perspective projection matrix:
 
 \begin{equation}
 \begin{bmatrix}
@@ -144,23 +144,25 @@ Now that we have gathered all the necessary elements, finally, we can go through
 
 At first, we begin with coordinates:
 
-\[
+\begin{equation}
 \begin{bmatrix}
 x\\
 y\\
 z\\
 \end{bmatrix}
 \text{,}
-\]
+\label{xyzequation}
+\end{equation} 
 which we then convert to screen space with calculated values 
-\[
+\begin{equation}
 \begin{bmatrix}
 afx\\
 fy\\
 \lambda z-\lambda znear\\
 \end{bmatrix}
 \text{,}
-\]
+\label{zfullxyzequation}
+\end{equation} 
 next we do a simple perspective divide $x/z\ y/z\ z/z$, and as the end result we should be left with normalized device space such as the one in the image on the next page.
 
 
@@ -171,7 +173,7 @@ next we do a simple perspective divide $x/z\ y/z\ z/z$, and as the end result we
   \caption{Normalized device space}
 \end{figure}
 
-Now that the theory behind the projection matrix is explained, one question remain: how to implement it? In programming, so as not to lose any values, it is necessary to implement the projection matrix as a four by four matrix: 
+Now that the theory behind the projection matrix is explained, it should be converted to code. In programming, so as not to lose any values, it is necessary to implement the projection matrix as a four by four matrix: 
 \begin{equation}
 \begin{bmatrix}
 (\frac{h}{w})(\frac{1}{tan(\theta/2)}) & 0 & 0 & 0\\
@@ -209,7 +211,7 @@ An example of view matrix with camera placed at: 10 5 10:
 Software development can be a lengthy and convoluted process, so to assure the quality of the project and to prevent hidden errors from disturbing workflow, it is necessary to test the code. There are various methodologies used in the process of software testing, and it is of great importance to be aware of them and best situations to use each of them.
 \subsection{Unit Tests}
 \hspace{\parindent}
-One of the simplest ways for programmers to test their code in development is to use unit tests. This method of software testing focuses on validating the functionality of a single unit or component of the tested code. Usually, unit tests are written by the same person or team that coded the feature right after finishing said feature. The main advantage of using unit tests is the ease of implementation and high ratio of finding bugs that are quite obvious but potentially very dangerous for future production. As this type of testing was used in the development of TSEngine, the exact way it was used is described in \hyperref[sec:tests]{\ref*{sec:tests} Tests} section.
+One of the simplest ways for programmers to test their code in development is to use unit tests. This method of software testing focuses on validating the functionality of a single unit or component of the tested code. Usually, unit tests are written by the same person or team that coded the feature right after finishing said feature. The main advantage of using unit tests is the ease of implementation and high ratio of finding bugs that are obvious but potentially very dangerous for future production. As this type of testing was used in the development of TSEngine, the exact way it was used is described in \hyperref[sec:tests]{\ref*{sec:tests} Tests} section.
 
 \subsection{Smoke Tests}
 \hspace{\parindent}

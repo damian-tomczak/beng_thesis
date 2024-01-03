@@ -254,7 +254,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 \end{lstlisting}
 
-We are not satisfied with our implementation of \texttt{TesterEngine} header, that gives utils needed while testing the engine. It's extremely dangerous to expose all the engine for tests, they should have access only to functionalities available for the games. It will be fixed soon. 
+Internal utils are added in the following way:
 \begin{lstlisting}[caption=Including common internal utils (./engine/tests/CMakeLists.txt)]
 target_include_directories(${PROJECT_NAME} PRIVATE
     ../src

@@ -488,7 +488,7 @@ Available privately engine systems:
 \begin{itemize}
     \item MovementSystem\\
     \label{movement_system}
-    \texttt{MovementSystem} is responsible for player's movement gameplay. Due to the lack of time, we didn't have enough time to write class as it should be, therefore instead of decorator pattern \footnote{The Decorator Pattern is a structural design pattern used in software development. It's particularly useful in scenarios where you need to add new functionalities to objects without altering their structure. This pattern creates a decorator class that wraps the original class and adds new behaviors and responsibilities to it} \texttt{ifdef} preprocessor declarations are used.
+    \texttt{MovementSystem} is responsible for player's movement gameplay. \texttt{ifdef} preprocessor declarations are used to check if Virtualizer is in use.
     This system looks for entities containing \hyperref[transform_component] {\ref*{transform_component}\texttt{ TransformComponent}}, \hyperref[rigidbody_component]{\ref*{rigidbody_component} \texttt{RigidBodyComponent}} , and \texttt{player} tag. If Virtualizer is in use, constructor connects to the device - \hyperref[sec:build_cybsdk]{\ref*{sec:build_cybsdk} Cyberith SDK}.\\ The next two code listings cover the logic behind the movement with \hyperref[cyb_movement]{\ref*{cyb_movement} Virtualizer} and without it.
 \begin{lstlisting}[language=c++, caption=\texttt{Movementsystem} class (./engine/src/ecs/systems/movement\_system.hpp)]
 class MovementSystem : public ts::System

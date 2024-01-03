@@ -71,7 +71,7 @@ Shader list:
     They are shared between shaders and engine code:
     \begin{itemize}
         \item common.h\\
-        This header points out the biggest flaw of our engine, on the scene there are always two sources of light, as we thought we would have time to store lights in shader storage buffer object, and this is the proper way how this should be implemented.
+        Commonly using constants.
 \begin{lstlisting}[language=c++, caption=Common used shader constants (./assets/shaders/common.h)]
 #define PI 3.14159265359
 #define LIGHTS_N 2

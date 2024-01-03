@@ -238,7 +238,7 @@ All the following classes are available in the corresponding files \texttt{*.cpp
     \label{context}
     The starting point for the whole app, especially for the renderer abstraction, is \texttt{Context} class that shares the common encapsulation.\\
     The main purpose of \texttt{Context} class is creation of OpenXR and Vulkan instances. So it means that Khronos structures are initialized within this class, and usually there is no reason to re-initialize them after the creation of the app. It is used widely through the app, in structures of: \texttt{VkPhysicalDevice}, \texttt{VkDevice}, \texttt{VkQueue}, or \texttt{XrSystemId}. Also the \texttt{Context}, which sets up multisampling and uniform buffer alignment. This is not the end, as \texttt{Context} creates and sets up debug messengers.
-    It's worth to point out that Context also loads Vulkan functions with the help of \hyperref[sec:vkLoader]{\ref*{sec:vkLoader} Vulkan Loader}, unfortunately we didn't have time to provide our own OpenXR loader.\\
+    It's worth to point out that Context also loads Vulkan functions with the help of \hyperref[sec:vkLoader]{\ref*{sec:vkLoader} Vulkan Loader}, OpenXR is loaded by Khronos's loader.\\
     We see here a chance of improvement, as it can be accessible through the singleton pattern
     \footnote{The Singleton Pattern is a design pattern used in software engineering to ensure that a class has only one instance and provides a global point of access to it.}.
     \item Window\\

@@ -10,8 +10,6 @@ We have chosen to compile shaders during the runtime, it's possible by \texttt{c
 void compileShaders(const std::filesystem::path shadersPath);
 \end{lstlisting}
 
-However, we are not quite satisfied with how it is done. In future versions, we are going to define \texttt{ASSETS\_DIR} preprocessor definition, because shaders should be placed only in one path \texttt{./assets/shaders}.
-
 For shader compilation, we use third party glslang library.
 \begin{lstlisting}[language=c++, caption=Shader Compiler implementation(./engine/src/vulkan\_tools/shaders\_compiler.cpp)]
 
@@ -63,7 +61,7 @@ void compileShaders(const std::filesystem::path shadersPath)
 
 Our shader compiler required more work because for now shader compilation in \texttt{DEBUG} mode happens every time you start the game, however, in release build, the engine checks if the shader has been already compiled.
 
-Optimally, compilation should only happen for modified or new files. Nonetheless, TSEngine during development copies all the assets every time from the main directory to the output directory. Therefore, with every start of the engine assets files are modified, which prevents us from tracking which assets should be compiled. It requires changes at the level of project generation - to copy only modified or new assets to the output directory, but we were in a lack of time to implement it.
+Optimally, compilation should only happen for modified or new files. Nonetheless, TSEngine during development copies all the assets every time from the main directory to the output directory. Therefore, with every start of the engine assets files are modified, which prevents us from tracking which assets should be compiled.
 
 \begin{lstlisting}[language=c++, caption=Shader Compiler supported shader stages (./engine/src/vulkan\_tools/shaders\_compiler.cpp)]
 glslang_stage_t getShaderStage(const std::filesystem::path& file)

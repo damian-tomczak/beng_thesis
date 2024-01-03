@@ -26,7 +26,7 @@ The sixth step is almost the same as the last one - it renders a sphere. The onl
 \end{figure}
 The seventh step is the last one rendering a sphere, again, the sphere is the exact replica of its predecessors, excluding the offset. The three sphere entities were implemented via a simple loop and are the same, save for their tags and positions.
 In the eight step, finally some change can be observed - the frame has a source of light now. It is also an entity with renderer component with template variable, specifying that this is a light.
-The frame in the ninth step is visually the same as the eight frame. It is because in this step the second light is rendered. This step could be skipped with the process called viewing-frustum culling implemented, but TSEngine does not implement it. 
+The frame in the ninth step is visually the same as the eight frame. It is because in this step the second light, that is off-screen, is rendered.
 \begin{figure}[H]
   \includegraphics[width=\linewidth]{frame_generation/part10.jpg}
   \caption{Rendering process step 10}
